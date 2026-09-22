@@ -1,0 +1,7 @@
+# Netlify build settings (read automatically when the repo is connected)
+[build]
+  command = "pip install -r requirements.txt && python scripts/sync_index.py && mkdocs build --strict"
+  publish = "_site"
+
+[build.environment]
+  PYTHON_VERSION = "3.12"

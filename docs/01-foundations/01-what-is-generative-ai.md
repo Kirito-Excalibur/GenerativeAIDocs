@@ -1,0 +1,367 @@
+# What is Generative AI?
+
+> **Summary** — A generative model learns the probability distribution that produced a dataset, so
+> that it can produce *new* samples from that distribution. A discriminative model only learns the
+> boundary between classes. This one difference — modelling $p(x)$ rather than $p(y \mid x)$ —
+> explains why generative models need vastly more capacity, why they can be used for far more
+> tasks, and why they were impractical until roughly 2012.
+
+**Prerequisites**: none. **Next**: → [Probability & information theory](02-probability-and-information-theory.md)
+
+---
+
+## 1. The core distinction
+
+Imagine a dataset of handwritten digits. Two very different questions:
+
+| Question | Model type | Learns | Output |
+|---|---|---|---|
+| "Is this image a 7?" | **Discriminative** | $p(y \mid x)$ | A label |
+| "Draw me a 7." | **Generative** | $p(x \mid y)$ or $p(x)$ | A new image |
+
+🧠 **Intuition** — A discriminative model is a *border guard*: it only needs to know where the line
+between countries is. A generative model is a *cartographer*: it must know the shape of the entire
+terrain, including regions nowhere near any border. The cartographer's job is enormously harder,
+but once you have the map you can do things the border guard never could — navigate, plan routes,
+spot when someone hands you a forged map.
+
+Formally, the border guard needs only the *decision boundary*: the set $\{x : p(y{=}1 \mid x) = 0.5\}$.
+That is a surface of dimension $d-1$ in a $d$-dimensional space. The cartographer needs the full
+$d$-dimensional density. For a $256\times256$ RGB image, $d = 196{,}608$.
+
+```
+Discriminative                          Generative
+─────────────                           ──────────
+
+    ×  ×  │  ○  ○                          ×  ×    ╭───╮
+  ×  ×    │    ○  ○                      ×  ×  ×  │ ○ ○ │
+    ×  ×  │  ○                             ×  ×   │○ ○ ○│
+  ×    ×  │    ○  ○                      ×   ×     ╰─○──╯
+          │
+   learn ONE surface                     learn TWO densities
+   (the boundary)                        (where mass lives)
+
+   cheap, task-specific                  expensive, reusable
+   cannot sample                         can sample, score, impute,
+                                          compress, detect anomalies
+```
+
+⚠️ **Pitfall** — "Generative" in "generative AI" is used loosely. A modern LLM trained with RLHF is
+no longer a clean density model of web text; a GAN never models a density at all. The useful
+definition is behavioural: **a model that produces novel, structured, high-dimensional output.**
+
+---
+
+## 2. Why modelling $p(x)$ is hard: the curse of dimensionality
+
+Suppose you want to model $28 \times 28$ binary images (tiny MNIST). The sample space has
+
+$$2^{784} \approx 10^{236}$$
+
+possible images. A lookup table is impossible — there are roughly $10^{80}$ atoms in the observable
+universe. Your training set has maybe $6 \times 10^4$ examples.
+
+🔢 **Worked example — how sparse is the data?**
+
+If you tried to cover the space by binning each of $d$ dimensions into just 2 bins, you would need
+$2^d$ bins. With 60,000 samples:
+
+| $d$ | Number of bins | Samples per bin |
+|---|---|---|
+| 10 | 1,024 | 58.6 |
+| 20 | 1,048,576 | 0.057 |
+| 30 | $1.07 \times 10^9$ | $5.6\times10^{-5}$ |
+| 784 | $10^{236}$ | $\approx 0$ |
+
+Beyond $d \approx 20$, essentially every bin is empty. **Any method that relies on local
+neighbourhoods — histograms, kernel density estimation, nearest neighbours — dies here.**
+
+### The escape hatch: the manifold hypothesis
+
+Real data does not fill its ambient space. Natural images occupy a thin, curved, low-dimensional
+*manifold* inside $\mathbb{R}^{196608}$. Randomly sample pixel values and you get static, never a
+face. Empirical estimates put the intrinsic dimension of natural image datasets at roughly 10–100,
+not 200,000.
+
+```
+Ambient space R^784                Data manifold (intrinsic dim ~10)
+┌───────────────────────────┐      ┌───────────────────────────┐
+│ · · · · · · · · · · · · · │      │          ╭──────╮         │
+│ · · · · · · · · · · · · · │      │      ╭───╯      ╰──╮      │
+│ · · ·  mostly noise · · · │  →   │   ╭──╯   digits    ╰─╮    │
+│ · · · · · · · · · · · · · │      │  ╰──╮  live here  ╭──╯    │
+│ · · · · · · · · · · · · · │      │     ╰─────────────╯       │
+└───────────────────────────┘      └───────────────────────────┘
+ almost all volume is             all probability mass is on a
+ probability ~ 0                   thin, curved, connected sheet
+```
+
+**Every generative model is a different strategy for discovering and parameterizing that manifold.**
+
+- VAEs and diffusion models learn an explicit map from a simple latent space onto the manifold.
+- GANs learn the map without ever writing down a density.
+- Autoregressive models sidestep geometry entirely, factorizing into a chain of 1-D problems.
+- Flows learn an invertible map, so the manifold is the image of a bijection.
+
+→ [Taxonomy of generative models](06-taxonomy.md) makes this systematic.
+
+---
+
+## 3. The four things a generative model can do
+
+Not all models can do all four. This table is the single most useful thing on this page.
+
+| Capability | What it means | AR | VAE | GAN | Flow | Diffusion | EBM |
+|---|---|:--:|:--:|:--:|:--:|:--:|:--:|
+| **Sample** | produce new $x \sim p_\theta$ | ✅ slow | ✅ fast | ✅ fast | ✅ fast | ✅ slow | ⚠️ MCMC |
+| **Evaluate density** | compute $p_\theta(x)$ exactly | ✅ | ❌ bound | ❌ | ✅ | ❌ bound | ⚠️ unnormalized |
+| **Learn a latent** | get a useful compressed $z$ | ❌ | ✅ | ⚠️ | ✅ | ⚠️ | ❌ |
+| **Interpolate** | blend two samples meaningfully | ❌ | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+
+**Reading the table**: it explains the market. Autoregressive models won text because text is
+naturally sequential and exact likelihood gives a clean training signal. Diffusion won images
+because sampling quality beat GANs and it trains stably. VAEs survive as the *compressor* inside
+latent diffusion. Flows are niche because invertibility constrains architecture too much.
+
+---
+
+## 4. The generative trilemma
+
+You want three things. You get two.
+
+```mermaid
+graph TD
+    A["High sample quality"] --- B["Fast sampling"]
+    B --- C["Mode coverage /<br/>diversity / likelihood"]
+    C --- A
+
+    A -.-> D["GAN: quality + speed,<br/>drops modes"]
+    B -.-> D
+    C -.-> E["Diffusion: quality + coverage,<br/>slow (10-1000 steps)"]
+    A -.-> E
+    B -.-> F["VAE: speed + coverage,<br/>blurry samples"]
+    C -.-> F
+
+    style D fill:#9b2c2c,stroke:#742a2a,color:#fff
+    style E fill:#276749,stroke:#22543d,color:#fff
+    style F fill:#2b6cb0,stroke:#2c5282,color:#fff
+```
+
+| Model | Quality | Speed | Coverage | The failure mode |
+|---|---|---|---|---|
+| GAN | ★★★ | ★★★ | ★ | **Mode collapse** — generator finds a few outputs that fool $D$ and stops exploring |
+| VAE | ★ | ★★★ | ★★★ | **Blurriness** — the Gaussian likelihood averages over plausible outputs |
+| Diffusion | ★★★ | ★ | ★★★ | **Cost** — hundreds of network evaluations per sample |
+| Autoregressive | ★★★ | ★ | ★★★ | **Sequential** — $O(n)$ forward passes, no parallel sampling |
+| Flow | ★★ | ★★★ | ★★★ | **Constrained** — invertibility + tractable Jacobian limits expressivity |
+
+Almost every research direction since 2021 is an attempt to break one leg of the trilemma:
+consistency models and flow matching attack diffusion's speed (→ [Flow matching](../05-diffusion-and-vision/04-flow-matching.md));
+speculative decoding attacks autoregressive latency (→ [Inference & decoding](../04-large-language-models/06-inference-and-decoding.md)).
+
+---
+
+## 5. Why now? The three-factor explanation
+
+Generative models are old. The Boltzmann machine is from 1985; the variational autoencoder's core
+math is 1990s statistics. The explosion after 2012 has three causes, and it is worth getting the
+relative weights right.
+
+### Factor 1: Compute (the dominant factor)
+
+📊 **Training compute of landmark models** (FLOPs, log scale)
+
+```
+1e26 ┤                                                        ●  frontier models (2024-2026)
+1e25 ┤                                                   ●
+1e24 ┤                                            ●  GPT-4-class (~2e25)
+1e23 ┤                                     ●  PaLM (2.5e24)
+1e22 ┤                             ●  GPT-3 (3.1e23)
+1e21 ┤                      ●  GPT-2 (1e21)
+1e20 ┤               ●  BERT (6e19)
+1e19 ┤        ●  ResNet-50 (1e18)
+1e18 ┤  ●  AlexNet (4.7e17)
+     └──┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬──
+       2012 2014 2016 2018 2019 2020 2021 2022 2023 2024 2026
+```
+
+That is roughly **8 orders of magnitude in 13 years** — a doubling time of about 6 months, far
+faster than Moore's law (24 months). The extra speed comes from hardware specialization (GPU →
+tensor cores → TPUs), lower precision (FP32 → FP16/BF16 → FP8), and above all from *spending more
+money*: cluster sizes grew from 1 GPU to $10^5$ accelerators.
+
+### Factor 2: Data
+
+The internet provided a corpus of human-generated text and images at a scale nobody could have
+curated deliberately.
+
+📊 **Dataset scale**
+
+| Dataset | Size | Domain | Year |
+|---|---|---|---|
+| MNIST | 60 K images | digits | 1998 |
+| ImageNet | 1.3 M images | objects | 2009 |
+| Books1+2 (GPT-2) | ~8 B tokens | books/web | 2019 |
+| Common Crawl (filtered) | ~500 B tokens | web | 2020 |
+| LAION-5B | 5.85 B image–text pairs | web | 2022 |
+| Modern frontier corpora | 10–30+ T tokens | web+code+books+synthetic | 2024+ |
+
+⚠️ **The looming constraint** — high-quality public text is finite (estimates: $10^{13}$–$10^{14}$
+tokens). Frontier runs are within an order of magnitude of it. Hence the shift toward synthetic
+data, multimodal data, and *test-time* compute (→ [Reasoning](../04-large-language-models/10-reasoning.md)).
+
+### Factor 3: Architecture & algorithms
+
+| Year | Idea | Why it mattered |
+|---|---|---|
+| 2012 | AlexNet / GPU training | proved deep nets scale with compute |
+| 2014 | GAN, VAE | first deep generative models that produced recognizable images |
+| 2015 | ResNet, BatchNorm | made >100-layer networks trainable |
+| 2017 | **Transformer** | replaced sequential recurrence with parallel attention |
+| 2020 | GPT-3, DDPM, scaling laws | in-context learning; diffusion beats GAN; scaling becomes predictable |
+| 2022 | InstructGPT / RLHF, latent diffusion | alignment makes models usable; diffusion becomes cheap |
+| 2023+ | MoE, long context, RL on reasoning | decouple capacity from cost; buy capability with inference compute |
+
+🧠 **Intuition on why the Transformer specifically** — Recurrent networks process tokens one at a
+time, so training a sequence of length $n$ takes $n$ sequential steps and gradients must travel $n$
+hops. The Transformer makes every position directly reachable from every other in *one* hop and
+makes all positions computable *in parallel*. It converted the bottleneck from "sequential depth"
+to "matrix multiplication throughput" — exactly the thing GPUs are good at. Scaling then became an
+engineering problem rather than a research problem. → [The Transformer](../03-sequence-models/04-transformer.md)
+
+---
+
+## 6. What "learning a distribution" actually means in practice
+
+You never see $p_{\text{data}}$. You see $N$ samples from it. Training almost always means
+**maximum likelihood estimation**:
+
+$$\theta^* = \arg\max_\theta \frac{1}{N}\sum_{i=1}^{N} \log p_\theta(x^{(i)})$$
+
+📐 **Derivation — why MLE is the same as minimizing KL divergence**
+
+$$
+\begin{aligned}
+D_{\mathrm{KL}}(p_{\text{data}} \,\|\, p_\theta)
+&= \mathbb{E}_{x \sim p_{\text{data}}}\!\left[\log \frac{p_{\text{data}}(x)}{p_\theta(x)}\right] \\
+&= \underbrace{\mathbb{E}_{p_{\text{data}}}[\log p_{\text{data}}(x)]}_{\text{$-H(p_{\text{data}})$, constant in }\theta}
+ - \mathbb{E}_{p_{\text{data}}}[\log p_\theta(x)]
+\end{aligned}
+$$
+
+The first term does not depend on $\theta$. So
+
+$$\arg\min_\theta D_{\mathrm{KL}}(p_{\text{data}} \| p_\theta) = \arg\max_\theta \mathbb{E}_{p_{\text{data}}}[\log p_\theta(x)]$$
+
+— **maximizing likelihood is exactly minimizing the KL divergence from data to model.** This is the
+single most important identity in generative modelling. → [Probability & information theory](02-probability-and-information-theory.md)
+
+### The consequence: mode-covering behaviour
+
+$D_{\mathrm{KL}}(p_{\text{data}} \| p_\theta)$ is **asymmetric**, and the asymmetry has teeth:
+
+$$D_{\mathrm{KL}}(p \| q) = \int p(x) \log\frac{p(x)}{q(x)}\,dx$$
+
+Wherever $p(x) > 0$ but $q(x) \to 0$, the integrand $\to \infty$. So a model trained by MLE is
+**infinitely punished for assigning zero probability to real data**, but only mildly punished for
+assigning probability to nonsense. Result: MLE models *over-generalize* — they cover all the modes,
+and blur between them.
+
+```
+      p_data (two modes)          MLE fit: mode-COVERING       Reverse-KL fit: mode-SEEKING
+          ╱╲      ╱╲                    ╱▔▔▔▔▔▔╲                    ╱╲
+         ╱  ╲    ╱  ╲                 ╱          ╲                 ╱  ╲
+      ──╯    ╰──╯    ╰──           ──╯            ╰──          ───╯    ╰──────────
+                                  puts mass in the valley       picks one mode,
+                                  (blurry VAE samples)          ignores the other
+                                  min KL(p‖q)                   min KL(q‖p)  (GAN-like)
+```
+
+This one picture explains **why VAEs are blurry and GANs collapse.** VAEs minimize (a bound on)
+forward KL → cover everything → blur. GAN training is closer to a symmetric/reverse objective →
+sharp but drops modes. → [VAE](../02-classical-models/02-vae.md), → [GAN](../02-classical-models/03-gan.md)
+
+---
+
+## 7. Conditional generation: where the value is
+
+Unconditional generation ("draw any image") is a research benchmark. Products want
+**conditional** generation:
+
+$$p_\theta(x \mid c)$$
+
+where $c$ is a caption, a prompt, a class label, an input image, an audio clip.
+
+| $c$ | $x$ | System |
+|---|---|---|
+| text prompt | text continuation | LLM chat |
+| text prompt | image | text-to-image |
+| image | text | captioning / VLM |
+| text | audio | TTS, music generation |
+| code context | code | code completion |
+| text + image | robot action | vision-language-action models |
+
+Two ways to condition, and the distinction matters:
+
+1. **Train it in** — feed $c$ to the network (cross-attention, concatenation, FiLM, prefix tokens).
+   Used by text-to-image models, VLMs, instruction-tuned LLMs.
+2. **Guide at sample time** — nudge the sampler toward high $p(c \mid x)$ using Bayes' rule:
+   $\nabla \log p(x \mid c) = \nabla \log p(x) + \nabla \log p(c \mid x)$.
+   This is **classifier guidance**; the classifier-free variant dominates in practice.
+   → [Latent diffusion](../05-diffusion-and-vision/03-latent-diffusion.md)
+
+---
+
+## 8. Emergence, or the lack of it
+
+📊 A widely-cited observation is that some capabilities appear *suddenly* at scale — a model at
+$10^{22}$ FLOPs scores at chance on 3-digit arithmetic, one at $10^{23}$ scores 80%.
+
+The important caveat, from *Are Emergent Abilities of Large Language Models a Mirage?* (Schaeffer
+et al., 2023): much apparent emergence is an artifact of **discontinuous metrics**. Exact-match
+accuracy on a 5-digit sum is all-or-nothing; per-digit cross-entropy on the same task improves
+smoothly. Change the metric, and the cliff becomes a ramp.
+
+```
+   Exact-match accuracy              Per-token log-likelihood
+   (discontinuous metric)            (continuous metric)
+ 1.0┤          ╭──────             -0.5┤                 ╭────
+    │          │                       │            ╭────╯
+ 0.5┤          │                   -1.5┤       ╭────╯
+    │          │                       │  ╭────╯
+ 0.0┤──────────╯                   -2.5┤──╯
+    └──────────────── compute          └──────────────── compute
+      "emergence!"                       smooth all along
+```
+
+🧠 **The honest summary** — the *underlying* competence improves smoothly and predictably with
+compute (→ [Scaling laws](../04-large-language-models/03-scaling-laws.md)). Whether that shows up
+as a sudden jump depends on how you measure. But it is also true that *which* smooth improvement
+crosses a usefulness threshold at what scale is not currently predictable, and that is a genuine
+open problem, not a metric artifact.
+
+---
+
+## 9. Key takeaways
+
+| # | Takeaway |
+|---|---|
+| 1 | Generative = model $p(x)$ or $p(x\mid c)$ and sample from it; discriminative = model $p(y \mid x)$. |
+| 2 | Modelling $p(x)$ in high dimensions is only possible because real data lies on a low-dimensional manifold. |
+| 3 | Maximum likelihood ≡ minimizing $D_{\mathrm{KL}}(p_{\text{data}} \| p_\theta)$; the asymmetry of KL causes mode-covering (blur). |
+| 4 | The trilemma — quality, speed, coverage: pick two. Every architecture is a point on this triangle. |
+| 5 | Compute grew ~$10^8\times$ in 13 years; that, more than any single algorithm, is the story. |
+| 6 | The Transformer mattered because it traded sequential depth for parallel matrix multiplication. |
+| 7 | "Emergence" is partly real, partly a metric artifact. Be suspicious of any sudden-capability plot using exact-match. |
+
+---
+
+## Further reading
+
+- Bishop, *Pattern Recognition and Machine Learning*, ch. 1–2 — the classical framing.
+- Goodfellow, Bengio & Courville, *Deep Learning*, ch. 20 — deep generative models.
+- Murphy, *Probabilistic Machine Learning: Advanced Topics* (2023) — the most current textbook treatment.
+- Kaplan et al., *Scaling Laws for Neural Language Models* (2020).
+- Schaeffer et al., *Are Emergent Abilities of LLMs a Mirage?* (2023).
+
+**Next** → [Probability & information theory](02-probability-and-information-theory.md)
