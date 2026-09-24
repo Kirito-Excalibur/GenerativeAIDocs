@@ -52,6 +52,8 @@
 
 ## 2. Full fine-tuning and its memory bill
 
+If fine-tuning genuinely is the right tool, the most direct version — update every parameter — is worth pricing out first, if only to see exactly why almost nobody does it that way anymore.
+
 Same as pretraining, just fewer steps on different data.
 
 **Memory for a 7B model with AdamW**:
@@ -84,6 +86,8 @@ Same as pretraining, just fewer steps on different data.
 ---
 
 ## 3. LoRA
+
+Freezing the base weights is the structural fix for forgetting. It only helps if you can still train *something* useful without touching most of the parameters — and that's the specific claim LoRA makes: the update a fine-tune needs is low-rank.
 
 **The hypothesis.** The *update* learned during fine-tuning has low intrinsic rank. So
 parameterize it directly as a low-rank product:
@@ -193,6 +197,8 @@ this.)
 
 ## 4. QLoRA: fine-tune a 65B model on one GPU
 
+LoRA already shrinks the *trainable* parameters to under 1%. The base model's frozen weights are still sitting in memory in full precision, though — and that's the next thing QLoRA cuts.
+
 Three techniques, each independently useful:
 
 ### (a) 4-bit NormalFloat (NF4)
@@ -247,6 +253,8 @@ pass dequantizes NF4 → BF16 on the fly, so compute is unchanged; only storage 
 
 ## 5. The PEFT family
 
+LoRA and QLoRA are the two methods that won in practice, but they're one point in a much larger design space of ways to update a frozen model cheaply — most of which lost for specific, instructive reasons.
+
 | Method | Trainable | Inference overhead | Key idea |
 |---|---|---|---|
 | **LoRA** | 0.1–1% | **none** (merged) | low-rank update to weight matrices |
@@ -272,6 +280,8 @@ pass dequantizes NF4 → BF16 on the fly, so compute is unchanged; only storage 
 ---
 
 ## 6. The data is what actually matters
+
+Every method above assumes you already have a training set. In practice the choice of *method* barely matters compared to the choice of *data* — a well-curated thousand examples beats a sloppy hundred thousand, every time.
 
 **Quality beats quantity, decisively.**
 
@@ -311,6 +321,8 @@ pass dequantizes NF4 → BF16 on the fly, so compute is unchanged; only storage 
 ---
 
 ## 7. Implementation
+
+That checklist and that masking bug are both things you'd only discover by writing the training loop. Seeing LoRA's math turn into actual `nn.Module` code closes the loop from §3's derivation to something you can run.
 
 A complete, realistic QLoRA setup:
 
@@ -392,6 +404,8 @@ merged.save_pretrained("merged-model")
 ---
 
 ## 8. Evaluating a fine-tune
+
+Getting the hyperparameters right produces a model that trains without crashing. It says nothing about whether the resulting model is actually *better* at your task than the one you started with — which is a separate, easy-to-skip step.
 
 > [!WARNING]
 > Training loss going down tells you almost nothing. Check all of:

@@ -44,6 +44,8 @@ formal equivalence between compression and prediction (→ [Probability & inform
 
 ## 2. Data: the actual differentiator
 
+That objective is fixed and simple — predict the next token. What varies enormously, and what actually separates a good pretrained model from a mediocre one at the same architecture and scale, is what data it's predicting.
+
 A typical frontier pretraining mix (proportions vary; this is representative):
 
 | Source | Share | Tokens | Notes |
@@ -127,6 +129,8 @@ Not all data is equal at all times. Common practices:
 ---
 
 ## 3. Distributed training: the four parallelisms
+
+None of that data matters if you can't actually fit the training run on real hardware. A frontier model's parameters, activations and optimizer state are far too large for any single GPU, which is why training has to be split across thousands of them in several different ways at once.
 
 A 70B model needs ~1.1 TB for weights + gradients + optimizer states. You must split it.
 
@@ -213,6 +217,8 @@ A real frontier configuration, 70B model on 1024 GPUs:
 
 ## 4. Cost
 
+That 3-D parallelism setup is what makes a 1024-GPU run technically possible. Whether it's worth doing is a separate question of raw cost, and the honest number is larger than most people expect.
+
 **The formula**: $C = 6ND$ FLOPs.
 
 | Model | $N$ | $D$ (tokens) | FLOPs | GPU-hours @400 TF/s | Cost @\$2/h |
@@ -242,6 +248,8 @@ $$\text{MFU} = \frac{6ND}{t \cdot F_{\text{peak}} \cdot n_{\text{GPU}}}$$
 ---
 
 ## 5. What goes wrong
+
+MFU tells you, in aggregate, whether a run is healthy. It doesn't tell you *what specifically* is breaking when it isn't — and at the scale and duration of a real pretraining run, something eventually does.
 
 Public training logs (OPT-175B, BLOOM) document this honestly — large runs are messy.
 
@@ -274,6 +282,8 @@ Public training logs (OPT-175B, BLOOM) document this honestly — large runs are
 
 ## 6. Long-context and other staged phases
 
+Loss curves, gradient norms and checkpoint cadence describe how to keep one continuous run alive. Pretraining isn't actually one continuous phase, though — real runs deliberately change the data distribution partway through, on a schedule.
+
 Modern pretraining is not one uniform phase. A representative LLaMA-3-style schedule:
 
 | Phase | Tokens | Context | LR | Data |
@@ -297,6 +307,8 @@ Modern pretraining is not one uniform phase. A representative LLaMA-3-style sche
 ---
 
 ## 7. A small-scale recipe you can actually run
+
+Everything above describes a frontier run costing millions of dollars. None of the underlying mechanics — objective, data curation, staged phases — actually require that scale, and running a miniature version end to end on a single GPU is the fastest way to make them concrete.
 
 Reproducible settings for a ~124M-parameter GPT on a single 24 GB GPU:
 

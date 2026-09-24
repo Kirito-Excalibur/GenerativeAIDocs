@@ -50,6 +50,8 @@ the amount of data, and the post-training.
 
 ## 2. Component-by-component rationale
 
+That diagram is a skeleton — every box is a choice, and modern LLMs make a specific, opinionated choice at nearly every one of them. Going through the rationale component by component is what turns the diagram into an actual architecture.
+
 | Component | Choice | Why this one |
 |---|---|---|
 | Norm placement | **pre-norm** | clean residual highway → stable at any depth |
@@ -73,6 +75,8 @@ the amount of data, and the post-training.
 ---
 
 ## 3. Where the parameters and the memory go
+
+Those component choices settle *what* the model computes. Turning that into a real budget — how many parameters, how much memory, at inference and at training — is the next practical question anyone deploying one has to answer.
 
 **LLaMA-3 8B**, fully worked ($L{=}32$, $d{=}4096$, $H{=}32$, $H_{kv}{=}8$, $d_{ff}{=}14336$, $V{=}128256$):
 
@@ -113,6 +117,8 @@ Needs multiple GPUs with sharding. → [Pretraining](02-pretraining.md)
 ---
 
 ## 4. Request lifecycle: prefill and decode
+
+That memory budget assumes the model just sits there. In production it has to actually serve requests, and a request's memory and compute profile look very different depending on which of the two phases — prefill or decode — it's in.
 
 Serving an LLM has **two phases with completely different performance characteristics**. Confusing
 them is the most common source of bad inference engineering.
@@ -172,6 +178,8 @@ naive static batching are large (often 5–20×).
 
 ## 5. Model size tiers, and what each is for
 
+Prefill and decode costs both scale with model size in a predictable way, which is exactly why picking *how big* a model to train or deploy is the highest-leverage decision in this whole page.
+
 A practical map (parameter counts, September 2026):
 
 | Tier | Params | Runs on | Typical use |
@@ -196,6 +204,8 @@ roughly 94× the Chinchilla ratio of 20. → [Scaling laws](03-scaling-laws.md)
 ---
 
 ## 6. Dense vs Mixture-of-Experts
+
+Every size tier above assumed a dense model — every parameter used on every token. There's a second axis entirely: keep the total parameter count high but only activate a fraction of it per token, which changes the memory-vs-compute tradeoff completely.
 
 ```
   DENSE                             MIXTURE OF EXPERTS
@@ -228,6 +238,8 @@ roughly 94× the Chinchilla ratio of 20. → [Scaling laws](03-scaling-laws.md)
 ---
 
 ## 7. The pipeline from base model to product
+
+Dense or MoE, everything up to this point describes a model that has only ever seen the pretraining objective: predict the next token. Turning that into something you'd actually ship as a product takes a separate pipeline of its own.
 
 ```mermaid
 graph LR
@@ -268,6 +280,8 @@ graph LR
 ---
 
 ## 8. Reading a model config
+
+All of the choices covered in this page — architecture, size, dense-vs-MoE, post-training stage — end up encoded in one place: the JSON config file shipped alongside a model's weights. Being able to read one and reconstruct the whole picture is the practical payoff.
 
 A real `config.json` and what every field means:
 

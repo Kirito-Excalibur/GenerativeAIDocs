@@ -40,6 +40,8 @@ with (Kaplan et al., 2020): $\alpha_N \approx 0.076$, $\alpha_D \approx 0.095$, 
 
 ## 2. Kaplan vs Chinchilla: the correction that changed the field
 
+That's how loss scales with size alone. The harder, more consequential question — given a fixed compute budget, how should you split it between a bigger model and more data — took the field several years and one major correction to answer.
+
 ### Kaplan et al. (2020)
 
 Conclusion: **model size matters much more than data.** Given 10× more compute, make the model
@@ -131,6 +133,8 @@ $6 \times 51\text{B} \times 1.02\text{T} \approx 3.1\times10^{23}$ ✓.)
 
 ## 3. Working the numbers
 
+The $D=20N$ ratio is the *training-compute-optimal* answer to that split. Turning it into an actual parameter count and token budget for a real project is worth doing by hand once.
+
 **Problem 1: I have \$1M of H100 time. What should I train?**
 
 *Step 1 — convert money to FLOPs.* \$1M at \$2/GPU-hour = 500,000 GPU-hours. At 400 TFLOP/s
@@ -179,6 +183,8 @@ uses it.
 
 ## 4. The scaling law zoo
 
+Model size and data are only two of the knobs a power law can be fit to. Data quality, vocabulary size, repeated epochs, even how many samples you draw at inference time all follow their own scaling relationships.
+
 Power laws show up nearly everywhere someone has looked:
 
 | Domain | Scaling behaviour | Source |
@@ -210,6 +216,8 @@ Power laws show up nearly everywhere someone has looked:
 
 ## 5. Where scaling laws break
 
+Every law in that zoo is an empirical fit, extrapolated from smaller runs — and extrapolation has limits. Knowing where those laws stop being trustworthy matters as much as knowing the laws themselves.
+
 > [!WARNING]
 > Do not over-extrapolate. Known limits and caveats:
 
@@ -231,6 +239,8 @@ Power laws show up nearly everywhere someone has looked:
 ---
 
 ## 6. Fitting your own scaling law
+
+Given how setup-specific the coefficients are, the published Chinchilla numbers are really just an example of a procedure — one you can rerun on your own architecture, data mix and tokenizer to get a law that actually applies to your project.
 
 The practical procedure, used before every large run:
 

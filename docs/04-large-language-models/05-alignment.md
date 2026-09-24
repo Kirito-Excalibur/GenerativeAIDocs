@@ -42,6 +42,8 @@ The tension is inherent, not a bug in the method.
 
 ## 2. The pipeline
 
+Eliciting that latent behavior, while balancing helpful against harmless, isn't one training run — it's a sequence of stages, each fixing a specific limitation of the one before it.
+
 ```mermaid
 graph LR
     A["Base model<br/>predicts text"] --> B["SFT<br/>10k-1M demos<br/>of good responses"]
@@ -59,6 +61,8 @@ graph LR
 ---
 
 ## 3. Stage 1: Supervised fine-tuning
+
+The pipeline's first stage is the most direct one: show the model examples of the responses you want and train it to imitate them.
 
 Train on (prompt, ideal response) pairs with ordinary cross-entropy — **masked so the loss applies
 only to the response**.
@@ -82,6 +86,8 @@ Gets you most of the way. LIMA showed 1,000 curated examples can produce a compe
 ---
 
 ## 4. Stage 2: Reward modelling
+
+SFT can only ever copy the best response someone wrote down. To go further — to prefer a *better* response over a merely acceptable one, even when nobody wrote the ideal answer — you need a signal SFT's imitation objective can't provide: a learned sense of which of two responses is better.
 
 > [!TIP]
 > **Why pairwise comparisons rather than scores.** Ask annotators to rate responses 1–10 and you
@@ -129,6 +135,8 @@ noisy.
 ---
 
 ## 5. Stage 3a: PPO
+
+A noisy reward model is still a *scoring function* — differentiable in principle, but not something you can backpropagate straight through, because the text it scores was sampled from the policy. Turning that score into a training signal for the policy itself is exactly the RL problem from → [Reinforcement learning basics](../01-foundations/07-reinforcement-learning.md), and PPO is the standard way to solve it.
 
 **The objective:**
 
@@ -193,6 +201,8 @@ One fewer model, less memory, simpler. It is now the default for RL on reasoning
 ---
 
 ## 6. Stage 3b: DPO: the derivation that removed the reward model
+
+PPO and GRPO both still need a separately-trained reward model in the loop. A different line of work asks whether you need reward modelling and RL as two separate stages at all — or whether the whole pipeline collapses into one closed-form loss.
 
 **Step 1 — solve the KL-constrained objective in closed form.** For the objective
 
@@ -276,6 +286,8 @@ contribute almost nothing. It is a self-weighting contrastive objective.
 
 ## 7. Stage 3c: RLVR, RL on verifiable rewards
 
+DPO and its variants all still learn from *human* preference judgments, which are subjective and expensive to collect. For domains where correctness can be checked mechanically — math, code — there's a reward signal that needs no human or learned model at all.
+
 > [!TIP]
 > **The key idea**: for math and code, you don't need a learned reward model. You can *check the
 > answer*.
@@ -304,6 +316,8 @@ its own over training as the model discovers that thinking longer earns more rew
 ---
 
 ## 8. Constitutional AI and RLAIF
+
+RLVR replaces the reward model with a verifier, but only works where "correct" has a checkable definition. For the much larger space of preferences that aren't mechanically verifiable — tone, harmlessness, helpfulness — a different idea replaces the *human* labeler instead.
 
 > [!TIP]
 > Replace the human labeller with the model itself, guided by an explicit written **constitution**.
@@ -334,6 +348,8 @@ produces more consistent labels than crowdworkers.
 ---
 
 ## 9. What goes wrong
+
+Every stage above — SFT, reward modelling, PPO, DPO, RLVR, CAI — is a real, working technique, and every one of them also fails in specific, well-documented ways. Knowing the pipeline isn't complete without knowing where it breaks.
 
 | Failure | Mechanism | Mitigation |
 |---|---|---|
