@@ -277,7 +277,71 @@ def run_eval(system, cases, scorer, n_repeats=3):
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — the chance floor, a different format.** A new benchmark uses 6-way multiple
+choice (instead of the standard 4-way in §2's MMLU discussion). What's the chance-level floor?
+If a model scores 28% on this benchmark, using §2's framing, is that meaningfully above chance,
+or roughly indistinguishable from guessing?
+
+<details><summary>Solution</summary>
+
+Chance floor $=1/6=16.7\%$ (vs 4-way MC's 25%, per §2).
+
+A score of 28% is only $28-16.7=11.3$ points above the floor — on a benchmark with, say,
+$n{=}500$ items, using the standard-error approach from → [Metrics
+§6](01-metrics.md#6-statistical-significance) with $p\approx0.167$:
+$SE=\sqrt{0.167\times0.833/500}=0.0167=1.67$ points, so 28% is roughly $(28-16.7)/1.67\approx6.8$
+standard errors above chance — **meaningfully above chance**, not indistinguishable from
+guessing, despite looking like a low absolute score. This is exactly §2's point: "a 30% score is
+near-chance, not '30% competent'" was calibrated for the 4-way case (25% floor, so 30% is close);
+the same absolute-looking gap can mean something very different depending on the number of
+options, which is why the floor must always be stated alongside any multiple-choice score.
+
+</details>
+
+**Problem 2 — HumanEval granularity, worked.** Using §5's "one problem is 0.6 points" framing,
+compute the point-value of 1 problem and of 2 problems on the actual 164-item HumanEval. If two
+papers report scores that differ by exactly 1 problem's worth of accuracy, is it ever legitimate
+to describe one as "better" without further evidence, per §5's argument?
+
+<details><summary>Solution</summary>
+
+1 problem $=1/164=0.61$ percentage points. 2 problems $=1.22$ points.
+
+Per §5's worked example ("HumanEval scores of 88.4% and 87.8% differ by exactly one problem"),
+a difference of one or two problems on a 164-item set is well within the noise floor implied by
+the 95% confidence interval §5 computes for $p{\approx}0.88$ (roughly $\pm5$ points). Describing
+either model as definitively "better" from a 1-problem gap alone is **not legitimate** per this
+reasoning — the honest statement is that the two scores are statistically indistinguishable on
+this benchmark, and any real claim of superiority would need either a larger benchmark, repeated
+sampling with variance reported, or corroborating evidence from a different evaluation entirely.
+
+</details>
+
+**Problem 3 — contamination detection, applied.** A newly-released model scores 94% on a
+well-known benchmark published two years before its training cutoff, but only 61% on a
+freshly-created benchmark (same difficulty, same format, published one week after the model's
+cutoff). Using §3's detection methods, what does this pattern suggest, and which specific method
+from §3 does this scenario directly embody?
+
+<details><summary>Solution</summary>
+
+This is a textbook case of **temporal detection**, the method §3 calls "the most robust": "evaluate
+on problems created *after* the model's cutoff." The 33-point gap between the old (94%) and new
+(61%) benchmarks — despite matched difficulty and format — is strong evidence that the model's
+high score on the old benchmark reflects **contamination** (the benchmark, or close paraphrases
+of its items, leaked into training data over its two years of public availability) rather than
+genuine capability at that difficulty level. The fresh benchmark, published *after* the cutoff,
+could not possibly have contaminated training, so 61% is a much more trustworthy estimate of the
+model's real capability on this task family — closely paralleling §3's own cited evidence
+(GSM1k showing drops of up to 8% under an analogous freshly-constructed-benchmark comparison,
+though this exercise's gap is considerably larger, suggesting more severe contamination on the
+older set).
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

@@ -391,7 +391,87 @@ A practical structure:
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — BLEU precision, a new pair.** Reference: "the quick brown fox jumps". Candidate:
+"the fast brown fox leaps". Compute unigram and bigram precision using §2's method. Does the
+low bigram overlap despite a reasonable *semantic* match (the sentences mean nearly the same
+thing) illustrate §2's core criticism of BLEU?
+
+<details><summary>Solution</summary>
+
+Unigram: candidate words $\{$the, fast, brown, fox, leaps$\}$; matches against the reference
+$\{$the, quick, brown, fox, jumps$\}$: "the," "brown," "fox" match — $3/5=0.6$ precision.
+
+Bigram: candidate bigrams (the,fast), (fast,brown), (brown,fox), (fox,leaps); only (brown,fox)
+appears in the reference's bigrams — $1/4=0.25$ precision.
+
+Yes — this is a direct illustration of §2's criticism. "the quick brown fox jumps" and "the fast
+brown fox leaps" describe essentially the same scene with synonym substitutions (quick↔fast,
+jumps↔leaps), a translation or paraphrase a human would rate as excellent — yet bigram precision
+is only 25%, and a full 4-gram BLEU score here would very likely be **zero** (no 4-gram overlaps
+at all, the same "BLEU = 0 despite a mostly-correct output" failure §2's worked example shows for
+a different sentence pair), because BLEU has no mechanism for recognizing that "fast" and "quick"
+carry the same meaning.
+
+</details>
+
+**Problem 2 — Elo, a new gap.** Using §4's logistic formula, compute the win probability at a
+150-point gap and a 300-point gap. Interpolating between §4's table rows (100→64%, 200→76%,
+400→91%), do your computed values fall roughly where you'd expect, and does the curve's shape
+(concave, convex, or roughly linear in this range) matter for that intuition?
+
+<details><summary>Solution</summary>
+
+150-point gap: $P=1/(1+10^{-150/400})=0.703$ — **70.3%**, sitting between the 64% (100-gap) and
+76% (200-gap) table rows, roughly where linear interpolation would suggest (linear interpolation
+of 64% and 76% at the midpoint gives 70%, very close to the actual 70.3%).
+
+300-point gap: $P=1/(1+10^{-300/400})=0.849$ — **84.9%**, between 76% (200-gap) and 91%
+(400-gap); linear interpolation of those two at the midpoint would suggest 83.5%, close to but
+slightly under the actual 84.9%.
+
+The logistic curve is very close to linear over this particular range (100–400 point gaps,
+50–91% probability), so simple interpolation works reasonably well here — but this is a
+local property, not a general one: near the extremes (very large or very small gaps), the
+logistic curve flattens out (approaching 0% or 100% asymptotically) and linear interpolation
+would fail badly, e.g. interpolating from a 400-gap (91%) toward a hypothetical 800-gap would
+wrongly suggest probabilities above 100%, when the true logistic curve instead approaches 99%
+gradually.
+
+</details>
+
+**Problem 3 — confidence intervals, a bigger benchmark.** A 500-example benchmark shows model A
+at 75% accuracy. Using §6's standard-error formula, compute the approximate 95% confidence
+interval. How does this compare with §6's own HumanEval example (164 items, where a 1-point gap
+was shown to be noise)? At what benchmark size would a 1-point gap become meaningful at this
+same accuracy level?
+
+<details><summary>Solution</summary>
+
+$SE=\sqrt{0.75(0.25)/500}=0.0194$; 95% CI $\approx\pm1.96\times0.0194=\pm3.8$ points, i.e.
+roughly $71.2\%$ to $78.8\%$.
+
+A 500-item benchmark (this problem) gives a *tighter* interval ($\pm3.8$ points) than a 164-item
+one, but $\pm3.8$ is still far larger than "1 point" — so even at $n{=}500$, a 1-point gap
+between two models remains within noise, consistent with §6's general point that you need
+*substantially* more examples than 500 to resolve single-point differences reliably.
+
+To make a 1-point gap meaningful, use the same "gap $\approx 2\times SE$" rule implicit in
+§6: a 1-point gap (0.01 in proportion terms) needs $SE\approx0.005$. Solving
+$0.005=\sqrt{0.1875/n}$ gives $n\approx0.1875/0.005^2=7{,}500$ examples.
+
+Applying the identical rule to §6's own 2-point claim gives $n\approx0.1875/0.01^2=1{,}875$ —
+same order of magnitude as §6's stated "~2,400," with the small gap attributable to rounding and
+exactly which confidence multiplier (1.96 vs a looser "2×") is used. The scaling relationship is
+the robust part: since required $n\propto1/(\text{gap})^2$, halving the gap from 2 points to 1
+point roughly **quadruples** the examples needed — 7,500 versus 1,875 here is almost exactly
+that 4× relationship, confirming the scaling law even where the exact constant is only
+approximate.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|
