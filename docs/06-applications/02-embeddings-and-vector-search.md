@@ -49,6 +49,8 @@ such that semantically similar texts land close together.
 
 ## 2. How embedding models are trained
 
+All of those uses assume a good embedding already exists. Getting semantic similarity to actually correspond to geometric proximity is the job of a specific training procedure, not something that falls out of a Transformer for free.
+
 **Contrastive learning**, the same InfoNCE objective as CLIP
 (→ [Multimodal §2](../05-diffusion-and-vision/05-multimodal.md#2-clip-a-shared-embedding-space)):
 
@@ -97,6 +99,8 @@ Pull the query toward its positive; push it away from negatives.
 
 ## 3. Similarity metrics
 
+With a trained model in hand, the next question is how to actually *measure* similarity between two of its vectors — and the obvious choice, cosine similarity, hides a calibration trap that catches almost everyone at least once.
+
 | Metric | Formula | Notes |
 |---|---|---|
 | **Cosine** | $\dfrac{a\cdot b}{\|a\|\|b\|}$ | ignores magnitude; the default |
@@ -131,6 +135,8 @@ set your threshold from that — never from a number you read somewhere.
 ---
 
 ## 4. Approximate nearest neighbour search
+
+Once a similarity metric is calibrated, finding the nearest neighbours of a query vector is conceptually trivial — compare against every stored vector. Doing that fast, at millions or billions of vectors, is a completely different engineering problem.
 
 Exact search over $N$ vectors costs $O(Nd)$ per query.
 
@@ -215,6 +221,8 @@ own 256-entry codebook. Store $m$ bytes instead of $4d$.
 
 ## 5. Matryoshka embeddings
 
+Every index in that comparison trades memory for recall by changing *how* vectors are searched. A different lever changes the vectors themselves — training them so a short prefix is already a usable, lower-quality embedding on its own.
+
 A model trained with **Matryoshka Representation Learning** applies the contrastive loss at
 *multiple* truncation lengths simultaneously, so the first $k$ dimensions of the vector are
 themselves a valid (slightly weaker) embedding.
@@ -237,6 +245,8 @@ Near-full accuracy at a fraction of the index cost, with no separate model.
 ---
 
 ## 6. Hybrid search
+
+Matryoshka embeddings make a single dense index cheaper. A separate, often larger accuracy gain comes from not relying on dense embeddings alone — combining them with a completely different retrieval signal.
 
 > [!WARNING]
 > **Dense embeddings fail at exact matching.** Product codes, error numbers, function names, rare
@@ -290,6 +300,8 @@ usually the highest-value next step.**
 ---
 
 ## 7. Rerankers (cross-encoders)
+
+Hybrid search still narrows a huge corpus down to a candidate list using cheap, approximate signals. Once that list is small, there's room for a slower, more accurate method to make the final call.
 
 ```
    BI-ENCODER (for retrieval)          CROSS-ENCODER (for reranking)

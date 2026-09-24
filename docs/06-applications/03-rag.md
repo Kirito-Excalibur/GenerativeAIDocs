@@ -48,6 +48,8 @@
 
 ## 2. Chunking: the decision that matters most
 
+That comparison assumes the retrieved chunks are actually good ones. Whether they are depends almost entirely on the first real decision in building a RAG system: how the source documents get split up in the first place.
+
 > [!WARNING]
 > **Chunking quality sets the ceiling for everything downstream.** No amount of retrieval or
 > reranking sophistication recovers from chunks that split a table in half or separate a claim from
@@ -108,6 +110,8 @@ matching question-to-question works better than question-to-prose.
 
 ## 3. Query processing
 
+Chunking decides what's *in* the index. A separate lever is what you actually search *with* — the raw user query is often a worse search string than something derived from it.
+
 The user's query is often a poor retrieval key.
 
 | Technique | Problem it solves |
@@ -133,6 +137,8 @@ The user's query is often a poor retrieval key.
 ---
 
 ## 4. The failure taxonomy
+
+Chunking, indexing and query processing are all places a RAG pipeline can go wrong, each in a different way. Rather than guess which one is broken, it helps to have a structured list of every failure mode and where in the pipeline each one points.
 
 This table is the most practically useful thing on this page. When RAG gives a bad answer,
 diagnose *which stage* failed:
@@ -160,6 +166,8 @@ reranking are the two highest-value additions.
 ---
 
 ## 5. Generation
+
+Retrieval failures dominate, but they aren't the only ones — a query can retrieve the perfect chunk and the system can still produce a bad answer, if the generation step mishandles what it was given.
 
 A prompt template that handles the things that actually go wrong:
 
@@ -207,6 +215,8 @@ def format_context(chunks):
 
 ## 6. Evaluation
 
+That knowledge-conflict problem is exactly the kind of failure a RAG system needs to be tested for, not just designed against. Turning "did the model use the context correctly" into a number you can track is the next step.
+
 > [!WARNING]
 > **Evaluate retrieval and generation separately.** A single end-to-end score tells you something
 > is wrong but not what.
@@ -249,6 +259,8 @@ to answer from a single chunk — supplement with real user queries as soon as y
 ---
 
 ## 7. Advanced patterns
+
+Faithfulness and context recall tell you the plain pipeline from §1 is working. For harder queries — ones that need several documents, or a query that has to be broken into parts — that plain pipeline isn't enough, and a few patterns extend it.
 
 | Pattern | Idea | When |
 |---|---|---|

@@ -49,6 +49,8 @@ variable. Every prompting technique works by one of exactly three mechanisms:
 
 ## 2. What reliably works
 
+Within that hard limit, some techniques reliably move the model to a better region of its distribution. Worth going through what actually has evidence behind it, rather than folklore.
+
 ### Be specific about the output you want
 
 ```
@@ -159,6 +161,8 @@ material first, and repeat the question at the end.
 
 ## 3. What doesn't work (or stopped working)
 
+Everything in §2 still earns its place. Just as important is knowing what used to be standard advice and has quietly stopped mattering, because the models it was designed for don't exist anymore.
+
 > [!WARNING]
 > Honest assessment of popular advice:
 
@@ -189,6 +193,8 @@ material first, and repeat the question at the end.
 
 ## 4. Techniques by task type
 
+Knowing what generally works and what doesn't is only half the picture — which specific technique to reach for depends heavily on what kind of task you're actually prompting for.
+
 | Task | Approach |
 |---|---|
 | **Classification** | few-shot with all labels represented; constrain the output to the label set |
@@ -203,6 +209,8 @@ material first, and repeat the question at the end.
 ---
 
 ## 5. A prompt template that generalizes
+
+Those task-specific techniques all have to live inside one actual prompt, in some order. That ordering isn't arbitrary — where you place the task, the input and the constraints changes how well the model attends to each.
 
 ```
   ┌─ ROLE / CONTEXT (optional, brief) ────────────────────────┐
@@ -237,6 +245,8 @@ likely to be lost).
 ---
 
 ## 6. Evaluating prompts
+
+That template is a strong starting point, not a guarantee. Whether one prompt is actually better than another for your task is an empirical question, and it needs the same rigor as any other empirical comparison.
 
 > [!WARNING]
 > **The most common mistake in prompt engineering is testing on three examples and declaring
@@ -285,6 +295,8 @@ print(f"delta = {delta:+.3f} ± {margin:.3f} -> "
 ---
 
 ## 7. Automatic prompt optimization
+
+Manually iterating against that evaluation loop works, but it's slow and it's exactly the kind of search a model can do faster than a human — which is what automatic prompt optimization tools exist for.
 
 Since prompts are just text, they can be optimized:
 
