@@ -1,4 +1,4 @@
-# Inference & Decoding
+# Inference and Decoding
 
 > **Summary** — Having a probability distribution over the next token is not the same as having
 > text. Decoding strategy — greedy, beam, temperature, top-$k$, top-$p$, min-$p$ — determines
@@ -32,7 +32,8 @@ insight of this page.
 
 ## 2. The likelihood trap
 
-⚠️ **Greedy and beam search produce degenerate text.** This is not a subtle effect:
+> [!WARNING]
+> **Greedy and beam search produce degenerate text.** This is not a subtle effect:
 
 ```
   PROMPT: "In a shocking finding, scientists discovered a herd of unicorns"
@@ -49,7 +50,7 @@ insight of this page.
      'utterly without precedent'..."            ← varied, coherent
 ```
 
-📊 **The measurement** (Holtzman et al., *The Curious Case of Neural Text Degeneration*, 2019):
+**The measurement** (Holtzman et al., *The Curious Case of Neural Text Degeneration*, 2019):
 
 | | Human text | Beam search ($b{=}16$) | Pure sampling | Nucleus ($p{=}0.95$) |
 |---|---|---|---|---|
@@ -61,10 +62,11 @@ insight of this page.
 nucleus sampling lands close to human text on every column, while beam search is far too
 predictable and repeats itself 100× more often than people do.*
 
-🧠 **Why maximizing likelihood fails.** Human language is *not* a sequence of locally most-probable
-words. Real text has bursts of surprise: unexpected word choices are what carry information.
-A maximum-likelihood decode produces the *most typical* sequence, which is bland, repetitive and
-unlike anything a person would write.
+> [!TIP]
+> **Why maximizing likelihood fails.** Human language is *not* a sequence of locally most-probable
+> words. Real text has bursts of surprise: unexpected word choices are what carry information.
+> A maximum-likelihood decode produces the *most typical* sequence, which is bland, repetitive and
+> unlike anything a person would write.
 
 ```
    per-token probability along a sequence
@@ -77,15 +79,17 @@ unlike anything a person would write.
        └────────────────────────────────►  choices
 ```
 
-🧠 **The information-theoretic framing**: a well-calibrated model has an entropy rate matching
-language itself (~1 bit/char). Text generated with near-zero entropy carries almost no
-information — it is, literally, uninformative. **Good generation should match the model's own
-entropy, not minimize it.**
+> [!TIP]
+> **The information-theoretic framing**: a well-calibrated model has an entropy rate matching
+> language itself (~1 bit/char). Text generated with near-zero entropy carries almost no
+> information — it is, literally, uninformative. **Good generation should match the model's own
+> entropy, not minimize it.**
 
-⚠️ **The important exception**: for tasks with a single correct answer — translation, extraction,
-classification, math with a checkable answer — greedy or beam search is *better*. The likelihood
-trap applies to open-ended generation, not to constrained tasks. Use temperature 0 for a JSON
-extraction task; use temperature 0.8 for creative writing.
+> [!WARNING]
+> **The important exception**: for tasks with a single correct answer — translation, extraction,
+> classification, math with a checkable answer — greedy or beam search is *better*. The likelihood
+> trap applies to open-ended generation, not to constrained tasks. Use temperature 0 for a JSON
+> extraction task; use temperature 0.8 for creative writing.
 
 ---
 
@@ -104,23 +108,25 @@ $$p_i = \frac{\exp(z_i/\tau)}{\sum_j\exp(z_j/\tau)}$$
 | 1.2–1.5 | creative, higher risk of incoherence |
 | >2.0 | usually incoherent |
 
-⚠️ Temperature alone is a bad knob: raising it inflates the probability of the whole long tail,
-including thousands of tokens that are outright wrong. With a 100k vocabulary, the tail holds a
-lot of aggregate mass.
+> [!WARNING]
+> Temperature alone is a bad knob: raising it inflates the probability of the whole long tail,
+> including thousands of tokens that are outright wrong. With a 100k vocabulary, the tail holds a
+> lot of aggregate mass.
 
-### Top-$k$
+### Top-k
 
 Keep only the $k$ highest-probability tokens; renormalize.
 
-⚠️ **The flaw is that $k$ is fixed while the distribution isn't.** After "The capital of France is",
-the distribution is a spike — $k=50$ admits 49 wrong answers. After "Once upon a", it is broad —
-$k=50$ cuts off many valid continuations.
+> [!WARNING]
+> **The flaw is that $k$ is fixed while the distribution isn't.** After "The capital of France is",
+> the distribution is a spike — $k=50$ admits 49 wrong answers. After "Once upon a", it is broad —
+> $k=50$ cuts off many valid continuations.
 
-### Top-$p$ (nucleus) — the standard
+### Top-p (nucleus): the standard
 
 Keep the smallest set of tokens whose cumulative probability exceeds $p$.
 
-🔢 **Worked example**, $p = 0.9$:
+**Worked example**, $p = 0.9$:
 
 | Token | prob | cumulative | in nucleus? |
 |---|---|---|---|
@@ -135,16 +141,16 @@ Nucleus size = 4. In the "capital of France" case the nucleus would be 1; after 
 might be 200. **The cutoff adapts to the model's confidence** — which is exactly the property
 top-$k$ lacks.
 
-📊 Typical: $p = 0.9$–$0.95$ with $\tau = 0.7$–$1.0$.
+Typical: $p = 0.9$–$0.95$ with $\tau = 0.7$–$1.0$.
 
-### Min-$p$
+### Min-p
 
 Keep tokens with $p_i \ge p_{\text{min}}\cdot\max_j p_j$ — a threshold *relative to the top token*.
 
-🔢 With $p_{\text{min}} = 0.1$ and a top token at 0.4, the cutoff is 0.04. With a top token at 0.05
+With $p_{\text{min}} = 0.1$ and a top token at 0.4, the cutoff is 0.04. With a top token at 0.05
 (a genuinely uncertain step), the cutoff is 0.005 — automatically much more permissive.
 
-📊 Min-$p$ is more robust than top-$p$ at high temperatures, because the threshold scales with
+Min-$p$ is more robust than top-$p$ at high temperatures, because the threshold scales with
 confidence rather than accumulating tail mass. It has become popular in local-model communities and
 is now widely supported.
 
@@ -157,8 +163,9 @@ is now widely supported.
 | Presence penalty | subtract $\alpha$ if seen at all | encourages new topics |
 | **No-repeat n-gram** | hard-ban any repeated $n$-gram | ⚠️ breaks legitimate repetition (code, lists, names) |
 
-⚠️ Repetition penalties treat a *symptom*. Persistent looping usually indicates temperature too low,
-a bad prompt, or a poorly-aligned model. Fix those first.
+> [!WARNING]
+> Repetition penalties treat a *symptom*. Persistent looping usually indicates temperature too low,
+> a bad prompt, or a poorly-aligned model. Fix those first.
 
 ### Comparison table
 
@@ -186,11 +193,12 @@ Keep the $B$ highest-scoring *partial* sequences at each step.
 
 $$\text{score}(y) = \frac{1}{|y|^\lambda}\sum_t \log p(y_t\mid y_{<t})$$
 
-⚠️ **Length normalization is required.** Without dividing by $|y|^\lambda$, every extra token adds a
-negative log-probability, so the highest-scoring sequence is always the shortest one. $\lambda
-\approx 0.6$–$1.0$.
+> [!WARNING]
+> **Length normalization is required.** Without dividing by $|y|^\lambda$, every extra token adds a
+> negative log-probability, so the highest-scoring sequence is always the shortest one. $\lambda
+> \approx 0.6$–$1.0$.
 
-📊 **Where beam search still wins**: machine translation (+1–2 BLEU over greedy), summarization,
+**Where beam search still wins**: machine translation (+1–2 BLEU over greedy), summarization,
 constrained generation. **Where it fails**: open-ended text, where larger beams produce measurably
 *worse* output — the "beam search curse."
 
@@ -214,7 +222,7 @@ per step, $O(T^2)$ overall. **Cache them.**
 
 $$\text{cache bytes} = 2 \times L \times H_{kv}\times d_h \times T \times B\times \text{bytes/elem}$$
 
-🔢 **LLaMA-3 70B**, BF16 ($L=80$, $H_{kv}=8$, $d_h=128$):
+**LLaMA-3 70B**, BF16 ($L=80$, $H_{kv}=8$, $d_h=128$):
 
 | Context | Batch 1 | Batch 32 |
 |---|---|---|
@@ -222,14 +230,16 @@ $$\text{cache bytes} = 2 \times L \times H_{kv}\times d_h \times T \times B\time
 | 32 K | 10.7 GB | **343 GB** ⚠️ |
 | 128 K | 42.9 GB | — |
 
-⚠️ **The KV cache, not the weights, is what limits your batch size.** Weights are 140 GB and fixed;
-the cache grows with every concurrent request. This is *the* constraint in LLM serving.
+> [!WARNING]
+> **The KV cache, not the weights, is what limits your batch size.** Weights are 140 GB and fixed;
+> the cache grows with every concurrent request. This is *the* constraint in LLM serving.
 
 ### PagedAttention
 
-🧠 The problem: naive implementations allocate a contiguous buffer sized for `max_length` per
-request. A request that generates 100 tokens in a 4096-token buffer wastes 97.5% of it. Measured
-waste in pre-vLLM systems was 60–80%.
+> [!TIP]
+> The problem: naive implementations allocate a contiguous buffer sized for `max_length` per
+> request. A request that generates 100 tokens in a 4096-token buffer wastes 97.5% of it. Measured
+> waste in pre-vLLM systems was 60–80%.
 
 **The fix, borrowed straight from operating systems**: split the cache into fixed-size **blocks**
 (e.g. 16 tokens) and keep a per-sequence **block table** mapping logical to physical blocks.
@@ -247,16 +257,17 @@ Blocks need not be contiguous.
                                      <4% waste; blocks freed on completion
 ```
 
-📊 Reported gains: waste under 4%, 2–4× higher throughput from the larger batches this enables, and
+Reported gains: waste under 4%, 2–4× higher throughput from the larger batches this enables, and
 **copy-on-write block sharing** so parallel samples from one prompt share the prompt's blocks.
 
 ---
 
 ## 6. Speculative decoding
 
-🧠 **The insight**: decoding is memory-bandwidth-bound, so verifying $k$ tokens costs nearly the
-same as generating 1. Use a small fast model to *guess* several tokens, then have the large model
-check them all in one forward pass.
+> [!TIP]
+> **The insight**: decoding is memory-bandwidth-bound, so verifying $k$ tokens costs nearly the
+> same as generating 1. Use a small fast model to *guess* several tokens, then have the large model
+> check them all in one forward pass.
 
 ```
   DRAFT (small model, 1B):  generates 5 candidate tokens autoregressively
@@ -270,7 +281,7 @@ check them all in one forward pass.
         → 5 tokens produced for the cost of ~1 large forward pass
 ```
 
-📐 **The acceptance rule**, which is what makes this *exact*. For draft distribution $q$ and target
+**The acceptance rule**, which is what makes this *exact*. For draft distribution $q$ and target
 distribution $p$, accept draft token $x$ with probability $\min\left(1, \frac{p(x)}{q(x)}\right)$.
 If rejected, sample from the residual distribution
 
@@ -279,11 +290,12 @@ $$p'(x) = \frac{\max(0,\; p(x) - q(x))}{\sum_{x'}\max(0,\; p(x')-q(x'))}$$
 **Theorem (Leviathan et al., 2023)**: the resulting token sequence is distributed **exactly** as if
 sampled from $p$ alone.
 
-🧠 **This is the remarkable part.** Speculative decoding is not an approximation, not a quality/speed
-tradeoff, not a heuristic. The output distribution is provably identical to standard sampling. You
-get speed for free.
+> [!TIP]
+> **This is the remarkable part.** Speculative decoding is not an approximation, not a quality/speed
+> tradeoff, not a heuristic. The output distribution is provably identical to standard sampling. You
+> get speed for free.
 
-🔢 **Expected speedup.** With acceptance rate $\alpha$ and $k$ draft tokens per round, the expected
+**Expected speedup.** With acceptance rate $\alpha$ and $k$ draft tokens per round, the expected
 number of tokens accepted per verification is
 
 $$\mathbb{E}[\text{tokens}] = \frac{1-\alpha^{k+1}}{1-\alpha}$$
@@ -295,11 +307,11 @@ $$\mathbb{E}[\text{tokens}] = \frac{1-\alpha^{k+1}}{1-\alpha}$$
 | 0.8 | 3.36 | 4.33 |
 | 0.9 | 4.10 | 6.13 |
 
-📊 Real-world speedups are **2–3×** after accounting for draft cost. Acceptance rates are highest
+Real-world speedups are **2–3×** after accounting for draft cost. Acceptance rates are highest
 when the draft model is a distilled or smaller version of the same family (shared tokenizer and
 training data matter a lot).
 
-📊 **Variants**:
+**Variants**:
 
 | Method | Draft source |
 |---|---|
@@ -311,7 +323,7 @@ training data matter a lot).
 
 ---
 
-## 7. Structured generation & constrained decoding
+## 7. Structured generation and constrained decoding
 
 Force valid JSON, a regex match, or a grammar by **masking invalid tokens** before sampling.
 
@@ -323,15 +335,15 @@ Force valid JSON, a regex match, or a grammar by **masking invalid tokens** befo
   → set the logits of everything else to −∞
 ```
 
-📊 Implementations (Outlines, XGrammar, llama.cpp GBNF) compile a grammar into a finite-state
+Implementations (Outlines, XGrammar, llama.cpp GBNF) compile a grammar into a finite-state
 machine and precompute, for each FSM state, the allowed-token bitmask. The runtime overhead is then
 close to zero.
 
-✅ **100% syntactic validity, guaranteed** — this is a correctness guarantee, not a probabilistic
-improvement.
-⚠️ Constraints can *hurt* semantic quality: forcing a schema the model finds unnatural pushes it
-into a low-probability region. Mitigate by making the schema match how the model would naturally
-answer, and by allowing a reasoning field before the structured output.
+- ✅ **100% syntactic validity, guaranteed** — this is a correctness guarantee, not a probabilistic
+  improvement.
+- ⚠️ Constraints can *hurt* semantic quality: forcing a schema the model finds unnatural pushes it
+  into a low-probability region. Mitigate by making the schema match how the model would naturally
+  answer, and by allowing a reasoning field before the structured output.
 
 → [Structured output](../06-applications/05-structured-output.md)
 
@@ -339,7 +351,7 @@ answer, and by allowing a reasoning field before the structured output.
 
 ## 8. Implementation
 
-💻 A complete sampler with the standard knobs:
+A complete sampler with the standard knobs:
 
 ```python
 @torch.no_grad()
@@ -389,15 +401,16 @@ def generate(model, input_ids, max_new_tokens=256, temperature=0.8,
     return generated
 ```
 
-⚠️ Note `remove = cum - sorted_p > top_p` rather than `cum > top_p`: this keeps the token that
-*crosses* the threshold, matching the standard definition. Using `cum > top_p` can leave an empty
-nucleus when the top token already exceeds $p$.
+> [!WARNING]
+> Note `remove = cum - sorted_p > top_p` rather than `cum > top_p`: this keeps the token that
+> *crosses* the threshold, matching the standard definition. Using `cum > top_p` can leave an empty
+> nucleus when the top token already exceeds $p$.
 
 ---
 
 ## 9. Settings cheat sheet
 
-📊 Good starting points by task:
+Good starting points by task:
 
 | Task | $\tau$ | top-$p$ | Notes |
 |---|---|---|---|
@@ -410,8 +423,9 @@ nucleus when the top token already exceeds $p$.
 | Structured extraction | 0.0 | 1.0 | + constrained decoding |
 | Self-consistency voting | 0.7 | 0.95 | sample $n$ times, take the majority |
 
-⚠️ **Don't stack aggressive settings.** Temperature 1.5 *and* top-$p$ 0.99 *and* no repetition
-penalty produces noise. Change one knob at a time and read the outputs.
+> [!WARNING]
+> **Don't stack aggressive settings.** Temperature 1.5 *and* top-$p$ 0.99 *and* no repetition
+> penalty produces noise. Change one knob at a time and read the outputs.
 
 ---
 

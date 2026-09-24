@@ -1,4 +1,4 @@
-# Vision & Multimodal Models
+# Vision and Multimodal Models
 
 > **Summary** — How images get into and out of Transformers: the Vision Transformer's patch
 > embedding, CLIP's contrastive training that created a shared image–text space, the three
@@ -31,12 +31,13 @@
    standard Transformer encoder
 ```
 
-🧠 **The whole trick is the first line: treat patches as tokens.** ViT contains no convolutions and
-no vision-specific inductive bias — no translation equivariance, no locality prior. Dosovitskiy et
-al.'s finding was that at sufficient data scale (300M+ images), the model *learns* these biases
-and surpasses CNNs. Below that scale, CNNs win because their built-in priors substitute for data.
+> [!TIP]
+> **The whole trick is the first line: treat patches as tokens.** ViT contains no convolutions and
+> no vision-specific inductive bias — no translation equivariance, no locality prior. Dosovitskiy et
+> al.'s finding was that at sufficient data scale (300M+ images), the model *learns* these biases
+> and surpasses CNNs. Below that scale, CNNs win because their built-in priors substitute for data.
 
-🔢 **Patch size is the central trade-off**:
+**Patch size is the central trade-off**:
 
 | Patch size | Tokens (224²) | Attention cost | Detail |
 |---|---|---|---|
@@ -45,10 +46,11 @@ and surpasses CNNs. Below that scale, CNNs win because their built-in priors sub
 | 14 | 256 | 66 K pairs | better (CLIP ViT-L/14) |
 | 8 | 784 | 614 K pairs | expensive |
 
-⚠️ **The resolution problem.** Positional embeddings are learned for a fixed grid, so feeding a
-different resolution requires interpolating them (standard practice, works reasonably) or using
-native-resolution designs (NaViT packs variable-resolution images into one sequence; many modern
-VLMs tile large images into fixed-size crops plus a downsampled overview).
+> [!WARNING]
+> **The resolution problem.** Positional embeddings are learned for a fixed grid, so feeding a
+> different resolution requires interpolating them (standard practice, works reasonably) or using
+> native-resolution designs (NaViT packs variable-resolution images into one sequence; many modern
+> VLMs tile large images into fixed-size crops plus a downsampled overview).
 
 ---
 
@@ -88,12 +90,12 @@ Symmetric: image→text and text→image. $\tau$ is a **learned** temperature (t
    Softmax over each row AND each column.
 ```
 
-🔢 **Batch size is critical.** InfoNCE's MI bound is capped at $\log N$
+**Batch size is critical.** InfoNCE's MI bound is capped at $\log N$
 (→ [Probability & information theory §6](../01-foundations/02-probability-and-information-theory.md#6-mutual-information)),
 and more negatives means a harder, more informative task. CLIP used **32,768**. Small-batch
 contrastive training is measurably worse.
 
-📊 **What CLIP enabled:**
+**What CLIP enabled:**
 
 | Capability | How |
 |---|---|
@@ -103,7 +105,8 @@ contrastive training is measurably worse.
 | **CLIPScore** | an automatic image–text alignment metric |
 | Guidance | steer generation toward a CLIP direction |
 
-⚠️ **CLIP's well-documented weaknesses:**
+> [!WARNING]
+> **CLIP's well-documented weaknesses:**
 
 | Failure | Example |
 |---|---|
@@ -113,12 +116,13 @@ contrastive training is measurably worse.
 | Negation | "a photo without a dog" retrieves dogs |
 | Typographic attacks | text in the image overrides visual content ("iPod" label on an apple) |
 
-🧠 **Why**: contrastive training pushes toward a *bag-of-concepts* representation. If "red", "blue",
-"cube" and "sphere" are all present, the image matches — nothing in the objective forces the model
-to bind attributes to objects. This is precisely why generation systems moved to T5-based
-conditioning. → [Latent diffusion §2](03-latent-diffusion.md#2-text-conditioning-via-cross-attention)
+> [!TIP]
+> **Why**: contrastive training pushes toward a *bag-of-concepts* representation. If "red", "blue",
+> "cube" and "sphere" are all present, the image matches — nothing in the objective forces the model
+> to bind attributes to objects. This is precisely why generation systems moved to T5-based
+> conditioning. → [Latent diffusion §2](03-latent-diffusion.md#2-text-conditioning-via-cross-attention)
 
-📊 SigLIP replaces the softmax with a pairwise sigmoid loss, removing the need for a global
+SigLIP replaces the softmax with a pairwise sigmoid loss, removing the need for a global
 normalization across the batch — which means it works well at much smaller batch sizes and trains
 more efficiently. It is now a common CLIP replacement.
 
@@ -140,7 +144,7 @@ graph TD
     style B fill:#2b6cb0,stroke:#2c5282,color:#fff
 ```
 
-### Pattern 1: Projection (LLaVA-style) — the dominant open approach
+### Pattern 1: Projection (LLaVA-style): the dominant open approach
 
 ```
    image ──► [CLIP/SigLIP ViT] ──► 576 patch embeddings
@@ -160,13 +164,14 @@ graph TD
 2. **Instruction tuning**: unfreeze the LLM (and sometimes the encoder); train on visual
    instruction data.
 
-📊 **Remarkably cheap.** LLaVA-1.5 trains in about **1 day on a single 8×A100 node**, using
+**Remarkably cheap.** LLaVA-1.5 trains in about **1 day on a single 8×A100 node**, using
 1.2M publicly available samples, on top of existing components
 ([Liu et al. 2023](https://arxiv.org/abs/2310.03744)). This is why nearly every open VLM uses this pattern.
 
-⚠️ **The cost**: 576 image tokens consume context, and for multiple images or video it becomes
-prohibitive. Mitigations: **token pooling/merging**, a Q-Former (BLIP-2) that resamples to a fixed
-32 queries, or perceiver-style resamplers.
+> [!WARNING]
+> **The cost**: 576 image tokens consume context, and for multiple images or video it becomes
+> prohibitive. Mitigations: **token pooling/merging**, a Q-Former (BLIP-2) that resamples to a fixed
+> 32 queries, or perceiver-style resamplers.
 
 ### Pattern 2: Cross-attention (Flamingo-style)
 
@@ -174,8 +179,8 @@ Keep the LLM frozen; insert **gated cross-attention** layers that attend to imag
 gate is `tanh`-initialized to zero, so the model starts exactly as the original LLM — the same
 zero-init trick as ControlNet.
 
-✅ Preserves language ability perfectly; handles interleaved image–text sequences naturally.
-⚠️ More new parameters; more complex.
+- ✅ Preserves language ability perfectly; handles interleaved image–text sequences naturally.
+- ⚠️ More new parameters; more complex.
 
 ### Pattern 3: Native multimodal
 
@@ -183,10 +188,10 @@ Train one Transformer on interleaved text and image tokens from scratch, often w
 understanding *and* generation objectives (image tokens from a VQ-VAE, or continuous patches with
 a diffusion head).
 
-✅ Best integration, enables true any-to-any generation.
-⚠️ Vastly more expensive; you cannot reuse an existing LLM.
+- ✅ Best integration, enables true any-to-any generation.
+- ⚠️ Vastly more expensive; you cannot reuse an existing LLM.
 
-📊 **The trend is toward pattern 3** for frontier models, with pattern 1 remaining dominant in
+**The trend is toward pattern 3** for frontier models, with pattern 1 remaining dominant in
 open-source because it is so cheap.
 
 ---
@@ -195,7 +200,7 @@ open-source because it is so cheap.
 
 Video = images + time. The additional problems are **temporal consistency** and **cost**.
 
-🔢 5 seconds at 24 fps = 120 frames. At $512\times512$ that is $120 \times 262{,}144 = 31$ M pixels.
+5 seconds at 24 fps = 120 frames. At $512\times512$ that is $120 \times 262{,}144 = 31$ M pixels.
 With an 8× spatial + 4× temporal VAE compression: $30\times64\times64\times16 = 1.97$ M latent
 values — still a very large sequence.
 
@@ -207,12 +212,13 @@ values — still a very large sequence.
 | Cascaded generation | keyframes first, then interpolate |
 | Autoregressive over latents | generate frame latents sequentially; good for long/streaming video |
 
-🧠 **The factorized attention pattern** is the workhorse: alternate a spatial attention block
-(each frame attends within itself) with a temporal one (each spatial position attends across
-frames). Cost drops from $O((HWT)^2)$ to $O(HW\cdot(HW + T^2))$ — the difference between feasible
-and not.
+> [!TIP]
+> **The factorized attention pattern** is the workhorse: alternate a spatial attention block
+> (each frame attends within itself) with a temporal one (each spatial position attends across
+> frames). Cost drops from $O((HWT)^2)$ to $O(HW\cdot(HW + T^2))$ — the difference between feasible
+> and not.
 
-📊 **What's hard, and why:**
+**What's hard, and why:**
 
 | Problem | Why |
 |---|---|
@@ -222,11 +228,12 @@ and not.
 | Long-range coherence | attention over thousands of frames is infeasible; drift accumulates |
 | Data | high-quality captioned video is far scarcer than images |
 
-🧠 **The "world model" claim** — some argue that video models trained at scale learn implicit
-physics. The evidence is mixed: models produce plausible short clips but violate conservation laws,
-object permanence and causality under mild stress-testing. The honest reading is that they have
-learned strong *visual priors about how scenes tend to look over time*, which is genuinely useful
-and is not the same as a physics engine.
+> [!TIP]
+> **The "world model" claim** — some argue that video models trained at scale learn implicit
+> physics. The evidence is mixed: models produce plausible short clips but violate conservation laws,
+> object permanence and causality under mild stress-testing. The honest reading is that they have
+> learned strong *visual priors about how scenes tend to look over time*, which is genuinely useful
+> and is not the same as a physics engine.
 
 ---
 
@@ -234,7 +241,7 @@ and is not the same as a physics engine.
 
 Two families, mirroring the discrete/continuous split from → [Taxonomy](../01-foundations/06-taxonomy.md):
 
-### Discrete: neural codec + language model
+### Discrete: neural codec plus language model
 
 ```
    waveform (24 kHz)
@@ -254,20 +261,21 @@ Two families, mirroring the discrete/continuous split from → [Taxonomy](../01-
    decode back to a waveform
 ```
 
-🔢 **The compression**: 24 kHz × 16 bits = 384 kbps raw → ~6 kbps as tokens, a **64× reduction**,
+**The compression**: 24 kHz × 16 bits = 384 kbps raw → ~6 kbps as tokens, a **64× reduction**,
 with a sequence length that a Transformer can handle. This is MusicGen, VALL-E, AudioLM and most
 music generation.
 
-🧠 **Residual VQ** is the key component: quantize, then quantize the *residual error*, then quantize
-*that* residual, 8 times. Each codebook adds detail, giving far better reconstruction than a single
-huge codebook — and it gives a natural coarse-to-fine generation order.
+> [!TIP]
+> **Residual VQ** is the key component: quantize, then quantize the *residual error*, then quantize
+> *that* residual, 8 times. Each codebook adds detail, giving far better reconstruction than a single
+> huge codebook — and it gives a natural coarse-to-fine generation order.
 
-### Continuous: diffusion / flow matching on spectrograms or waveforms
+### Continuous: diffusion or flow matching on spectrograms or waveforms
 
 Used by many TTS systems (Voicebox uses flow matching). Better quality for speech, faster than
 autoregressive, but less natural for streaming.
 
-📊 **Text-to-speech state**: near-human naturalness, voice cloning from a few seconds of reference
+**Text-to-speech state**: near-human naturalness, voice cloning from a few seconds of reference
 audio, controllable emotion and pacing. ⚠️ The voice-cloning capability is a genuine
 misuse concern — → [Societal impact](../08-safety-and-ethics/03-societal-impact.md).
 
@@ -275,7 +283,7 @@ misuse concern — → [Societal impact](../08-safety-and-ethics/03-societal-imp
 
 ## 6. What multimodal models still get wrong
 
-📊 Persistent failure categories, with the mechanism:
+Persistent failure categories, with the mechanism:
 
 | Failure | Example | Likely cause |
 |---|---|---|
@@ -286,14 +294,15 @@ misuse concern — → [Societal impact](../08-safety-and-ethics/03-societal-imp
 | **Negation** | "an image without a cat" | contrastive objectives don't model negation |
 | **Hallucinated objects** | describes objects not present | the LLM's language prior overrides weak visual evidence |
 
-🧠 **Object hallucination is the most instructive failure.** The LLM has a strong prior: kitchens
-contain refrigerators. If the visual evidence is weak (low resolution, occluded, ambiguous), the
-prior wins and the model confidently describes a refrigerator that isn't there. This is the
-multimodal instance of the general hallucination mechanism — the model is doing exactly what
-next-token prediction asks, which is producing the *likely* description, not the *accurate* one.
-→ [Safety](../08-safety-and-ethics/01-safety.md)
+> [!TIP]
+> **Object hallucination is the most instructive failure.** The LLM has a strong prior: kitchens
+> contain refrigerators. If the visual evidence is weak (low resolution, occluded, ambiguous), the
+> prior wins and the model confidently describes a refrigerator that isn't there. This is the
+> multimodal instance of the general hallucination mechanism — the model is doing exactly what
+> next-token prediction asks, which is producing the *likely* description, not the *accurate* one.
+> → [Safety](../08-safety-and-ethics/01-safety.md)
 
-📊 Mitigations that help: higher input resolution (the single biggest lever), tiling large images,
+Mitigations that help: higher input resolution (the single biggest lever), tiling large images,
 training on hard negatives, and grounding objectives that force the model to point at what it
 describes.
 
@@ -301,7 +310,7 @@ describes.
 
 ## 7. Implementation
 
-💻 A minimal but complete LLaVA-style VLM:
+A minimal but complete LLaVA-style VLM:
 
 ```python
 import torch, torch.nn as nn
@@ -340,10 +349,11 @@ class SimpleVLM(nn.Module):
         return self.llm(inputs_embeds=inputs, labels=labels)
 ```
 
-⚠️ **The `-100` padding over image positions is essential.** Without it, the model computes a
-language-modelling loss over image embeddings — which is meaningless and actively harmful. This is
-the visual analogue of the prompt-masking bug in
-→ [PEFT §6](../04-large-language-models/04-finetuning-peft.md#6-the-data-is-what-actually-matters).
+> [!WARNING]
+> **The `-100` padding over image positions is essential.** Without it, the model computes a
+> language-modelling loss over image embeddings — which is meaningless and actively harmful. This is
+> the visual analogue of the prompt-masking bug in
+> → [PEFT §6](../04-large-language-models/04-finetuning-peft.md#6-the-data-is-what-actually-matters).
 
 ---
 

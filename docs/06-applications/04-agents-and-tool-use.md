@@ -1,4 +1,4 @@
-# Agents & Tool Use
+# Agents and Tool Use
 
 > **Summary** — An agent is an LLM in a loop with tools. Giving a model the ability to call
 > functions turns it from a text generator into something that can search, compute, and act. This
@@ -34,8 +34,9 @@
         or a stop condition trips (max steps, budget, error)
 ```
 
-🧠 **What tools actually add.** An LLM alone is a closed system: fixed knowledge, no state, fixed
-compute per token, no ability to verify. Tools break all four:
+> [!TIP]
+> **What tools actually add.** An LLM alone is a closed system: fixed knowledge, no state, fixed
+> compute per token, no ability to verify. Tools break all four:
 
 | Limitation | Tool that fixes it |
 |---|---|
@@ -45,9 +46,10 @@ compute per token, no ability to verify. Tools break all four:
 | Fixed compute | delegate to a solver, a search engine, another model |
 | No side effects | APIs, file operations, actuators |
 
-⚠️ **Tools also break the safety model.** A chat model produces text you can read before acting on.
-An agent *acts*. Everything in → [Security](../08-safety-and-ethics/02-security.md) applies with
-much higher stakes.
+> [!WARNING]
+> **Tools also break the safety model.** A chat model produces text you can read before acting on.
+> An agent *acts*. Everything in → [Security](../08-safety-and-ethics/02-security.md) applies with
+> much higher stakes.
 
 ---
 
@@ -71,11 +73,12 @@ returns the result as a new message.
 }
 ```
 
-🧠 **The model never executes anything.** It emits JSON. Your code decides whether to run it. This
-separation is the entire security boundary — and it is why "the model called a dangerous function"
-is always, ultimately, a failure of the executing code's authorization logic.
+> [!TIP]
+> **The model never executes anything.** It emits JSON. Your code decides whether to run it. This
+> separation is the entire security boundary — and it is why "the model called a dangerous function"
+> is always, ultimately, a failure of the executing code's authorization logic.
 
-📊 **Tool descriptions are prompts.** They are the highest-leverage thing you control:
+**Tool descriptions are prompts.** They are the highest-leverage thing you control:
 
 | ❌ Poor | ✅ Good |
 |---|---|
@@ -85,9 +88,10 @@ is always, ultimately, a failure of the executing code's authorization logic.
 **Include**: what it does, *when to use it*, when **not** to use it, parameter formats with
 examples, and what the output looks like.
 
-⚠️ **Too many tools degrades selection.** Beyond roughly 10–20 tools, accuracy drops noticeably.
-Mitigations: group related operations into one tool with a mode parameter, retrieve a relevant
-subset of tool definitions per query (RAG over tools), or use a hierarchical router.
+> [!WARNING]
+> **Too many tools degrades selection.** Beyond roughly 10–20 tools, accuracy drops noticeably.
+> Mitigations: group related operations into one tool with a mode parameter, retrieve a relevant
+> subset of tool definitions per query (RAG over tools), or use a hierarchical router.
 
 ---
 
@@ -106,19 +110,21 @@ subset of tool definitions per query (RAG over tools), or use a hierarchical rou
   Answer: Tokyo is larger, by about 3.3 million people.
 ```
 
-🧠 **The Thought step is not decoration.** Per
-→ [Reasoning §1](../04-large-language-models/10-reasoning.md#1-the-computational-argument), it
-allocates serial computation before a decision, and the decision (the action) is conditioned on it.
-Removing the Thought step measurably degrades tool selection.
+> [!TIP]
+> **The Thought step is not decoration.** Per
+> → [Reasoning §1](../04-large-language-models/10-reasoning.md#1-the-computational-argument), it
+> allocates serial computation before a decision, and the decision (the action) is conditioned on it.
+> Removing the Thought step measurably degrades tool selection.
 
-📊 Modern models are trained on tool-use data and often produce this interleaving natively via the
+Modern models are trained on tool-use data and often produce this interleaving natively via the
 API's tool-call mechanism, without explicit ReAct prompting. The pattern is now mostly built in.
 
 ---
 
 ## 4. The compounding error problem
 
-⚠️ **This is the central practical difficulty with agents**, and it is arithmetic.
+> [!WARNING]
+> **This is the central practical difficulty with agents**, and it is arithmetic.
 
 If each step succeeds with probability $p$, a $k$-step task succeeds with probability $p^k$:
 
@@ -133,11 +139,12 @@ If each step succeeds with probability $p$, a $k$-step task succeeds with probab
 
 *pᵏ: at 95% per step, a 20-step task succeeds 36% of the time; at 99%, 82%. Going from 95% to 99% per-step reliability matters more than any planning trick.*
 
-🧠 **The implication**: long-horizon agents require *per-step* reliability that is much higher than
-intuition suggests. Going from 95% to 99% per step takes a 20-step task from 36% to 82%. **Almost
-all agent engineering effort should go into per-step reliability, not into clever planning.**
+> [!TIP]
+> **The implication**: long-horizon agents require *per-step* reliability that is much higher than
+> intuition suggests. Going from 95% to 99% per step takes a 20-step task from 36% to 82%. **Almost
+> all agent engineering effort should go into per-step reliability, not into clever planning.**
 
-📊 **What actually raises per-step reliability:**
+**What actually raises per-step reliability:**
 
 | Technique | Effect |
 |---|---|
@@ -149,7 +156,7 @@ all agent engineering effort should go into per-step reliability, not into cleve
 | **Shorter horizons** | decompose into independently-verifiable sub-tasks |
 | **Human checkpoints** | approve irreversible actions |
 
-💻 The retry pattern, which is worth more than any planning algorithm:
+The retry pattern, which is worth more than any planning algorithm:
 
 ```python
 def call_tool_with_retry(model, tool_call, tools, max_retries=2):
@@ -177,7 +184,7 @@ An agent's context window is its working memory, and it fills up.
 | **Semantic** | facts in a vector store or database | permanent |
 | **Procedural** | learned workflows, saved as instructions or code | permanent |
 
-📊 **Context management strategies:**
+**Context management strategies:**
 
 | Strategy | How | Trade-off |
 |---|---|---|
@@ -187,10 +194,11 @@ An agent's context window is its working memory, and it fills up.
 | **Write to a scratchpad file** | offload state outside the context | ⭐ very effective |
 | Hierarchical | short-term buffer + long-term store | most complex |
 
-🧠 **The scratchpad pattern deserves emphasis.** Instead of keeping everything in context, have the
-agent write findings to a file and read them back when needed. Context becomes a cache rather than
-the storage layer. This is how agents handle tasks far longer than their context window, and it is
-more robust than summarization because nothing is lossily compressed.
+> [!TIP]
+> **The scratchpad pattern deserves emphasis.** Instead of keeping everything in context, have the
+> agent write findings to a file and read them back when needed. Context becomes a cache rather than
+> the storage layer. This is how agents handle tasks far longer than their context window, and it is
+> more robust than summarization because nothing is lossily compressed.
 
 ---
 
@@ -218,27 +226,30 @@ more robust than summarization because nothing is lossily compressed.
 | **Reflection** | a critic agent reviews the actor's output |
 | Hierarchical | managers of managers |
 
-⚠️ **Multi-agent is usually the wrong first answer.** It adds latency, cost, and a new failure mode
-(information loss between agents, since each has a separate context). **Try a single agent with
-good tools first.**
+> [!WARNING]
+> **Multi-agent is usually the wrong first answer.** It adds latency, cost, and a new failure mode
+> (information loss between agents, since each has a separate context). **Try a single agent with
+> good tools first.**
 
-📊 Multi-agent genuinely helps when:
+Multi-agent genuinely helps when:
 - subtasks are **parallelizable** (big latency win),
 - subtasks need **different tool sets or prompts** (avoids tool confusion),
 - the total context **exceeds one window**,
 - you want **independent verification** (a critic that hasn't seen the reasoning is a better
   reviewer than the author).
 
-🧠 **The information-loss problem is the main cost.** A subagent returns a summary, and the
-orchestrator never sees what it saw. Nuance, caveats and uncertainty get flattened. Design
-sub-agent outputs deliberately: structured, with confidence and sources, not free prose.
+> [!TIP]
+> **The information-loss problem is the main cost.** A subagent returns a summary, and the
+> orchestrator never sees what it saw. Nuance, caveats and uncertainty get flattened. Design
+> sub-agent outputs deliberately: structured, with confidence and sources, not free prose.
 
 ---
 
 ## 7. Evaluating agents
 
-⚠️ Much harder than evaluating a single response. Multiple valid trajectories can reach the same
-goal, and the same trajectory can succeed or fail stochastically.
+> [!WARNING]
+> Much harder than evaluating a single response. Multiple valid trajectories can reach the same
+> goal, and the same trajectory can succeed or fail stochastically.
 
 | Metric | What it measures |
 |---|---|
@@ -249,19 +260,21 @@ goal, and the same trajectory can succeed or fail stochastically.
 | **Recovery rate** | when a step fails, does it recover? |
 | Safety violations | did it do anything it shouldn't? |
 
-📊 **Benchmarks**: SWE-bench (resolve real GitHub issues), WebArena (web navigation),
+**Benchmarks**: SWE-bench (resolve real GitHub issues), WebArena (web navigation),
 $\tau$-bench (customer-service tool use with policy constraints), GAIA (multi-step research),
 OSWorld (desktop control).
 
-🧠 **Always measure success rate over multiple runs of the same task.** Agents are stochastic;
-a single successful run proves nothing. Report pass@1 over $n\ge5$ attempts.
+> [!TIP]
+> **Always measure success rate over multiple runs of the same task.** Agents are stochastic;
+> a single successful run proves nothing. Report pass@1 over $n\ge5$ attempts.
 
 ---
 
 ## 8. Security
 
-⚠️ **The fundamental problem: an agent's context mixes trusted instructions with untrusted data,
-and the model cannot reliably distinguish them.**
+> [!WARNING]
+> **The fundamental problem: an agent's context mixes trusted instructions with untrusted data,
+> and the model cannot reliably distinguish them.**
 
 ```
   System prompt:  "You are a helpful assistant. Use the tools available."
@@ -278,7 +291,7 @@ and the model cannot reliably distinguish them.**
   Agent has tools. Agent may comply.
 ```
 
-📊 **Defences, ordered by effectiveness:**
+**Defences, ordered by effectiveness:**
 
 | Defence | Effectiveness |
 |---|---|
@@ -290,10 +303,11 @@ and the model cannot reliably distinguish them.**
 | Marking untrusted content with delimiters | ⭐ helps, not a boundary |
 | Instructing the model to ignore injected instructions | ⭐ unreliable |
 
-🧠 **The rule that matters**: *never rely on the model to enforce a security property.* Prompt-based
-defences reduce the frequency of successful attacks; they do not make them impossible. Design so
-that a fully-compromised model cannot cause unacceptable harm — that means the blast radius is
-controlled by your permission model, not by the model's judgement.
+> [!TIP]
+> **The rule that matters**: *never rely on the model to enforce a security property.* Prompt-based
+> defences reduce the frequency of successful attacks; they do not make them impossible. Design so
+> that a fully-compromised model cannot cause unacceptable harm — that means the blast radius is
+> controlled by your permission model, not by the model's judgement.
 
 → [Security](../08-safety-and-ethics/02-security.md) for the full treatment.
 
@@ -301,7 +315,7 @@ controlled by your permission model, not by the model's judgement.
 
 ## 9. Implementation
 
-💻 A complete agent loop with the safety and reliability machinery:
+A complete agent loop with the safety and reliability machinery:
 
 ```python
 import json
@@ -361,9 +375,10 @@ class Agent:
         return {"error": "max steps reached", "steps": self.max_steps, "cost": spent}
 ```
 
-⚠️ **Every guard in that loop exists because of a real failure mode**: step limits (infinite
-loops), budget caps (runaway cost), output truncation (context overflow from a huge tool result),
-error-return-to-model (self-correction), and approval gates (irreversible actions).
+> [!WARNING]
+> **Every guard in that loop exists because of a real failure mode**: step limits (infinite
+> loops), budget caps (runaway cost), output truncation (context overflow from a huge tool result),
+> error-return-to-model (self-correction), and approval gates (irreversible actions).
 
 ---
 

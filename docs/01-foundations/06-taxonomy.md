@@ -65,7 +65,7 @@ graph TD
 
 ## 3. Family-by-family, in one paragraph each
 
-### Autoregressive — *factorize and conquer*
+### Autoregressive: *factorize and conquer*
 
 Apply the chain rule, $p(x) = \prod_i p(x_i \mid x_{<i})$, and model each conditional with a shared
 neural network. No approximation anywhere: the likelihood is exact and the loss is plain
@@ -75,7 +75,7 @@ sampling is inherently serial, one token at a time. The fit with language is per
 order — which is why AR image models lost to diffusion.
 → [Autoregressive models](../02-classical-models/01-autoregressive-models.md)
 
-### VAE — *compress to a latent, decode from a prior*
+### VAE: *compress to a latent, decode from a prior*
 
 Introduce a latent $z$ with a simple prior, learn an encoder $q_\phi(z\mid x)$ and decoder
 $p_\theta(x\mid z)$, and maximize the ELBO. You get a genuinely useful latent space (interpolation,
@@ -85,7 +85,7 @@ images, and because the ELBO is a loose bound. VAEs survive not as standalone ge
 the **compression stage inside latent diffusion**.
 → [VAE](../02-classical-models/02-vae.md)
 
-### GAN — *skip the density, just learn to fool a critic*
+### GAN: *skip the density, just learn to fool a critic*
 
 Two networks play a game: $G$ maps noise to samples, $D$ tries to tell real from fake. At the
 optimum $G$ matches $p_{\text{data}}$, and the objective is equivalent to minimizing
@@ -95,7 +95,7 @@ is genuinely hard to stabilize, plus **mode collapse**: $G$ can win by producing
 can't classify, ignoring most of the data distribution.
 → [GAN](../02-classical-models/03-gan.md)
 
-### Normalizing flows — *an invertible map with a cheap Jacobian*
+### Normalizing flows: *an invertible map with a cheap Jacobian*
 
 Build $x = f_\theta(z)$ where $f$ is invertible and $\log|\det J_f|$ is computable in $O(d)$. Then
 the change-of-variables formula gives you the **exact** likelihood, plus exact inference
@@ -105,7 +105,7 @@ estimation on moderate-dimensional data, and their continuous-time cousins evolv
 matching, which is now competitive with diffusion for images.
 → [Normalizing flows](../02-classical-models/04-normalizing-flows.md)
 
-### Diffusion — *destroy structure gradually, learn to reverse it*
+### Diffusion: *destroy structure gradually, learn to reverse it*
 
 Add Gaussian noise over $T$ steps until the data becomes pure noise, then train a network to undo
 one step of noising. Generation runs the chain backwards. Because each step is a small, local,
@@ -115,7 +115,7 @@ excellent quality and coverage. The cost is $T$ network evaluations per sample �
 engineering problem, attacked by DDIM, distillation, consistency models and flow matching.
 → [Diffusion](../05-diffusion-and-vision/01-diffusion-models.md)
 
-### Energy-based — *just define a scalar score, normalize later*
+### Energy-based: *just define a scalar score, normalize later*
 
 Define $p(x) = e^{-E_\theta(x)}/Z$ with an arbitrary network $E_\theta$. Maximum architectural
 freedom — no invertibility, no latent, no ordering. But $Z = \int e^{-E(x)}dx$ is intractable, so
@@ -186,10 +186,11 @@ graph LR
 | **Molecules / proteins** | Diffusion, flow matching | 3-D coordinates are continuous; equivariance constraints are easy to bake into a denoiser. |
 | **Tabular / scientific density** | Flows, diffusion | Exact likelihood is often required (e.g. for simulation-based inference). |
 
-🧠 **The generalizable rule** — *discrete + ordered → autoregressive; continuous + unordered →
-diffusion/flow.* When your data is continuous but you also want a token stream (audio, video),
-**tokenize with a VQ-VAE first, then go autoregressive.** That hybrid — a learned discrete codebook
-plus a Transformer over the codes — is one of the most reusable patterns in the field.
+> [!TIP]
+> **The generalizable rule** — *discrete + ordered → autoregressive; continuous + unordered →
+> diffusion/flow.* When your data is continuous but you also want a token stream (audio, video),
+> **tokenize with a VQ-VAE first, then go autoregressive.** That hybrid — a learned discrete codebook
+> plus a Transformer over the codes — is one of the most reusable patterns in the field.
 
 ---
 
@@ -218,10 +219,11 @@ START: what do you need?
     └────────────► LATENT DIFFUSION (VAE compress ×8, diffuse in latent space)
 ```
 
-⚠️ **The honest default in 2026**: for text, a pretrained Transformer LLM that you fine-tune. For
-images/video, a latent diffusion or flow-matching model that you fine-tune with LoRA. Training a
-generative model from scratch is almost never the right first move — the interesting engineering
-is in adaptation, conditioning, retrieval and evaluation.
+> [!WARNING]
+> **The honest default in 2026**: for text, a pretrained Transformer LLM that you fine-tune. For
+> images/video, a latent diffusion or flow-matching model that you fine-tune with LoRA. Training a
+> generative model from scratch is almost never the right first move — the interesting engineering
+> is in adaptation, conditioning, retrieval and evaluation.
 
 ---
 
@@ -239,9 +241,10 @@ is in adaptation, conditioning, retrieval and evaluation.
 | VAE's blurriness | VQ-VAE + AR prior; adversarial decoder loss | sharp (this is what SD's VAE does) |
 | Flow's expressivity limit | Continuous time + flow matching | competitive with diffusion |
 
-🧠 **The meta-observation**: the trilemma has been substantially *broken* since 2023. Distilled
-latent flow-matching models give near-diffusion quality in 1–4 steps. The frontier has moved from
-"which family?" to "how do you condition, control, align and evaluate it?"
+> [!TIP]
+> **The meta-observation**: the trilemma has been substantially *broken* since 2023. Distilled
+> latent flow-matching models give near-diffusion quality in 1–4 steps. The frontier has moved from
+> "which family?" to "how do you condition, control, align and evaluate it?"
 
 ---
 

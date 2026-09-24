@@ -1,4 +1,4 @@
-# Score-Based Models & SDEs
+# Score-Based Models and SDEs
 
 > **Summary** — The same algorithm as DDPM, discovered independently from a different direction.
 > Instead of "learn to denoise", the framing is "learn $\nabla_x\log p(x)$, the score, then follow
@@ -28,11 +28,12 @@ direction of increasing probability.
    ──────●────────                and are LONGEST on the steep slopes
 ```
 
-🧠 **Why the score, and not the density?** Recall
-$\nabla_x\log p(x) = \nabla_x\left(-E(x) - \log Z\right) = -\nabla_x E(x)$.
-**The intractable normalizing constant vanishes.** You can learn the score of an
-arbitrarily complex distribution without ever computing or approximating $Z$. This is the single
-most important idea on this page.
+> [!TIP]
+> **Why the score, and not the density?** Recall
+> $\nabla_x\log p(x) = \nabla_x\left(-E(x) - \log Z\right) = -\nabla_x E(x)$.
+> **The intractable normalizing constant vanishes.** You can learn the score of an
+> arbitrarily complex distribution without ever computing or approximating $Z$. This is the single
+> most important idea on this page.
 
 ---
 
@@ -43,7 +44,8 @@ $$x_{t+1} = x_t + \frac{\eta}{2}\,s_\theta(x_t) + \sqrt{\eta}\,z_t, \qquad z_t \
 Gradient ascent on log-probability, plus noise. As $\eta\to0$, $t\to\infty$, the iterates converge
 to samples from $p$.
 
-⚠️ **Two problems kill naive Langevin sampling in high dimensions:**
+> [!WARNING]
+> **Two problems kill naive Langevin sampling in high dimensions:**
 
 **(a) The score is undefined off the data manifold.** Real data occupies a thin manifold; in the
 vast empty regions $p(x) \approx 0$ and $\nabla\log p$ is both numerically meaningless and never
@@ -57,10 +59,11 @@ cross a low-density valley, which it does with probability $\propto e^{-\Delta}$
 
 ## 3. The fix: noise conditioning
 
-🧠 **Song & Ermon's insight (2019)**: perturb the data with noise at *many* scales. Large noise
-smooths the distribution so its support covers the whole space and the score is defined
-everywhere. Small noise preserves fine detail. Learn the score at every noise level, then
-**anneal** from large to small during sampling.
+> [!TIP]
+> **Song & Ermon's insight (2019)**: perturb the data with noise at *many* scales. Large noise
+> smooths the distribution so its support covers the whole space and the score is defined
+> everywhere. Small noise preserves fine detail. Learn the score at every noise level, then
+> **anneal** from large to small during sampling.
 
 ```
   σ = 1.0 (heavy noise)     σ = 0.3            σ = 0.05 (light)
@@ -80,7 +83,7 @@ everywhere. Small noise preserves fine detail. Learn the score at every noise le
 $$\mathcal{L} = \mathbb{E}_{\sigma}\,\mathbb{E}_{x\sim p_{\text{data}}}\,\mathbb{E}_{\tilde x\sim\mathcal{N}(x,\sigma^2I)}
 \left[\lambda(\sigma)\left\|s_\theta(\tilde x, \sigma) + \frac{\tilde x - x}{\sigma^2}\right\|^2\right]$$
 
-📐 **The target $-\frac{\tilde x - x}{\sigma^2}$ is exactly the score of the Gaussian that produced
+**The target $-\frac{\tilde x - x}{\sigma^2}$ is exactly the score of the Gaussian that produced
 $\tilde x$**: for $\tilde x \sim \mathcal{N}(x, \sigma^2 I)$,
 $\nabla_{\tilde x}\log q(\tilde x \mid x) = -\frac{\tilde x - x}{\sigma^2} = -\frac{\epsilon}{\sigma}$.
 No Hessian, no MCMC, no $Z$ — just regression onto scaled noise.
@@ -91,7 +94,7 @@ No Hessian, no MCMC, no $Z$ — just regression onto scaled noise.
 
 Two independently-developed methods turn out to be the same algorithm.
 
-📐 In DDPM, $x_t = \sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon$, so
+In DDPM, $x_t = \sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon$, so
 $q(x_t\mid x_0) = \mathcal{N}(\sqrt{\bar\alpha_t}x_0, (1-\bar\alpha_t)I)$ and
 
 $$\nabla_{x_t}\log q(x_t \mid x_0) = -\frac{x_t - \sqrt{\bar\alpha_t}x_0}{1-\bar\alpha_t} = -\frac{\epsilon}{\sqrt{1-\bar\alpha_t}}$$
@@ -108,8 +111,9 @@ $$\boxed{\;s_\theta(x_t, t) = -\frac{\epsilon_\theta(x_t,t)}{\sqrt{1-\bar\alpha_
 | ancestral sampling | annealed Langevin |
 | $\bar\alpha_t$ schedule | $\sigma(t)$ schedule |
 
-🧠 Neither framing is more correct. The DDPM view makes training obvious; the score/SDE view makes
-*sampling* improvable, which is where all the subsequent progress came from.
+> [!TIP]
+> Neither framing is more correct. The DDPM view makes training obvious; the score/SDE view makes
+> *sampling* improvable, which is where all the subsequent progress came from.
 
 ---
 
@@ -125,10 +129,11 @@ where $dw$ is Brownian motion.
 
 $$\boxed{\;dx = \left[f(x,t) - g(t)^2\nabla_x\log p_t(x)\right]dt + g(t)\,d\bar w\;}$$
 
-🧠 **This is the central result.** The reverse of *any* diffusion SDE is another SDE, and the only
-unknown in it is the **score**. Learn the score and you can run any diffusion backwards.
+> [!TIP]
+> **This is the central result.** The reverse of *any* diffusion SDE is another SDE, and the only
+> unknown in it is the **score**. Learn the score and you can run any diffusion backwards.
 
-📊 **The two canonical SDEs:**
+**The two canonical SDEs:**
 
 | Name | Forward SDE | Discrete analogue |
 |---|---|---|
@@ -141,7 +146,7 @@ important unification, since it means DDPM and NCSN were never really different 
 
 ### The probability flow ODE
 
-📐 Every SDE has a corresponding **deterministic** ODE with *identical marginal distributions*
+Every SDE has a corresponding **deterministic** ODE with *identical marginal distributions*
 $p_t(x)$ at every time:
 
 $$\boxed{\;\frac{dx}{dt} = f(x,t) - \tfrac12 g(t)^2\nabla_x\log p_t(x)\;}$$
@@ -158,7 +163,8 @@ $$\boxed{\;\frac{dx}{dt} = f(x,t) - \tfrac12 g(t)^2\nabla_x\log p_t(x)\;}$$
    same MARGINAL distribution at every t
 ```
 
-🧠 **Why this is so useful — three consequences:**
+> [!TIP]
+> **Why this is so useful — three consequences:**
 
 1. **Fewer steps.** ODEs can be solved with sophisticated numerical methods (Runge-Kutta, multistep
    solvers) that take far larger steps than a stochastic chain allows. 1000 → 20 steps.
@@ -168,7 +174,7 @@ $$\boxed{\;\frac{dx}{dt} = f(x,t) - \tfrac12 g(t)^2\nabla_x\log p_t(x)\;}$$
 3. **Meaningful latents.** A deterministic, invertible map means you can encode a real image to its
    noise vector, edit that vector, and decode — the basis of several editing techniques.
 
-📊 **DDIM** (Song et al., 2020) is exactly a discretization of this ODE:
+**DDIM** (Song et al., 2020) is exactly a discretization of this ODE:
 
 $$x_{t-1} = \sqrt{\bar\alpha_{t-1}}\underbrace{\left(\frac{x_t - \sqrt{1-\bar\alpha_t}\epsilon_\theta(x_t,t)}{\sqrt{\bar\alpha_t}}\right)}_{\text{predicted } x_0}
 + \underbrace{\sqrt{1-\bar\alpha_{t-1}-\sigma_t^2}\cdot\epsilon_\theta(x_t,t)}_{\text{direction pointing to } x_t} + \sigma_t z$$
@@ -181,7 +187,7 @@ trained with $T = 1000$, with no retraining.
 
 ## 6. Samplers: the practical menu
 
-📊 Steps needed for good quality on a standard latent diffusion model:
+Steps needed for good quality on a standard latent diffusion model:
 
 | Sampler | Steps | Type | Notes |
 |---|---|---|---|
@@ -195,19 +201,21 @@ trained with $T = 1000$, with no retraining.
 | **LCM / consistency** | **2–8** | distilled | requires a distilled model |
 | **Rectified flow / distilled** | **1–4** | distilled | → [Flow matching](04-flow-matching.md) |
 
-🧠 **Why DPM-Solver is so much better than Euler.** The probability-flow ODE is **semi-linear**: it
-has an analytically solvable linear part plus a nonlinear part involving $\epsilon_\theta$. A
-generic solver treats the whole thing as a black box; DPM-Solver solves the linear part *exactly*
-and only approximates the nonlinear remainder. The error at a given step count drops
-substantially.
+> [!TIP]
+> **Why DPM-Solver is so much better than Euler.** The probability-flow ODE is **semi-linear**: it
+> has an analytically solvable linear part plus a nonlinear part involving $\epsilon_\theta$. A
+> generic solver treats the whole thing as a black box; DPM-Solver solves the linear part *exactly*
+> and only approximates the nonlinear remainder. The error at a given step count drops
+> substantially.
 
-⚠️ **SDE vs ODE samplers is a real quality trade-off, not just speed.** Stochastic samplers inject
-fresh noise at each step, which lets the model *correct* accumulated errors — so they often reach
-better final quality given enough steps. Deterministic samplers are faster and reproducible but
-compound their errors. Karras et al. (2022) analysed this carefully and recommend a *little*
-stochasticity (their "churn" parameter) as the best of both.
+> [!WARNING]
+> **SDE vs ODE samplers is a real quality trade-off, not just speed.** Stochastic samplers inject
+> fresh noise at each step, which lets the model *correct* accumulated errors — so they often reach
+> better final quality given enough steps. Deterministic samplers are faster and reproducible but
+> compound their errors. Karras et al. (2022) analysed this carefully and recommend a *little*
+> stochasticity (their "churn" parameter) as the best of both.
 
-📊 **Karras schedule** — as important as the sampler choice. Instead of uniform timesteps, space the
+**Karras schedule** — as important as the sampler choice. Instead of uniform timesteps, space the
 noise levels as
 
 $$\sigma_i = \left(\sigma_{\max}^{1/\rho} + \frac{i}{N-1}\left(\sigma_{\min}^{1/\rho}-\sigma_{\max}^{1/\rho}\right)\right)^{\rho},\qquad \rho = 7$$
@@ -227,10 +235,11 @@ Combined with a good solver it is worth several steps of budget for free.
 | **ADD / LADD** | adversarial loss + distillation (a GAN discriminator on outputs) | 1–4 |
 | **Rectified flow (reflow)** | straighten the trajectories, then distill | 1–2 |
 
-🧠 **The consistency-model idea is elegant.** The probability-flow ODE defines a trajectory from
-noise to image. Define $f(x_t, t) = x_0$ — the endpoint — for every point on that trajectory. Train
-$f$ to be **self-consistent**: $f(x_t,t) = f(x_{t'},t')$ for any two points on the same trajectory.
-Then a single evaluation of $f$ jumps straight from noise to image.
+> [!TIP]
+> **The consistency-model idea is elegant.** The probability-flow ODE defines a trajectory from
+> noise to image. Define $f(x_t, t) = x_0$ — the endpoint — for every point on that trajectory. Train
+> $f$ to be **self-consistent**: $f(x_t,t) = f(x_{t'},t')$ for any two points on the same trajectory.
+> Then a single evaluation of $f$ jumps straight from noise to image.
 
 ```
    Multi-step diffusion              Consistency model
@@ -241,7 +250,7 @@ Then a single evaluation of $f$ jumps straight from noise to image.
                                        to the same endpoint
 ```
 
-📊 Quality at 1 step still lags the multi-step teacher (fine detail and prompt adherence suffer),
+Quality at 1 step still lags the multi-step teacher (fine detail and prompt adherence suffer),
 but 4-step distilled models are close enough for most production use, and this is where
 real-time image generation comes from.
 
@@ -249,7 +258,7 @@ real-time image generation comes from.
 
 ## 8. Implementation
 
-💻 A DPM-Solver++(2M) sampler, which is what most production systems actually use:
+A DPM-Solver++(2M) sampler, which is what most production systems actually use:
 
 ```python
 @torch.no_grad()
@@ -280,9 +289,10 @@ def karras_sigmas(n, sigma_min=0.03, sigma_max=14.6, rho=7.0):
     return torch.cat([sigmas, sigmas.new_zeros(1)])     # append 0 for the final step
 ```
 
-🧠 Note the "multistep" part: the 2nd-order correction reuses the *previous* step's denoised
-estimate rather than calling the model twice. You get 2nd-order accuracy at 1st-order cost, which
-is why DPM-Solver++(2M) is the default in most inference stacks.
+> [!TIP]
+> Note the "multistep" part: the 2nd-order correction reuses the *previous* step's denoised
+> estimate rather than calling the model twice. You get 2nd-order accuracy at 1st-order cost, which
+> is why DPM-Solver++(2M) is the default in most inference stacks.
 
 ---
 

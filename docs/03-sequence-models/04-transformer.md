@@ -30,7 +30,8 @@
    embeddings, NER                               multitask, some VLMs
 ```
 
-🧠 **Why decoder-only won.** Three reasons, in order of importance:
+> [!TIP]
+> **Why decoder-only won.** Three reasons, in order of importance:
 
 1. **Every token is a training signal.** A decoder-only model predicts *all* $T$ positions from one
    forward pass. BERT's masked LM only supervises the ~15% of tokens that were masked — roughly
@@ -40,7 +41,7 @@
 3. **Simplicity scales.** One homogeneous stack is easier to shard, pipeline, and reason about
    than an asymmetric encoder–decoder.
 
-📊 Raffel et al. (T5, 2020) compared all three systematically. Encoder–decoder was slightly better
+Raffel et al. (T5, 2020) compared all three systematically. Encoder–decoder was slightly better
 at matched parameter count — but decoder-only was better at matched *compute*, and compute is what
 you actually spend.
 
@@ -87,16 +88,18 @@ $$
           ▼  (B, T, d)
 ```
 
-🧠 **The essential division of labour**: attention **mixes across positions**, the MLP **transforms
-each position independently**. Every Transformer is an alternation of "gather information from
-elsewhere" and "think about what you've gathered." Neither alone suffices — an attention-only stack
-is nearly linear; an MLP-only stack cannot see context.
+> [!TIP]
+> **The essential division of labour**: attention **mixes across positions**, the MLP **transforms
+> each position independently**. Every Transformer is an alternation of "gather information from
+> elsewhere" and "think about what you've gathered." Neither alone suffices — an attention-only stack
+> is nearly linear; an MLP-only stack cannot see context.
 
-🧠 **The residual stream view** (from interpretability): think of the $(B,T,d)$ tensor flowing
-down the stack as a **shared communication bus**. Each sublayer *reads* a projection of it,
-computes, and *writes an additive update* back. Nothing is ever overwritten. This is why you can
-meaningfully talk about "the direction in the residual stream that represents X," and why
-techniques like activation steering and logit lens work at all.
+> [!TIP]
+> **The residual stream view** (from interpretability): think of the $(B,T,d)$ tensor flowing
+> down the stack as a **shared communication bus**. Each sublayer *reads* a projection of it,
+> computes, and *writes an additive update* back. Nothing is ever overwritten. This is why you can
+> meaningfully talk about "the direction in the residual stream that represents X," and why
+> techniques like activation steering and logit lens work at all.
 
 ---
 
@@ -116,7 +119,7 @@ Per layer, with $d$ = model dimension, $d_{\text{ff}}$ = MLP hidden dimension:
 
 $$\boxed{\;N \approx 12\,L\,d^2 + V d \;(\times 2 \text{ if embeddings untied})\;}$$
 
-🔢 **Verify against real models:**
+**Verify against real models:**
 
 | Model | $L$ | $d$ | $V$ | $12Ld^2$ | + embed | Actual |
 |---|---|---|---|---|---|---|
@@ -130,18 +133,19 @@ The formula is accurate to a few percent for models that follow the $d_{\text{ff
 convention. **Memorize $N \approx 12Ld^2$** — it lets you estimate any model's size from its config
 file in five seconds.
 
-⚠️ **When it under-counts**: LLaMA-2 70B uses $d_{\text{ff}} = 28672 = 3.5d$, so its SwiGLU MLP is
-$3\cdot d\cdot 3.5d = 10.5d^2$ rather than $8d^2$. Exactly: attention $151$ M + MLP $705$ M
-$= 856$ M per layer, $\times 80$ layers $+ 2Vd = \mathbf{69.0}$ B. Always check $d_{\text{ff}}$ in
-the config before trusting the shortcut.
+> [!WARNING]
+> **When it under-counts**: LLaMA-2 70B uses $d_{\text{ff}} = 28672 = 3.5d$, so its SwiGLU MLP is
+> $3\cdot d\cdot 3.5d = 10.5d^2$ rather than $8d^2$. Exactly: attention $151$ M + MLP $705$ M
+> $= 856$ M per layer, $\times 80$ layers $+ 2Vd = \mathbf{69.0}$ B. Always check $d_{\text{ff}}$ in
+> the config before trusting the shortcut.
 
-🔢 **The parameter split** (7B model): attention $4d^2/12d^2 = 33\%$, MLP $67\%$. **Two-thirds of an
+**The parameter split** (7B model): attention $4d^2/12d^2 = 33\%$, MLP $67\%$. **Two-thirds of an
 LLM's parameters are in the feed-forward layers.** This is why MoE replaces the MLP, not attention.
 → [Mixture of Experts](../04-large-language-models/08-mixture-of-experts.md)
 
 ### Aspect ratio
 
-📊 Real models keep $d/L \approx 100$–$130$:
+Real models keep $d/L \approx 100$–$130$:
 
 | Model | $d$ | $L$ | $d/L$ |
 |---|---|---|---|
@@ -150,16 +154,17 @@ LLM's parameters are in the feed-forward layers.** This is why MoE replaces the 
 | LLaMA-2 7B | 4096 | 32 | 128 |
 | LLaMA-2 70B | 8192 | 80 | 102 |
 
-🧠 Kaplan et al. found model quality is remarkably insensitive to aspect ratio over a wide range —
-what matters is total $N$. But there are practical constraints: deeper models are harder to
-parallelize (pipeline bubbles) and train less stably; wider models waste compute on small batches.
-$d/L \approx 128$ is the empirical compromise.
+> [!TIP]
+> Kaplan et al. found model quality is remarkably insensitive to aspect ratio over a wide range —
+> what matters is total $N$. But there are practical constraints: deeper models are harder to
+> parallelize (pipeline bubbles) and train less stably; wider models waste compute on small batches.
+> $d/L \approx 128$ is the empirical compromise.
 
 ---
 
 ## 4. FLOP counting
 
-📐 A matrix multiply $(m\times k)\times(k\times n)$ costs $2mkn$ FLOPs (one multiply + one add per
+A matrix multiply $(m\times k)\times(k\times n)$ costs $2mkn$ FLOPs (one multiply + one add per
 element pair).
 
 **Forward pass per token:**
@@ -178,7 +183,7 @@ $$\boxed{\;C_{\text{forward}} \approx 2N \text{ FLOPs/token}, \qquad C_{\text{tr
 
 (backward pass ≈ 2× forward: one gradient w.r.t. inputs, one w.r.t. weights)
 
-🔢 **Worked example — what does training a 7B model on 2T tokens cost?**
+**Worked example — what does training a 7B model on 2T tokens cost?**
 
 $$C = 6 \times 7\times10^9 \times 2\times10^{12} = 8.4\times10^{22}\text{ FLOPs}$$
 
@@ -188,7 +193,7 @@ $$\frac{8.4\times10^{22}}{1024 \times 4\times10^{14}} = 2.05\times10^5 \text{ se
 
 At \$2/GPU-hour: $1024 \times 57\text{ h} \times \$2 \approx \$117{,}000$. 📊
 
-🔢 **When does attention start to matter?** The $4Td$ term vs the $24d^2$ term:
+**When does attention start to matter?** The $4Td$ term vs the $24d^2$ term:
 
 | $d$ | $T$ | $24d^2$ | $4Td$ | Attention share |
 |---|---|---|---|---|
@@ -197,15 +202,16 @@ At \$2/GPU-hour: $1024 \times 57\text{ h} \times \$2 \approx \$117{,}000$. 📊
 | 4096 | 32768 | $4.0\times10^8$ | $5.4\times10^8$ | **57.1%** |
 | 4096 | 131072 | $4.0\times10^8$ | $2.1\times10^9$ | **84.2%** |
 
-⚠️ **Common misconception corrected**: at typical training lengths (2–8k), attention is only
-10–25% of compute. It only dominates past ~32k tokens. Optimizing attention for a 2k-context model
-is optimizing the wrong thing.
+> [!WARNING]
+> **Common misconception corrected**: at typical training lengths (2–8k), attention is only
+> 10–25% of compute. It only dominates past ~32k tokens. Optimizing attention for a 2k-context model
+> is optimizing the wrong thing.
 
 **MFU (model FLOPs utilization)** — the metric to track:
 
 $$\text{MFU} = \frac{6ND/t}{\text{peak FLOP/s}\times\text{n\_gpus}}$$
 
-📊 Good large-scale runs achieve 40–55% MFU. Below 30%, you have a systems problem (bad sharding,
+Good large-scale runs achieve 40–55% MFU. Below 30%, you have a systems problem (bad sharding,
 communication bottleneck, small batch, poor kernel coverage).
 
 ---
@@ -237,10 +243,11 @@ $B=2$, $T=1024$, $d=4096$, $L=32$, $H=32$, $H_{kv}=8$, $V=32000$:
 | 17 | final RMSNorm | $(2,1024,4096)$ | 4 K |
 | 18 | LM head | $(2,1024,32000)$ | 131 M |
 
-⚠️ **Step 18 is a memory trap.** The logits tensor is $2\times1024\times32000 = 6.6\times10^7$
-floats = 262 MB in FP32 — often larger than any activation in the model. With a 128k vocabulary and
-a bigger batch it can exceed 10 GB. Fused cross-entropy kernels (which compute the loss in chunks
-without materializing all logits) are standard in modern training code for exactly this reason.
+> [!WARNING]
+> **Step 18 is a memory trap.** The logits tensor is $2\times1024\times32000 = 6.6\times10^7$
+> floats = 262 MB in FP32 — often larger than any activation in the model. With a 128k vocabulary and
+> a bigger batch it can exceed 10 GB. Fused cross-entropy kernels (which compute the loss in chunks
+> without materializing all logits) are standard in modern training code for exactly this reason.
 
 ---
 
@@ -260,16 +267,17 @@ without materializing all logits) are standard in modern training code for exact
 | Attention stability | — | **QK-norm** | prevents logit blowup in long runs |
 | Precision | FP32 | **BF16** + FP32 master | 2× speed, same range |
 
-🧠 **The most interesting removal is biases.** LLaMA and PaLM dropped every bias term. The reasoning:
-with a normalization layer immediately before each linear, the bias is largely redundant, and
-removing it improves stability (biases are the parameters most prone to drift) and saves a little
-memory. No measurable quality cost. A good example of the field converging on *less* machinery.
+> [!TIP]
+> **The most interesting removal is biases.** LLaMA and PaLM dropped every bias term. The reasoning:
+> with a normalization layer immediately before each linear, the bias is largely redundant, and
+> removing it improves stability (biases are the parameters most prone to drift) and saves a little
+> memory. No measurable quality cost. A good example of the field converging on *less* machinery.
 
 ---
 
 ## 7. The full modern block
 
-💻 A complete LLaMA-style Transformer block:
+A complete LLaMA-style Transformer block:
 
 ```python
 import torch, torch.nn as nn, torch.nn.functional as F
@@ -322,7 +330,7 @@ class Transformer(nn.Module):
         return F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
 ```
 
-🔢 Note `d_ff = 11008` for $d = 4096$: that is $\frac83 \times 4096 = 10922.7$, rounded up to the
+Note `d_ff = 11008` for $d = 4096$: that is $\frac83 \times 4096 = 10922.7$, rounded up to the
 nearest multiple of 256. LLaMA-2 7B uses exactly this. The rounding matters because GPU tensor
 cores want dimensions that are multiples of 128 or 256.
 
@@ -330,7 +338,7 @@ cores want dimensions that are multiples of 128 or 256.
 
 ## 8. Model configurations reference
 
-📊 Read this table alongside $N \approx 12Ld^2$:
+Read this table alongside $N \approx 12Ld^2$:
 
 | Model | $N$ | $L$ | $d$ | $H$ | $H_{kv}$ | $d_{ff}$ | Context | Vocab |
 |---|---|---|---|---|---|---|---|---|
@@ -344,16 +352,18 @@ cores want dimensions that are multiples of 128 or 256.
 | Mistral 7B | 7.2 B | 32 | 4096 | 32 | 8 | 14336 | 8192 (SWA 4096) | 32000 |
 | Mixtral 8×7B | 46.7 B total / 12.9 B active | 32 | 4096 | 32 | 8 | 14336 ×8 experts | 32768 | 32000 |
 
-🧠 Note LLaMA-3's changes from LLaMA-2: vocabulary 32k → 128k (better compression, especially
-multilingual), GQA at every size (not just 70B), and a larger $d_{ff}$. All three are
-compression/efficiency wins rather than architectural novelty — which is characteristic of where
-the field is.
+> [!TIP]
+> Note LLaMA-3's changes from LLaMA-2: vocabulary 32k → 128k (better compression, especially
+> multilingual), GQA at every size (not just 70B), and a larger $d_{ff}$. All three are
+> compression/efficiency wins rather than architectural novelty — which is characteristic of where
+> the field is.
 
 ---
 
 ## 9. What the Transformer cannot do
 
-⚠️ Worth being precise about, because it clarifies what architectures come next.
+> [!WARNING]
+> Worth being precise about, because it clarifies what architectures come next.
 
 | Limitation | Why | Mitigation |
 |---|---|---|
@@ -364,12 +374,13 @@ the field is.
 | Cannot revise emitted tokens | autoregressive commitment | CoT scratchpads, best-of-$n$, diffusion LMs |
 | Serial generation | $T$ sequential forward passes | speculative decoding, multi-token prediction |
 
-🧠 **"Fixed compute per token" is the deepest one.** A Transformer spends identical FLOPs predicting
-the next token whether the context is "the cat sat on the ___" or "the 47th prime number is ___".
-There is no mechanism for thinking longer about a harder problem. **Chain-of-thought is the
-workaround the field converged on**: use the token stream itself as a variable-length scratchpad,
-buying serial compute at the cost of sequence length. That reframing is what makes reasoning
-models work. → [Reasoning](../04-large-language-models/10-reasoning.md)
+> [!TIP]
+> **"Fixed compute per token" is the deepest one.** A Transformer spends identical FLOPs predicting
+> the next token whether the context is "the cat sat on the ___" or "the 47th prime number is ___".
+> There is no mechanism for thinking longer about a harder problem. **Chain-of-thought is the
+> workaround the field converged on**: use the token stream itself as a variable-length scratchpad,
+> buying serial compute at the cost of sequence length. That reframing is what makes reasoning
+> models work. → [Reasoning](../04-large-language-models/10-reasoning.md)
 
 ---
 

@@ -1,0 +1,107 @@
+/* ---------- Reading comfort ---------- */
+.md-typeset { font-size: .84rem; line-height: 1.72; }
+.md-typeset p, .md-typeset ul, .md-typeset ol { margin-block: .75em; }
+.md-typeset h1 { font-weight: 700; margin-bottom: .6em; }
+.md-typeset h2 {
+  font-weight: 650; margin-top: 2.4em; padding-bottom: .3em;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+.md-typeset h3 { font-weight: 600; margin-top: 1.8em; }
+.md-typeset strong { font-weight: 650; }
+.md-typeset table:not([class]) { font-size: .76rem; }
+.md-typeset table:not([class]) td, .md-typeset table:not([class]) th { padding: .55em 1em; }
+.md-typeset .katex-display, .md-typeset .arithmatex { overflow-x: auto; }
+
+/* The page summary is the first blockquote: make it a quiet lead paragraph */
+.md-typeset h1 + blockquote {
+  border-left: 3px solid var(--md-primary-fg-color);
+  color: var(--md-default-fg-color--light);
+  font-size: .9rem; margin: 0 0 1.5em; padding: .2em 1em;
+}
+
+/* ---------- Figures ---------- */
+.md-typeset img[src*="figures/"], .md-typeset svg.chart {
+  display: block; margin: 1.4rem auto .4rem; max-width: 100%;
+  border-radius: 8px; border: 1px solid var(--md-default-fg-color--lightest);
+  cursor: zoom-in;
+}
+/* the italic paragraph straight after a figure is its caption */
+.md-typeset p:has(> img[src*="figures/"]) + p > em:only-child,
+.md-typeset p:has(> svg.chart) + p > em:only-child {
+  display: block; font-style: normal; font-size: .74rem; line-height: 1.55;
+  color: var(--md-default-fg-color--light); max-width: 44rem; margin: 0 auto 1.4rem;
+}
+
+/* ---------- Home page topic index (OSDev-style) ---------- */
+.md-typeset .topic-index > ul {
+  list-style: none; margin: 1rem 0 0; padding: 0;
+  columns: 3 14rem; column-gap: 1rem;
+}
+.md-typeset .topic-index > ul > li {
+  break-inside: avoid; margin: 0 0 1rem; padding: .7rem .9rem .5rem;
+  border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px;
+  background: var(--md-default-bg-color);
+}
+.md-typeset .topic-index > ul > li > strong:first-child,
+.md-typeset .topic-index > ul > li > p:first-child strong {
+  display: block; margin-bottom: .25rem; font-size: .8rem;
+}
+.md-typeset .topic-index > ul > li > p { margin: 0; }
+.md-typeset .topic-index > ul > li > ul { margin: 0; padding-left: 1.1rem; }
+.md-typeset .topic-index > ul > li > ul > li { margin: .12rem 0; font-size: .76rem; line-height: 1.5; }
+.md-typeset .topic-index a { text-decoration: none; }
+.md-typeset .topic-index a:hover { text-decoration: underline; }
+
+/* ---------- Diagrams ---------- */
+.md-typeset .diagram { margin: 1.2rem 0; text-align: center; cursor: zoom-in; position: relative; }
+.md-typeset .diagram svg { max-width: 100%; height: auto; }
+.md-typeset .diagram::after, .md-typeset p:has(> img[src*="figures/"])::after,
+.md-typeset p:has(> svg.chart)::after {
+  content: "Click to zoom"; display: block; font-size: .65rem; margin-top: .2rem;
+  color: var(--md-default-fg-color--lighter); text-align: center;
+}
+.md-typeset pre.diagram-source { display: none; }
+
+/* ---------- Zoom viewer ---------- */
+.zoom-overlay {
+  position: fixed; inset: 0; z-index: 10000; display: flex; flex-direction: column;
+  background: var(--md-default-bg-color); color: var(--md-default-fg-color);
+}
+.zoom-bar {
+  display: flex; gap: .5rem; align-items: center; padding: .5rem .8rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest); font-size: .75rem;
+}
+.zoom-bar .hint { flex: 1; color: var(--md-default-fg-color--light); }
+.zoom-bar button {
+  font: inherit; min-width: 2.2rem; padding: .25rem .6rem; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color); color: var(--md-default-fg-color);
+}
+.zoom-bar button:hover { border-color: var(--md-accent-fg-color); }
+.zoom-stage { flex: 1; overflow: hidden; cursor: grab; touch-action: none; position: relative;
+  user-select: none; -webkit-user-select: none; }
+.zoom-stage.dragging { cursor: grabbing; }
+.zoom-content { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.zoom-content svg, .zoom-content img { display: block; max-width: none; }
+
+/* ---------- Callouts (GitHub alerts -> admonitions) ---------- */
+.md-typeset .admonition { font-size: .8rem; line-height: 1.65; border-width: 0 0 0 3px; border-radius: 6px;
+  box-shadow: none; margin: 1.3em 0; }
+.md-typeset .admonition-title { font-weight: 650; }
+.md-typeset .admonition > p:last-child { margin-bottom: .7em; }
+
+/* ---------- ASCII diagrams: smaller, zoomable ---------- */
+.md-typeset .ascii-diagram { cursor: zoom-in; }
+.md-typeset .ascii-diagram code { font-size: .68rem; line-height: 1.35; }
+.md-typeset .ascii-diagram::after {
+  content: "Click to zoom"; display: block; font-size: .65rem; margin: -.6rem 0 1rem;
+  color: var(--md-default-fg-color--lighter); text-align: center;
+}
+.zoom-content pre.zoom-pre {
+  margin: 0; padding: 16px; border-radius: 8px; white-space: pre; overflow: visible;
+  background: var(--md-code-bg-color); color: var(--md-code-fg-color);
+  font-family: var(--md-code-font-family); font-size: .8rem; line-height: 1.35;
+}
+.zoom-content pre.zoom-pre code { font-size: inherit; overflow: visible; }
+
+.md-typeset svg.chart { width: 100%; height: auto; }

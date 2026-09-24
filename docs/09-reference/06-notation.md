@@ -5,7 +5,7 @@
 
 ---
 
-## Probability & distributions
+## Probability and distributions
 
 | Symbol | Meaning |
 |---|---|
@@ -25,7 +25,7 @@
 | $I(X;Y)$ | mutual information |
 | $\sigma(\cdot)$ | ⚠️ **overloaded**: the logistic sigmoid, *or* a standard deviation, *or* a diffusion noise level. Disambiguated by context. |
 
-## Data & model dimensions
+## Data and model dimensions
 
 | Symbol | Meaning |
 |---|---|
@@ -90,12 +90,13 @@
 | $w$ | the classifier-free guidance scale |
 | $\sigma(t)$ | noise level at time $t$ (VE / EDM parameterization) |
 
-⚠️ **The $x_0$ clash is the one that trips people up.** In diffusion, $x_0$ is the clean image and
-$x_T$ is noise; time runs *forward* toward noise. In flow matching, $x_0$ is noise and $x_1$ is
-data; time runs *forward* toward data. This wiki follows each field's own convention on its own
-page and flags the switch. Always check which direction a paper's time axis runs.
+> [!WARNING]
+> **The $x_0$ clash is the one that trips people up.** In diffusion, $x_0$ is the clean image and
+> $x_T$ is noise; time runs *forward* toward noise. In flow matching, $x_0$ is noise and $x_1$ is
+> data; time runs *forward* toward data. This wiki follows each field's own convention on its own
+> page and flags the switch. Always check which direction a paper's time axis runs.
 
-## Reinforcement learning & alignment
+## Reinforcement learning and alignment
 
 | Symbol | Meaning |
 |---|---|
@@ -132,8 +133,9 @@ page and flags the switch. Always check which direction a paper's time axis runs
 | FLOP/s | floating-point operations per second (the *rate*) |
 | tokens | the model's discrete units, ~4 characters in English |
 
-⚠️ **FLOPs vs FLOP/s** are constantly confused in the literature. "$10^{25}$ FLOPs" is a training
-budget; "$10^{15}$ FLOP/s" is hardware throughput. This wiki always writes the rate with a slash.
+> [!WARNING]
+> **FLOPs vs FLOP/s** are constantly confused in the literature. "$10^{25}$ FLOPs" is a training
+> budget; "$10^{15}$ FLOP/s" is hardware throughput. This wiki always writes the rate with a slash.
 
 ---
 

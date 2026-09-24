@@ -1,4 +1,4 @@
-# Embeddings & Vector Search
+# Embeddings and Vector Search
 
 > **Summary** — An embedding maps text to a vector such that semantic similarity becomes geometric
 > proximity. This page covers how embedding models are trained (contrastive learning), why cosine
@@ -29,9 +29,10 @@ such that semantically similar texts land close together.
                   └──────────────────────────►
 ```
 
-🧠 The classic `king − man + woman ≈ queen` arithmetic was a word2vec result. Modern sentence
-embeddings are less cleanly linear but far more useful, because they encode whole passages in
-context rather than context-free word identities.
+> [!TIP]
+> The classic `king − man + woman ≈ queen` arithmetic was a word2vec result. Modern sentence
+> embeddings are less cleanly linear but far more useful, because they encode whole passages in
+> context rather than context-free word identities.
 
 **What embeddings are used for:**
 
@@ -64,7 +65,7 @@ Pull the query toward its positive; push it away from negatives.
                                     negatives pushed away
 ```
 
-📊 **The three kinds of negatives, and why it matters:**
+**The three kinds of negatives, and why it matters:**
 
 | Type | Source | Effect |
 |---|---|---|
@@ -72,17 +73,19 @@ Pull the query toward its positive; push it away from negatives.
 | **Random** | sampled from the corpus | easy; little learning signal |
 | **Hard** | high BM25 or dense score but actually wrong | ⭐ the critical ingredient |
 
-🧠 **Hard negatives are what separate good embedding models from mediocre ones.** If every negative
-is obviously unrelated, the model only learns coarse topical similarity. Hard negatives — documents
-that *look* relevant but aren't — force it to learn fine distinctions. Standard practice: retrieve
-top-$k$ with a first-pass model, remove known positives, and use the rest as hard negatives.
+> [!TIP]
+> **Hard negatives are what separate good embedding models from mediocre ones.** If every negative
+> is obviously unrelated, the model only learns coarse topical similarity. Hard negatives — documents
+> that *look* relevant but aren't — force it to learn fine distinctions. Standard practice: retrieve
+> top-$k$ with a first-pass model, remove known positives, and use the rest as hard negatives.
 
-⚠️ **False negatives are the trap.** Mining hard negatives from an unlabelled corpus will pull in
-documents that are actually relevant but unlabelled, and training on them teaches the model
-exactly the wrong thing. Mitigations: filter with a cross-encoder, or use a margin so only
-*clearly* worse documents count as negatives.
+> [!WARNING]
+> **False negatives are the trap.** Mining hard negatives from an unlabelled corpus will pull in
+> documents that are actually relevant but unlabelled, and training on them teaches the model
+> exactly the wrong thing. Mitigations: filter with a cross-encoder, or use a margin so only
+> *clearly* worse documents count as negatives.
 
-📊 **The modern pipeline** for a strong embedding model:
+**The modern pipeline** for a strong embedding model:
 1. Pretrain a Transformer (often initialized from an LLM).
 2. Weakly-supervised contrastive training on billions of naturally-paired texts (title/body,
    question/answer, citation pairs).
@@ -100,7 +103,7 @@ exactly the wrong thing. Mitigations: filter with a cross-encoder, or use a marg
 | Dot product | $a\cdot b$ | magnitude matters; can encode document "importance" |
 | Euclidean (L2) | $\|a-b\|_2$ | equivalent to cosine **if vectors are normalized** |
 
-📐 **The identity worth knowing.** For unit vectors,
+**The identity worth knowing.** For unit vectors,
 
 $$\|a-b\|^2 = \|a\|^2 + \|b\|^2 - 2a\cdot b = 2 - 2\cos\theta$$
 
@@ -108,12 +111,13 @@ So L2 ranking and cosine ranking are **identical** after normalization. This is 
 database says "normalize your vectors" — it lets metric-assuming index structures handle cosine
 correctly.
 
-⚠️ **Cosine thresholds do not transfer between models.** From
-→ [Math toolkit §4](../01-foundations/03-math-toolkit.md#4-high-dimensional-geometry-why-your-intuition-is-wrong):
-random vectors in $\mathbb{R}^d$ have cosine $\approx \pm 1/\sqrt{d}$. But trained embeddings are
-*anisotropic* — they occupy a narrow cone, so unrelated texts can score 0.7.
+> [!WARNING]
+> **Cosine thresholds do not transfer between models.** From
+> → [Math toolkit §4](../01-foundations/03-math-toolkit.md#4-high-dimensional-geometry-why-your-intuition-is-wrong):
+> random vectors in $\mathbb{R}^d$ have cosine $\approx \pm 1/\sqrt{d}$. But trained embeddings are
+> *anisotropic* — they occupy a narrow cone, so unrelated texts can score 0.7.
 
-🔢 **Realistic values differ wildly by model:**
+**Realistic values differ wildly by model:**
 
 | Model family | Unrelated texts | Related | Near-duplicate |
 |---|---|---|---|
@@ -130,11 +134,11 @@ set your threshold from that — never from a number you read somewhere.
 
 Exact search over $N$ vectors costs $O(Nd)$ per query.
 
-🔢 10 M vectors × 768 dims × 4 bytes = 30.7 GB, and one query is $7.7\times10^9$ FLOPs. At 100 QPS
+10 M vectors × 768 dims × 4 bytes = 30.7 GB, and one query is $7.7\times10^9$ FLOPs. At 100 QPS
 that's 770 GFLOP/s just for search — feasible but wasteful. ANN trades a small amount of recall
 for orders of magnitude of speed.
 
-### HNSW — the quality default
+### HNSW: the quality default
 
 **Hierarchical Navigable Small World**: a multi-layer graph where upper layers are sparse
 "highways" and the bottom layer contains every point.
@@ -156,13 +160,13 @@ for orders of magnitude of speed.
 | `efConstruction` | candidates during build | higher = better index, slower build |
 | `efSearch` | candidates during query | **tune at query time**: higher = better recall, slower |
 
-🔢 **Memory**: roughly $N \times (d\times4 + M\times2\times4)$ bytes. For 10 M vectors, $d=768$,
+**Memory**: roughly $N \times (d\times4 + M\times2\times4)$ bytes. For 10 M vectors, $d=768$,
 $M=16$: $10^7 \times (3072 + 128) = 32$ GB.
 
-📊 Typical: 95–99% recall at ~1 ms per query. **`efSearch` is the knob you actually turn in
+Typical: 95–99% recall at ~1 ms per query. **`efSearch` is the knob you actually turn in
 production** — it lets you trade latency for recall without rebuilding.
 
-### IVF-PQ — the memory default
+### IVF-PQ: the memory default
 
 Two ideas stacked:
 
@@ -184,12 +188,13 @@ own 256-entry codebook. Store $m$ bytes instead of $4d$.
    32× compression
 ```
 
-🔢 **10 M vectors**: 30.7 GB → **0.96 GB**. That's the difference between needing a machine with
+**10 M vectors**: 30.7 GB → **0.96 GB**. That's the difference between needing a machine with
 64 GB of RAM and running on a laptop.
 
-⚠️ **PQ is lossy.** Recall drops to roughly 80–95% depending on $m$. The standard fix is
-**re-ranking**: retrieve 5–10× more candidates with PQ, then rescore the shortlist with the exact
-full-precision vectors.
+> [!WARNING]
+> **PQ is lossy.** Recall drops to roughly 80–95% depending on $m$. The standard fix is
+> **re-ranking**: retrieve 5–10× more candidates with PQ, then rescore the shortlist with the exact
+> full-precision vectors.
 
 ### Comparison
 
@@ -202,14 +207,15 @@ full-precision vectors.
 | **HNSW-PQ** | slow | fast | ~2 GB | 90–97% | the usual production compromise |
 | ScaNN | medium | very fast | ~2 GB | 90–97% | anisotropic quantization; strong |
 
-🧠 **Rule of thumb**: under 100k vectors, use brute force — it is simpler, exact, and fast enough.
-ANN complexity is only justified above ~1 M.
+> [!TIP]
+> **Rule of thumb**: under 100k vectors, use brute force — it is simpler, exact, and fast enough.
+> ANN complexity is only justified above ~1 M.
 
 ---
 
 ## 5. Matryoshka embeddings
 
-📊 A model trained with **Matryoshka Representation Learning** applies the contrastive loss at
+A model trained with **Matryoshka Representation Learning** applies the contrastive loss at
 *multiple* truncation lengths simultaneously, so the first $k$ dimensions of the vector are
 themselves a valid (slightly weaker) embedding.
 
@@ -220,10 +226,11 @@ themselves a valid (slightly weaker) embedding.
    first 64       █                                  ~90%
 ```
 
-🧠 **The practical pattern this enables — adaptive retrieval:**
-1. Store 64-dim truncations for everything (24× less memory).
-2. Retrieve 1000 candidates fast on the short vectors.
-3. Re-rank those 1000 with the full-length vectors.
+> [!TIP]
+> **The practical pattern this enables — adaptive retrieval:**
+> 1. Store 64-dim truncations for everything (24× less memory).
+> 2. Retrieve 1000 candidates fast on the short vectors.
+> 3. Re-rank those 1000 with the full-length vectors.
 
 Near-full accuracy at a fraction of the index cost, with no separate model.
 
@@ -231,9 +238,10 @@ Near-full accuracy at a fraction of the index cost, with no separate model.
 
 ## 6. Hybrid search
 
-⚠️ **Dense embeddings fail at exact matching.** Product codes, error numbers, function names, rare
-proper nouns, legal citations — these have weak or no semantic signal, and a dense model maps them
-somewhere arbitrary.
+> [!WARNING]
+> **Dense embeddings fail at exact matching.** Product codes, error numbers, function names, rare
+> proper nouns, legal citations — these have weak or no semantic signal, and a dense model maps them
+> somewhere arbitrary.
 
 **BM25** — the classic sparse retriever — handles exactly those cases:
 
@@ -256,7 +264,7 @@ calibration:
 
 $$\text{RRF}(d) = \sum_{r \in \text{rankers}} \frac{1}{k + \text{rank}_r(d)}, \qquad k = 60$$
 
-💻
+
 
 ```python
 def reciprocal_rank_fusion(*ranked_lists, k=60):
@@ -270,11 +278,12 @@ def reciprocal_rank_fusion(*ranked_lists, k=60):
 results = reciprocal_rank_fusion(bm25_search(q, 100), dense_search(q, 100))
 ```
 
-🧠 **Why RRF uses ranks rather than scores**: BM25 scores are unbounded and corpus-dependent; cosine
-scores live in $[-1,1]$ and are model-dependent. There is no principled way to put them on a
-common scale. Ranks sidestep the problem entirely.
+> [!TIP]
+> **Why RRF uses ranks rather than scores**: BM25 scores are unbounded and corpus-dependent; cosine
+> scores live in $[-1,1]$ and are model-dependent. There is no principled way to put them on a
+> common scale. Ranks sidestep the problem entirely.
 
-📊 Hybrid retrieval consistently beats either component alone on realistic benchmarks (BEIR), often
+Hybrid retrieval consistently beats either component alone on realistic benchmarks (BEIR), often
 by 5–15 points of nDCG. **If you are building retrieval and only have dense search, adding BM25 is
 usually the highest-value next step.**
 
@@ -304,18 +313,19 @@ usually the highest-value next step.**
   10 M docs ──[ANN, ~1ms]──► top 100 ──[cross-encoder, ~50ms]──► top 10 ──► LLM
 ```
 
-📊 Reranking typically adds 5–15 points of nDCG@10 over retrieval alone. It is the second-highest-
+Reranking typically adds 5–15 points of nDCG@10 over retrieval alone. It is the second-highest-
 value addition to a RAG system after hybrid search.
 
-🧠 **Why cross-encoders are so much better**: a bi-encoder must compress a document into a fixed
-vector *without knowing the query*. A cross-encoder sees both together and can attend from query
-terms directly to document terms. The cost is that you cannot precompute anything.
+> [!TIP]
+> **Why cross-encoders are so much better**: a bi-encoder must compress a document into a fixed
+> vector *without knowing the query*. A cross-encoder sees both together and can attend from query
+> terms directly to document terms. The cost is that you cannot precompute anything.
 
 ---
 
 ## 8. Implementation
 
-💻 A complete hybrid search + rerank pipeline:
+A complete hybrid search + rerank pipeline:
 
 ```python
 import numpy as np, faiss
@@ -360,8 +370,9 @@ class HybridSearch:
         return [(self.docs[fused[i]], float(scores[i])) for i in order]
 ```
 
-⚠️ **`normalize_embeddings=True` on both indexing and querying.** Mismatched normalization is one
-of the most common and most silent retrieval bugs — recall degrades without any error.
+> [!WARNING]
+> **`normalize_embeddings=True` on both indexing and querying.** Mismatched normalization is one
+> of the most common and most silent retrieval bugs — recall degrades without any error.
 
 ---
 

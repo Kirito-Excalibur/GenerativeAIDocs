@@ -14,7 +14,9 @@ readme = (root / "README.md").read_text(encoding="utf-8")
 # strip the leading docs/ from markdown link targets only (not from prose)
 out = re.sub(r"\]\(docs/", "](", readme)
 # the mkdocs.yml pointer in README refers to the repo root, which has no site equivalent
-out = ("<!-- AUTO-GENERATED from README.md by scripts/sync_index.py. Do not edit. -->\n\n"
+# front matter: the home page is an index, so give it the full width
+out = ("---\nhide:\n  - navigation\n---\n\n"
+       "<!-- AUTO-GENERATED from README.md by scripts/sync_index.py. Do not edit. -->\n\n"
        + out)
 
 dest = root / "docs" / "index.md"

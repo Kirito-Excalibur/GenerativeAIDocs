@@ -24,10 +24,11 @@ $$p_\theta(x) = \int p_\theta(x\mid z)p(z)\,dz$$
 
 which is intractable — it integrates a neural network over a $d_z$-dimensional space.
 
-⚠️ **Why not Monte Carlo?** $p_\theta(x) \approx \frac{1}{K}\sum_k p_\theta(x \mid z_k)$ with
-$z_k \sim p(z)$. In high dimensions almost every random $z$ decodes to something nothing like $x$,
-so almost every term is ≈ 0. You'd need astronomically many samples. **The fix is importance
-sampling from a learned proposal $q_\phi(z\mid x)$** — which is exactly the encoder.
+> [!WARNING]
+> **Why not Monte Carlo?** $p_\theta(x) \approx \frac{1}{K}\sum_k p_\theta(x \mid z_k)$ with
+> $z_k \sim p(z)$. In high dimensions almost every random $z$ decodes to something nothing like $x$,
+> so almost every term is ≈ 0. You'd need astronomically many samples. **The fix is importance
+> sampling from a learned proposal $q_\phi(z\mid x)$** — which is exactly the encoder.
 
 ---
 
@@ -58,12 +59,13 @@ $$\boxed{\;\mathcal{L} = \underbrace{\mathbb{E}_{q_\phi(z|x)}\!\left[\log p_\the
           ← pulls σ→0, μ spread      → pushes σ→1, μ→0
 ```
 
-🧠 **The tension, stated plainly** — the reconstruction term wants each input to get its own
-private, tightly-concentrated region of latent space ($\sigma \to 0$, codes far apart): that makes
-decoding unambiguous. The KL term wants every input to map to the *same* standard Gaussian
-($\mu \to 0, \sigma \to 1$): that makes the latent space smooth and samplable. The equilibrium is a
-latent space where codes overlap *just* enough that sampling $z \sim \mathcal{N}(0,I)$ lands
-somewhere the decoder understands.
+> [!TIP]
+> **The tension, stated plainly** — the reconstruction term wants each input to get its own
+> private, tightly-concentrated region of latent space ($\sigma \to 0$, codes far apart): that makes
+> decoding unambiguous. The KL term wants every input to map to the *same* standard Gaussian
+> ($\mu \to 0, \sigma \to 1$): that makes the latent space smooth and samplable. The equilibrium is a
+> latent space where codes overlap *just* enough that sampling $z \sim \mathcal{N}(0,I)$ lands
+> somewhere the decoder understands.
 
 **Without the KL term you have a plain autoencoder**: great reconstruction, but the latent space is
 full of holes. Sample a random $z$ and you decode garbage. The KL term is what makes it
@@ -99,17 +101,17 @@ Now $z$ is a *deterministic, differentiable* function of $\phi$ and a *fixed* ra
               no gradient path                (constant w.r.t. φ)
 ```
 
-📐 **Why it's correct** — it is a change of variables inside the expectation:
+**Why it's correct** — it is a change of variables inside the expectation:
 
 $$\mathbb{E}_{z\sim q_\phi}[f(z)] = \mathbb{E}_{\epsilon\sim\mathcal{N}(0,I)}\big[f(\mu_\phi + \sigma_\phi\odot\epsilon)\big]$$
 
 The right-hand side's distribution no longer depends on $\phi$, so
 $\nabla_\phi$ passes straight inside.
 
-📊 **Variance**: the reparameterized estimator typically has variance orders of magnitude below
+**Variance**: the reparameterized estimator typically has variance orders of magnitude below
 REINFORCE, which is the difference between "trains in an hour" and "does not train."
 
-💻 The standard implementation detail: the encoder outputs $\log\sigma^2$, not $\sigma$, so that the
+The standard implementation detail: the encoder outputs $\log\sigma^2$, not $\sigma$, so that the
 output is unconstrained (any real number) and $\sigma = \exp(\frac12\log\sigma^2) > 0$ automatically.
 
 ```python
@@ -136,10 +138,11 @@ The choice of reconstruction term **is** a choice of decoder likelihood:
 | Laplace | L1 | robustness to outliers |
 | + LPIPS + adversarial | perceptual + GAN | **latent diffusion VAEs** |
 
-⚠️ **This is the blurriness, explained.** With a Gaussian likelihood, the optimal decoder output is
-$\mathbb{E}[x \mid z]$ — the *average* of all images consistent with $z$. If $z$ doesn't pin down
-the exact location of an edge, the average of "edge at pixel 10" and "edge at pixel 11" is a
-smeared edge at 10.5. MSE literally rewards hedging.
+> [!WARNING]
+> **This is the blurriness, explained.** With a Gaussian likelihood, the optimal decoder output is
+> $\mathbb{E}[x \mid z]$ — the *average* of all images consistent with $z$. If $z$ doesn't pin down
+> the exact location of an edge, the average of "edge at pixel 10" and "edge at pixel 11" is a
+> smeared edge at 10.5. MSE literally rewards hedging.
 
 ```
    Two plausible reconstructions      MSE-optimal output = their mean
@@ -148,14 +151,15 @@ smeared edge at 10.5. MSE literally rewards hedging.
                                              ← lower MSE than either!
 ```
 
-🧠 **The fixes, in increasing order of effectiveness:**
-1. Use a richer likelihood (discretized logistic mixture) — helps a little.
-2. Use a **perceptual loss** (LPIPS: distance in a pretrained VGG's feature space) — helps a lot,
-   because feature-space averaging is not pixel-space averaging.
-3. Add an **adversarial loss** on the decoder — a discriminator punishes blur directly. This is
-   what the Stable Diffusion VAE does, and it is why its reconstructions are sharp.
-4. Use **discrete latents** (VQ-VAE) + an expressive autoregressive prior — moves the
-   "which of the plausible images" decision to a model that can represent multimodality.
+> [!TIP]
+> **The fixes, in increasing order of effectiveness:**
+> 1. Use a richer likelihood (discretized logistic mixture) — helps a little.
+> 2. Use a **perceptual loss** (LPIPS: distance in a pretrained VGG's feature space) — helps a lot,
+>    because feature-space averaging is not pixel-space averaging.
+> 3. Add an **adversarial loss** on the decoder — a discriminator punishes blur directly. This is
+>    what the Stable Diffusion VAE does, and it is why its reconstructions are sharp.
+> 4. Use **discrete latents** (VQ-VAE) + an expressive autoregressive prior — moves the
+>    "which of the plausible images" decision to a model that can represent multimodality.
 
 ---
 
@@ -178,7 +182,7 @@ a useless noise input.
 | Skip connections from $z$ | inject $z$ at every decoder layer |
 | **Discrete latents (VQ)** | no KL term to collapse at all |
 
-💻 Free bits, the most robust fix:
+Free bits, the most robust fix:
 
 ```python
 kl_per_dim = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp())   # (B, d_z)
@@ -208,7 +212,7 @@ a diffusion model on $q_\phi(z)$ instead of assuming it is Gaussian.
 
 ---
 
-## 6. β-VAE and disentanglement
+## 6. Beta-VAE and disentanglement
 
 $$\mathcal{L}_\beta = \mathbb{E}_{q}[\log p_\theta(x\mid z)] - \beta\, D_{\mathrm{KL}}(q_\phi(z|x)\|p(z))$$
 
@@ -219,17 +223,19 @@ $$\mathcal{L}_\beta = \mathbb{E}_{q}[\log p_\theta(x\mid z)] - \beta\, D_{\mathr
 | $\beta > 1$ | more disentangled, more compressed, blurrier |
 | $\beta \to \infty$ | posterior collapse |
 
-🧠 **Why large $\beta$ encourages disentanglement** — a large KL penalty forces the model through a
-narrow information channel. To reconstruct well under a tight bit budget, the encoder must use the
-*most efficient* code, and for data generated by independent factors (pose, lighting, identity)
-the most efficient code is one that allocates a separate dimension to each factor. The isotropic
-Gaussian prior additionally prefers axis-aligned, independent dimensions.
+> [!TIP]
+> **Why large $\beta$ encourages disentanglement** — a large KL penalty forces the model through a
+> narrow information channel. To reconstruct well under a tight bit budget, the encoder must use the
+> *most efficient* code, and for data generated by independent factors (pose, lighting, identity)
+> the most efficient code is one that allocates a separate dimension to each factor. The isotropic
+> Gaussian prior additionally prefers axis-aligned, independent dimensions.
 
-⚠️ **The honest caveat** — Locatello et al. (2019), *Challenging Common Assumptions in the
-Unsupervised Learning of Disentangled Representations*, proved that unsupervised disentanglement is
-**impossible without inductive biases**, and showed empirically that reported gains were largely
-attributable to random seed variation and unprincipled model selection. Treat disentanglement
-claims sceptically; if you need disentangled factors, use some supervision.
+> [!WARNING]
+> **The honest caveat** — Locatello et al. (2019), *Challenging Common Assumptions in the
+> Unsupervised Learning of Disentangled Representations*, proved that unsupervised disentanglement is
+> **impossible without inductive biases**, and showed empirically that reported gains were largely
+> attributable to random seed variation and unprincipled model selection. Treat disentanglement
+> claims sceptically; if you need disentangled factors, use some supervision.
 
 ---
 
@@ -265,7 +271,7 @@ across the quantization boundary:
 z_q = z_e + (z_q - z_e).detach()   # forward: z_q. backward: gradient flows to z_e.
 ```
 
-🔢 **The compression numbers** — a $256\times256\times3$ image → a $32\times32$ grid of indices
+**The compression numbers** — a $256\times256\times3$ image → a $32\times32$ grid of indices
 into a 512-entry codebook:
 
 $$\frac{32 \times 32 \times \log_2 512}{256\times256\times3\times8} = \frac{9216 \text{ bits}}{1{,}572{,}864 \text{ bits}} = \frac{1}{170}$$
@@ -282,16 +288,17 @@ and most video generation.
 | EnCodec / SoundStream | audio → tokens → language model over audio |
 | Modern video models | spatio-temporal VQ + Transformer |
 
-⚠️ **Codebook collapse** — most entries go unused; effective vocabulary shrinks to a handful.
-Fixes: EMA codebook updates, restarting dead codes to random encoder outputs, low-dimensional
-codes with L2 normalization, or **FSQ (finite scalar quantization)**, which replaces the learned
-codebook with fixed per-dimension rounding and sidesteps the problem entirely.
+> [!WARNING]
+> **Codebook collapse** — most entries go unused; effective vocabulary shrinks to a handful.
+> Fixes: EMA codebook updates, restarting dead codes to random encoder outputs, low-dimensional
+> codes with L2 normalization, or **FSQ (finite scalar quantization)**, which replaces the learned
+> codebook with fixed per-dimension rounding and sidesteps the problem entirely.
 
 ---
 
 ## 8. Implementation
 
-💻 A complete VAE on MNIST, end to end:
+A complete VAE on MNIST, end to end:
 
 ```python
 import torch, torch.nn as nn, torch.nn.functional as F
@@ -336,11 +343,11 @@ with torch.no_grad():
     samples = torch.sigmoid(model.dec(z)).view(-1, 1, 28, 28)
 ```
 
-📊 **Expected numbers on binarized MNIST**, $d_z = 20$, after ~20 epochs:
+**Expected numbers on binarized MNIST**, $d_z = 20$, after ~20 epochs:
 reconstruction ≈ 70 nats, KL ≈ 25 nats, total ≈ 95 nats/image. Reported state-of-the-art ELBOs are
 around 80 nats; PixelCNN-decoder VAEs reach ~78.
 
-🔢 **Sanity check on the KL value**: 25 nats = 36 bits of information in the latent code. For MNIST
+**Sanity check on the KL value**: 25 nats = 36 bits of information in the latent code. For MNIST
 that is plausible — digit identity (3.3 bits) plus ~30 bits of style. If your KL is near 0, you
 have posterior collapse. If it is near the reconstruction loss, $\beta$ is too low.
 
@@ -357,9 +364,10 @@ have posterior collapse. If it is near the reconstruction loss, $\beta$ is too l
 | **Anomaly detection** | industrial, medical | high reconstruction error = out of distribution |
 | **World models** | Dreamer, model-based RL | compact latent state for planning |
 
-🧠 **The lesson worth generalizing** — VAEs lost as *generators* but won as *representation
-learners*. Splitting a hard generative problem into "compress to a good space" + "generate in that
-space" is one of the most reusable architectural patterns in the field.
+> [!TIP]
+> **The lesson worth generalizing** — VAEs lost as *generators* but won as *representation
+> learners*. Splitting a hard generative problem into "compress to a good space" + "generate in that
+> space" is one of the most reusable architectural patterns in the field.
 
 ---
 

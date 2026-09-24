@@ -1,4 +1,4 @@
-# Probability & Information Theory for Generative Models
+# Probability and Information Theory for Generative Models
 
 > **Summary** — Generative modelling is applied information theory. Entropy measures how many bits
 > a distribution needs; cross-entropy is your training loss; KL divergence is what you are really
@@ -41,13 +41,14 @@ $$H(p) = -\sum_x p(x)\log p(x) = \mathbb{E}_{x\sim p}[-\log p(x)]$$
 
 Units: **bits** if $\log = \log_2$, **nats** if $\log = \ln$. ($1 \text{ nat} = 1.4427$ bits.)
 
-🧠 **Intuition** — $-\log_2 p(x)$ is the *surprisal* of $x$: how many bits an optimal code spends on
-it. Rare events get long codewords, common events short ones. Entropy is the average codeword
-length — the irreducible cost of transmitting samples from $p$. **You cannot compress below
-entropy** (Shannon's source coding theorem), and a perfect generative model is exactly a perfect
-compressor.
+> [!TIP]
+> **Intuition** — $-\log_2 p(x)$ is the *surprisal* of $x$: how many bits an optimal code spends on
+> it. Rare events get long codewords, common events short ones. Entropy is the average codeword
+> length — the irreducible cost of transmitting samples from $p$. **You cannot compress below
+> entropy** (Shannon's source coding theorem), and a perfect generative model is exactly a perfect
+> compressor.
 
-🔢 **Worked example — four distributions over 4 symbols**
+**Worked example — four distributions over 4 symbols**
 
 | Distribution | $p$ | $H$ (bits) | Comment |
 |---|---|---|---|
@@ -64,7 +65,7 @@ $$= -[0.5(-1) + 0.25(-2) + 0.25(-3)] = 0.5 + 0.5 + 0.75 = 1.75 \text{ bits}$$
 Notice this matches the Huffman code lengths exactly ($0.5\cdot1 + 0.25\cdot2 + 0.125\cdot3 +
 0.125\cdot3 = 1.75$). That is not a coincidence — that is the source coding theorem.
 
-📊 **Real numbers to anchor on**
+**Real numbers to anchor on**
 
 | Source | Entropy |
 |---|---|
@@ -83,13 +84,14 @@ compressible**.
 
 $$H(p, q) = -\sum_x p(x)\log q(x) = \mathbb{E}_{x\sim p}[-\log q(x)]$$
 
-🧠 **Intuition** — "I built a code optimized for $q$, but the world emits $p$. What's my average
-message length?" It is always *at least* $H(p)$, with equality only when $q = p$.
+> [!TIP]
+> **Intuition** — "I built a code optimized for $q$, but the world emits $p$. What's my average
+> message length?" It is always *at least* $H(p)$, with equality only when $q = p$.
 
 This is your loss function. Training a language model with cross-entropy loss means: minimize the
 number of bits you'd need to encode the real text using your model's predictions.
 
-🔢 **Worked example — the cost of a wrong model**
+**Worked example — the cost of a wrong model**
 
 True: $p = (0.5, 0.25, 0.125, 0.125)$, so $H(p) = 1.75$ bits.
 Model: $q = (0.25, 0.25, 0.25, 0.25)$ (uniform — the model learned nothing).
@@ -114,13 +116,13 @@ $$\boxed{\;D_{\mathrm{KL}}(p \,\|\, q) = \sum_x p(x)\log\frac{p(x)}{q(x)} = H(p,
 | Not a metric | violates triangle inequality | don't treat it as a distance |
 | Infinite on support mismatch | $p(x)>0, q(x)=0 \Rightarrow \infty$ | MLE can never assign 0 to real data |
 
-📐 **Proof of non-negativity** (Jensen, one line):
+**Proof of non-negativity** (Jensen, one line):
 
 $$-D_{\mathrm{KL}}(p\|q) = \sum_x p(x)\log\frac{q(x)}{p(x)} \le \log\sum_x p(x)\frac{q(x)}{p(x)} = \log\sum_x q(x) = \log 1 = 0$$
 
 using concavity of $\log$. Hence $D_{\mathrm{KL}} \ge 0$. ∎
 
-### The asymmetry, visually — the single most important picture in generative modelling
+### The asymmetry, visually: the single most important picture in generative modelling
 
 Fit a **single** Gaussian $q$ to a bimodal $p$. Two objectives, two answers:
 
@@ -136,10 +138,11 @@ Fit a **single** Gaussian $q$ to a bimodal $p$. Two objectives, two answers:
 | Reverse $D_{\mathrm{KL}}(q\|p)$ | Variational inference, the KL penalty in RLHF/PPO, expectation propagation |
 | Symmetric-ish (JSD) | Original GAN objective |
 
-⚠️ **Pitfall** — in RLHF the KL penalty is $D_{\mathrm{KL}}(\pi_\theta \| \pi_{\text{ref}})$ —
-*reverse* KL, mode-seeking. This is part of why aligned models lose output diversity: the objective
-literally rewards collapsing onto a narrow region of the reference policy's support.
-→ [Alignment](../04-large-language-models/05-alignment.md)
+> [!WARNING]
+> **Pitfall** — in RLHF the KL penalty is $D_{\mathrm{KL}}(\pi_\theta \| \pi_{\text{ref}})$ —
+> *reverse* KL, mode-seeking. This is part of why aligned models lose output diversity: the objective
+> literally rewards collapsing onto a narrow region of the reference policy's support.
+> → [Alignment](../04-large-language-models/05-alignment.md)
 
 ### Jensen–Shannon divergence
 
@@ -156,10 +159,11 @@ The original GAN objective is equivalent to minimizing $2\,D_{\mathrm{JS}} - 2\l
 
 $$\mathrm{PPL} = \exp\!\left(-\frac{1}{N}\sum_{i=1}^{N}\log p_\theta(x_i \mid x_{<i})\right) = \exp(H(p_{\text{data}}, p_\theta))$$
 
-🧠 **Intuition** — "the model is as confused as if it were choosing uniformly among PPL options at
-each step." PPL 1 = perfect. PPL = vocabulary size = learned nothing.
+> [!TIP]
+> **Intuition** — "the model is as confused as if it were choosing uniformly among PPL options at
+> each step." PPL 1 = perfect. PPL = vocabulary size = learned nothing.
 
-🔢 **Worked example**
+**Worked example**
 
 A model with vocabulary 50,257 predicting the next token:
 
@@ -172,13 +176,14 @@ A model with vocabulary 50,257 predicting the next token:
 | 1.50 | 4.48 | strong LM |
 | 0.00 | 1.0 | perfect (impossible; language has irreducible entropy) |
 
-⚠️ **Pitfall** — perplexity is **not comparable across tokenizers**. A model with a bigger
-vocabulary packs more characters into each token, so its per-token perplexity is naturally higher
-even if it is a better model. To compare fairly, convert to **bits per character**:
+> [!WARNING]
+> **Pitfall** — perplexity is **not comparable across tokenizers**. A model with a bigger
+> vocabulary packs more characters into each token, so its per-token perplexity is naturally higher
+> even if it is a better model. To compare fairly, convert to **bits per character**:
 
 $$\text{BPC} = \frac{\text{total nats}}{\ln 2 \times \text{number of characters}}$$
 
-🔢 If a model scores loss $2.0$ nats/token with an average of $4.1$ characters/token:
+If a model scores loss $2.0$ nats/token with an average of $4.1$ characters/token:
 
 $$\text{BPC} = \frac{2.0}{0.693 \times 4.1} = 0.704 \text{ bits/char}$$
 
@@ -190,8 +195,9 @@ $$\text{BPC} = \frac{2.0}{0.693 \times 4.1} = 0.704 \text{ bits/char}$$
 
 $$I(X;Y) = D_{\mathrm{KL}}\big(p(x,y) \,\big\|\, p(x)p(y)\big) = H(X) - H(X\mid Y) = H(Y) - H(Y \mid X)$$
 
-🧠 **Intuition** — how many bits knowing $Y$ saves you when describing $X$. Zero iff independent.
-Symmetric, unlike KL.
+> [!TIP]
+> **Intuition** — how many bits knowing $Y$ saves you when describing $X$. Zero iff independent.
+> Symmetric, unlike KL.
 
 ```
    H(X,Y)  ──────────────────────────────────────
@@ -224,7 +230,7 @@ more than $\log 256 = 8$ nats. This is a large part of why contrastive methods w
 For a latent-variable model $p_\theta(x) = \int p_\theta(x\mid z)p(z)\,dz$, that integral is
 intractable for any interesting $p_\theta$. Introduce a tractable $q_\phi(z\mid x)$.
 
-📐 **Derivation 1 — via Jensen's inequality**
+**Derivation 1 — via Jensen's inequality**
 
 $$
 \begin{aligned}
@@ -235,7 +241,7 @@ $$
 \end{aligned}
 $$
 
-📐 **Derivation 2 — via KL, which tells you the size of the gap**
+**Derivation 2 — via KL, which tells you the size of the gap**
 
 $$
 \begin{aligned}
@@ -295,17 +301,17 @@ $$D_{\mathrm{KL}}\big(\mathcal{N}(\mu_1,\sigma_1^2)\,\|\,\mathcal{N}(\mu_2,\sigm
 
 $$\boxed{\;D_{\mathrm{KL}}\big(\mathcal{N}(\mu,\sigma^2 I)\,\|\,\mathcal{N}(0,I)\big) = \tfrac12\sum_{j=1}^{d}\left(\mu_j^2 + \sigma_j^2 - \log\sigma_j^2 - 1\right)\;}$$
 
-💻 In code this is the single most copy-pasted line in generative modelling:
+In code this is the single most copy-pasted line in generative modelling:
 
 ```python
 # encoder outputs mu and logvar, each shape (batch, latent_dim)
 kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(), dim=1)  # per-sample, in nats
 ```
 
-🔢 **Sanity check** — if $\mu = 0$ and $\sigma = 1$ (i.e. $\log\sigma^2 = 0$):
+**Sanity check** — if $\mu = 0$ and $\sigma = 1$ (i.e. $\log\sigma^2 = 0$):
 $\frac12(0 + 1 - 0 - 1) = 0$. ✓ Zero divergence from the prior, as it must be.
 
-🔢 If $\mu = 2, \sigma = 1$ in one dimension: $\frac12(4 + 1 - 0 - 1) = 2$ nats $= 2.89$ bits.
+If $\mu = 2, \sigma = 1$ in one dimension: $\frac12(4 + 1 - 0 - 1) = 2$ nats $= 2.89$ bits.
 Shifting a unit Gaussian by two standard deviations costs about 3 bits to describe.
 
 **Other closed forms worth having:**
@@ -327,7 +333,7 @@ single closed-form jump from $x_0$ to $x_t$.
 
 $$p_i = \frac{\exp(z_i/\tau)}{\sum_j \exp(z_j/\tau)}$$
 
-🔢 **Worked example** — logits $z = (2.0, 1.0, 0.5, -1.0)$:
+**Worked example** — logits $z = (2.0, 1.0, 0.5, -1.0)$:
 
 | $\tau$ | Resulting probabilities | Entropy (bits) | Behaviour |
 |---|---|---|---|
@@ -351,19 +357,19 @@ interacts with top-$k$ and top-$p$.
 
 ---
 
-## 10. Monte Carlo estimation & the two gradient estimators
+## 10. Monte Carlo estimation and the two gradient estimators
 
 You will constantly need $\nabla_\phi \mathbb{E}_{q_\phi(z)}[f(z)]$ — a gradient of an expectation
 whose *distribution* depends on the parameters. Two tools:
 
-### (a) REINFORCE / score-function estimator — works always, high variance
+### (a) REINFORCE (score-function estimator): works always, high variance
 
 $$\nabla_\phi \mathbb{E}_{q_\phi}[f(z)] = \mathbb{E}_{q_\phi}\!\big[f(z)\,\nabla_\phi \log q_\phi(z)\big]$$
 
 Works for discrete $z$. Used in RL (this is the policy gradient theorem).
 Variance is high → needs baselines, which is exactly what the value function in PPO is for.
 
-### (b) Reparameterization trick — low variance, needs continuous $z$
+### (b) Reparameterization trick: low variance, needs continuous z
 
 Write $z = g_\phi(\epsilon, x)$ with $\epsilon$ from a *fixed* distribution:
 
@@ -390,7 +396,7 @@ For a Gaussian: $z = \mu_\phi(x) + \sigma_\phi(x)\odot\epsilon$, $\epsilon \sim 
                                                      └──────┘
 ```
 
-📊 Variance comparison on a typical VAE: the reparameterized estimator has variance orders of
+Variance comparison on a typical VAE: the reparameterized estimator has variance orders of
 magnitude lower than REINFORCE. This trick is *the* reason VAEs train at all, and it is why
 discrete latents need special handling (→ Gumbel-softmax, straight-through, VQ-VAE).
 

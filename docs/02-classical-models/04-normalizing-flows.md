@@ -35,10 +35,11 @@ $$\boxed{\;\log p_X(x) = \log p_Z\!\big(f^{-1}(x)\big) + \log\left|\det \frac{\p
    Total:      log p_X(x) = log p_Z(z) − Σ_k log|det J_k|
 ```
 
-🧠 **Intuition** — you are not learning a density directly; you are learning a *deformation of
-space*. Start with a perfectly round Gaussian blob of probability mass, then squeeze, stretch and
-fold it until it takes the shape of the data. The log-determinant term is the bookkeeping that
-keeps total mass at 1: wherever you stretch space, the density must drop proportionally.
+> [!TIP]
+> **Intuition** — you are not learning a density directly; you are learning a *deformation of
+> space*. Start with a perfectly round Gaussian blob of probability mass, then squeeze, stretch and
+> fold it until it takes the shape of the data. The log-determinant term is the bookkeeping that
+> keeps total mass at 1: wherever you stretch space, the density must drop proportionally.
 
 **Composition is easy**, because determinants multiply:
 
@@ -94,16 +95,18 @@ $$h_A = y_A, \qquad h_B = (y_B - t_\theta(y_A))\odot\exp(-s_\theta(y_A))$$
 $$J = \begin{pmatrix} I & 0 \\ \frac{\partial y_B}{\partial h_A} & \mathrm{diag}(\exp(s))\end{pmatrix}
 \quad\Longrightarrow\quad \log|\det J| = \sum_j s_\theta(h_A)_j$$
 
-🧠 **Why this is clever** — $s_\theta$ and $t_\theta$ can be *any* network: a ResNet, a Transformer,
-anything. They are only ever evaluated in the forward direction. The invertibility constraint
-applies to the *coupling structure*, not to the networks inside it. You get arbitrary expressivity
-in the conditioning, with a $O(d)$ log-det.
+> [!TIP]
+> **Why this is clever** — $s_\theta$ and $t_\theta$ can be *any* network: a ResNet, a Transformer,
+> anything. They are only ever evaluated in the forward direction. The invertibility constraint
+> applies to the *coupling structure*, not to the networks inside it. You get arbitrary expressivity
+> in the conditioning, with a $O(d)$ log-det.
 
-⚠️ **You must permute between layers.** Otherwise $h_A$ is never transformed — half the variables
-stay frozen forever. Alternating masks (or, better, learned $1\times1$ convolutions — see §4)
-ensure every dimension is both a conditioner and a target.
+> [!WARNING]
+> **You must permute between layers.** Otherwise $h_A$ is never transformed — half the variables
+> stay frozen forever. Alternating masks (or, better, learned $1\times1$ convolutions — see §4)
+> ensure every dimension is both a conditioner and a target.
 
-🔢 **Worked 2-D example.** Let $h = (h_1, h_2) = (1.0, 2.0)$, with
+**Worked 2-D example.** Let $h = (h_1, h_2) = (1.0, 2.0)$, with
 $s(h_1) = 0.5h_1 = 0.5$ and $t(h_1) = -h_1 = -1.0$:
 
 $$y_1 = 1.0, \qquad y_2 = 2.0 \cdot e^{0.5} + (-1.0) = 2.0(1.6487) - 1.0 = 2.2974$$
@@ -141,9 +144,10 @@ Computing $\det W$ for $c = 512$ still costs $O(c^3)$ — but only once per laye
 sample position. Glow further reduces it with an LU decomposition $W = PL(U + \mathrm{diag}(s))$,
 making $\log|\det W| = \sum\log|s|$ an $O(c)$ operation.
 
-🧠 This is a **learned, soft generalization of the permutation** — instead of "swap halves", the
-model learns which linear mixture of channels to condition on. It was the main quality jump from
-RealNVP to Glow.
+> [!TIP]
+> This is a **learned, soft generalization of the permutation** — instead of "swap halves", the
+> model learns which linear mixture of channels to condition on. It was the main quality jump from
+> RealNVP to Glow.
 
 ### MAF vs IAF: the duality worth understanding
 
@@ -163,7 +167,7 @@ parameterization, deploy with the other one."
 
 $$\mathcal{L}(\theta) = -\frac{1}{N}\sum_{i=1}^{N}\left[\log p_Z\!\big(f_\theta^{-1}(x^{(i)})\big) + \sum_{k}\log\left|\det J_k^{-1}\right|\right]$$
 
-💻 The whole training loop:
+The whole training loop:
 
 ```python
 def flow_nll(x, flow):
@@ -184,14 +188,15 @@ with torch.no_grad():
 No adversary, no bound, no sampling in the loss. **The number you print is a real log-likelihood in
 nats** — which is exactly why flows are the standard tool when a calibrated density is required.
 
-⚠️ **Dequantization** — images are discrete ($\{0,\dots,255\}$) but flows model continuous
-densities. Fit a continuous density to discrete data and it will place infinitely tall spikes on
-the integers, giving unbounded (meaningless) likelihoods. Fix: add uniform noise,
-$\tilde x = (x + u)/256$ with $u\sim\mathcal{U}[0,1)^d$. This turns the objective into a valid
-lower bound on the discrete log-likelihood. **Variational dequantization** (Flow++) learns the
-noise distribution and improves bits/dim noticeably.
+> [!WARNING]
+> **Dequantization** — images are discrete ($\{0,\dots,255\}$) but flows model continuous
+> densities. Fit a continuous density to discrete data and it will place infinitely tall spikes on
+> the integers, giving unbounded (meaningless) likelihoods. Fix: add uniform noise,
+> $\tilde x = (x + u)/256$ with $u\sim\mathcal{U}[0,1)^d$. This turns the objective into a valid
+> lower bound on the discrete log-likelihood. **Variational dequantization** (Flow++) learns the
+> noise distribution and improves bits/dim noticeably.
 
-📊 **Reported bits/dim on CIFAR-10** (lower is better):
+**Reported bits/dim on CIFAR-10** (lower is better):
 
 | Model | bits/dim |
 |---|---|
@@ -202,9 +207,10 @@ noise distribution and improves bits/dim noticeably.
 | Sparse Transformer (AR) | 2.80 |
 | Diffusion (VDM, bound) | ~2.65 |
 
-🧠 **Note what this table says**: flows have *exact* likelihood but *worse* likelihood than
-autoregressive models. Invertibility costs expressivity. That tradeoff is the fundamental
-limitation of discrete flows.
+> [!TIP]
+> **Note what this table says**: flows have *exact* likelihood but *worse* likelihood than
+> autoregressive models. Invertibility costs expressivity. That tradeoff is the fundamental
+> limitation of discrete flows.
 
 ---
 
@@ -218,11 +224,12 @@ limitation of discrete flows.
 | Needs many layers | Glow used 6 levels × 32 steps = 192 flow steps for 256×256 faces |
 | Topology preservation | a continuous bijection cannot change the number of connected components |
 
-🧠 **The topology point is subtle and important.** A diffeomorphism maps connected sets to connected
-sets. If your data has $k$ disconnected modes and your base is a single Gaussian blob, a perfectly
-smooth flow *cannot* produce true separation — it must leave a thin bridge of probability between
-modes. In practice flows handle this by making the bridges very low-density, but it is a real
-structural limitation, and it is one reason flows produce samples "between classes."
+> [!TIP]
+> **The topology point is subtle and important.** A diffeomorphism maps connected sets to connected
+> sets. If your data has $k$ disconnected modes and your base is a single Gaussian blob, a perfectly
+> smooth flow *cannot* produce true separation — it must leave a thin bridge of probability between
+> modes. In practice flows handle this by making the bridges very low-density, but it is a real
+> structural limitation, and it is one reason flows produce samples "between classes."
 
 ```
    Base: one connected blob       Data: two disconnected modes
@@ -249,13 +256,14 @@ structural limitation, and it is one reason flows produce samples "between class
 | **Audio synthesis** | Parallel WaveNet / WaveGlow: fast parallel sampling |
 | **→ Flow matching** | the continuous-time descendant, now SOTA for images and video |
 
-⚠️ **Known failure mode worth knowing about** — Nalisnick et al. (2018), *Do Deep Generative Models
-Know What They Don't Know?*, showed that a flow trained on CIFAR-10 assigns **higher** likelihood to
-SVHN images than to CIFAR-10 images. High likelihood ≠ in-distribution. The usual explanation is
-that likelihood is dominated by low-level statistics (SVHN images are smoother, hence more
-"probable" under a model that learned local pixel correlations). **Do not use raw likelihood as an
-OOD detector without correction** (typicality tests and likelihood ratios against a background
-model are the standard fixes).
+> [!WARNING]
+> **Known failure mode worth knowing about** — Nalisnick et al. (2018), *Do Deep Generative Models
+> Know What They Don't Know?*, showed that a flow trained on CIFAR-10 assigns **higher** likelihood to
+> SVHN images than to CIFAR-10 images. High likelihood ≠ in-distribution. The usual explanation is
+> that likelihood is dominated by low-level statistics (SVHN images are smoother, hence more
+> "probable" under a model that learned local pixel correlations). **Do not use raw likelihood as an
+> OOD detector without correction** (typicality tests and likelihood ratios against a background
+> model are the standard fixes).
 
 ---
 
@@ -270,15 +278,17 @@ The log-density evolves by the **instantaneous change of variables** formula:
 
 $$\frac{d\log p(z(t))}{dt} = -\operatorname{tr}\!\left(\frac{\partial v_\theta}{\partial z}\right)$$
 
-🧠 **Note the huge simplification**: a log-*determinant* became a **trace**. Traces are cheap to
-estimate — Hutchinson's estimator gives $\operatorname{tr}(A) = \mathbb{E}_\epsilon[\epsilon^\top A\epsilon]$
-with one vector-Jacobian product. And $v_\theta$ has *no architectural constraints at all* — any
-network defines a valid flow, because the ODE is automatically invertible (just integrate
-backwards).
+> [!TIP]
+> **Note the huge simplification**: a log-*determinant* became a **trace**. Traces are cheap to
+> estimate — Hutchinson's estimator gives $\operatorname{tr}(A) = \mathbb{E}_\epsilon[\epsilon^\top A\epsilon]$
+> with one vector-Jacobian product. And $v_\theta$ has *no architectural constraints at all* — any
+> network defines a valid flow, because the ODE is automatically invertible (just integrate
+> backwards).
 
-⚠️ **The catch that killed neural ODEs for generation**: training required backpropagating through
-an adaptive ODE solver, which is slow and memory-hungry, and the learned trajectories were curved
-(requiring many solver steps).
+> [!WARNING]
+> **The catch that killed neural ODEs for generation**: training required backpropagating through
+> an adaptive ODE solver, which is slow and memory-hungry, and the learned trajectories were curved
+> (requiring many solver steps).
 
 ✅ **Flow matching (2023) removed the catch**: instead of simulating the ODE during training,
 *regress directly onto a known conditional velocity field*. Training becomes a simple

@@ -15,7 +15,7 @@
 Models learn the statistical patterns of their training data, including the ones we'd rather they
 didn't.
 
-📊 **Where bias enters:**
+**Where bias enters:**
 
 | Stage | Mechanism |
 |---|---|
@@ -25,7 +25,7 @@ didn't.
 | **Alignment** | RLHF encodes the values of whoever wrote the rater guidelines |
 | **Evaluation** | benchmarks built by a narrow group measure a narrow notion of quality |
 
-📊 **Documented, measured effects:**
+**Documented, measured effects:**
 
 | Finding | Detail |
 |---|---|
@@ -35,12 +35,14 @@ didn't.
 | **Dialect prejudice** | Hofmann et al. (2024): models assign more negative traits to AAVE speakers — and this is *stronger* in RLHF'd models, where overt bias was reduced but covert bias was not |
 | Language quality gap | performance and tokenization efficiency are much worse for low-resource languages (→ [Tokenization §6](../03-sequence-models/01-tokenization.md#6-the-multilingual-tax)) |
 
-🧠 **The dialect-prejudice finding is the most important one here**, because it complicates the
-standard mitigation story. Alignment training removed *stated* stereotypes while leaving *implicit*
-associations intact — and possibly made them harder to detect. **Measuring the surface behaviour is
-not sufficient.**
+> [!TIP]
+> **The dialect-prejudice finding is the most important one here**, because it complicates the
+> standard mitigation story. Alignment training removed *stated* stereotypes while leaving *implicit*
+> associations intact — and possibly made them harder to detect. **Measuring the surface behaviour is
+> not sufficient.**
 
-⚠️ **"Debiasing" is harder than it sounds**, for three structural reasons:
+> [!WARNING]
+> **"Debiasing" is harder than it sounds**, for three structural reasons:
 
 1. **Fairness definitions conflict.** Demographic parity, equalized odds and calibration are
    mathematically incompatible except in degenerate cases (Kleinberg et al., 2016). You must choose
@@ -51,7 +53,7 @@ not sufficient.**
 3. **Whack-a-mole.** Fixing measured biases doesn't fix unmeasured ones, and can push them into
    less visible forms.
 
-📊 What helps in practice: diverse and documented training data; **measuring** across demographic
+What helps in practice: diverse and documented training data; **measuring** across demographic
 slices rather than only in aggregate; involving affected groups in evaluation design; and being
 explicit about which fairness definition you chose and why.
 
@@ -59,8 +61,9 @@ explicit about which fairness definition you chose and why.
 
 ## 2. Copyright and training data
 
-⚠️ **This is genuinely unsettled law, varying by jurisdiction, with major cases in progress.** What
-follows describes the arguments, not a legal conclusion.
+> [!WARNING]
+> **This is genuinely unsettled law, varying by jurisdiction, with major cases in progress.** What
+> follows describes the arguments, not a legal conclusion.
 
 **The questions:**
 
@@ -86,21 +89,22 @@ follows describes the arguments, not a legal conclusion.
 - Outputs can compete directly with the source works in the same market.
 - Copies are made during the training process itself.
 
-📊 **What is happening regardless of the legal outcome**: licensing deals between model developers
+**What is happening regardless of the legal outcome**: licensing deals between model developers
 and publishers, opt-out mechanisms (`robots.txt`, `ai.txt`, Do-Not-Train headers), compensation
 funds, and models trained exclusively on licensed or public-domain data. The market is settling
 some of this ahead of the courts.
 
-🧠 **For practitioners, the actionable parts are clear even while the law isn't:** know your
-training data's provenance; do not reproduce substantial verbatim portions of copyrighted work;
-check the licence of any model you deploy commercially (many "open" model licences have use
-restrictions); and understand that "it was on the internet" is not a licence.
+> [!TIP]
+> **For practitioners, the actionable parts are clear even while the law isn't:** know your
+> training data's provenance; do not reproduce substantial verbatim portions of copyrighted work;
+> check the licence of any model you deploy commercially (many "open" model licences have use
+> restrictions); and understand that "it was on the internet" is not a licence.
 
 ---
 
 ## 3. Labour
 
-📊 **What the evidence shows so far:**
+**What the evidence shows so far:**
 
 | Finding | Source pattern |
 |---|---|
@@ -110,32 +114,35 @@ restrictions); and understand that "it was on the internet" is not a licence.
 | Early effects visible in some freelance markets | measurable declines in demand for simple writing and basic graphic design |
 | Net employment effect | ⚠️ **unknown** — too early, and confounded by macroeconomic conditions |
 
-🧠 **The "less experienced workers gain most" result is the most interesting and the most replicated
-so far.** The proposed mechanism: the model provides a competent baseline, which raises a novice's
-floor substantially and raises an expert's ceiling only a little. If it holds, the labour-market
-effect is compression rather than uniform displacement — which has very different policy
-implications.
+> [!TIP]
+> **The "less experienced workers gain most" result is the most interesting and the most replicated
+> so far.** The proposed mechanism: the model provides a competent baseline, which raises a novice's
+> floor substantially and raises an expert's ceiling only a little. If it holds, the labour-market
+> effect is compression rather than uniform displacement — which has very different policy
+> implications.
 
-⚠️ **Be sceptical of all productivity numbers, in both directions.** Most studies use constrained
-tasks with clear success criteria over short horizons. Real work involves ambiguity, coordination,
-maintenance and accountability — precisely where measurement is hardest. Studies of longer-horizon
-real work have found smaller and occasionally *negative* effects, including cases where
-experienced developers were slower while believing they were faster.
+> [!WARNING]
+> **Be sceptical of all productivity numbers, in both directions.** Most studies use constrained
+> tasks with clear success criteria over short horizons. Real work involves ambiguity, coordination,
+> maintenance and accountability — precisely where measurement is hardest. Studies of longer-horizon
+> real work have found smaller and occasionally *negative* effects, including cases where
+> experienced developers were slower while believing they were faster.
 
-📊 **The pattern from previous automation waves**: tasks are automated, not whole jobs; new
+**The pattern from previous automation waves**: tasks are automated, not whole jobs; new
 categories appear that are hard to predict; the transition period is where the real hardship is,
 and its costs fall unevenly. Whether AI follows this pattern or breaks it is the open question, and
 confident predictions in either direction are not supported by current evidence.
 
-⚠️ **Data-labelling labour deserves mention.** RLHF and content moderation depend on large numbers
-of human annotators, often in lower-income countries, sometimes reviewing disturbing content for
-low pay. This is a documented and ongoing labour issue, not a hypothetical one.
+> [!WARNING]
+> **Data-labelling labour deserves mention.** RLHF and content moderation depend on large numbers
+> of human annotators, often in lower-income countries, sometimes reviewing disturbing content for
+> low pay. This is a documented and ongoing labour issue, not a hypothetical one.
 
 ---
 
 ## 4. Environment
 
-🔢 **Training costs** (approximate, published estimates):
+**Training costs** (approximate, published estimates):
 
 | Model class | Energy | CO₂e |
 |---|---|---|
@@ -143,20 +150,21 @@ low pay. This is a documented and ongoing labour issue, not a hypothetical one.
 | GPT-3 (2020) | ~1,287 MWh | ~552 t |
 | A modern frontier run | 10,000–50,000+ MWh | thousands of tonnes |
 
-🔢 **For scale**: 552 t CO₂e ≈ 120 cars driven for a year, or ~300 round-trip transatlantic
+**For scale**: 552 t CO₂e ≈ 120 cars driven for a year, or ~300 round-trip transatlantic
 flights. Significant, but small relative to a data-centre industry that consumes 1–2% of global
 electricity.
 
-🧠 **Inference now dominates.** A model is trained once and serves billions of requests. At
-sufficient scale, cumulative inference energy exceeds training energy by a wide margin — which is
-why efficiency work (quantization, distillation, smaller compute-optimal-for-inference models)
-matters environmentally as well as economically.
+> [!TIP]
+> **Inference now dominates.** A model is trained once and serves billions of requests. At
+> sufficient scale, cumulative inference energy exceeds training energy by a wide margin — which is
+> why efficiency work (quantization, distillation, smaller compute-optimal-for-inference models)
+> matters environmentally as well as economically.
 
-🔢 **Per-query energy**: roughly 0.3–3 Wh depending on model size and query length — order-of-
+**Per-query energy**: roughly 0.3–3 Wh depending on model size and query length — order-of-
 magnitude comparable to a few web searches, and far less than streaming video for a minute. The
 aggregate matters more than the individual query.
 
-📊 **What reduces impact:**
+**What reduces impact:**
 - Efficient architectures (MoE: capacity without proportional compute)
 - Quantization and distillation (→ [Efficiency](../04-large-language-models/07-efficiency.md))
 - Carbon-aware scheduling (train where and when the grid is clean)
@@ -164,17 +172,18 @@ aggregate matters more than the individual query.
 - **Not training a model you don't need** — fine-tuning or prompting an existing one is orders of
   magnitude cheaper
 
-⚠️ **The honest framing**: AI's energy use is growing fast and is a legitimate concern, especially
-its local impact on grids and water use for cooling. It is also currently a small fraction of
-global emissions, and some applications (materials discovery, grid optimization, climate
-modelling) may offset their own cost. Both the alarmist and the dismissive framings overstate
-their case.
+> [!WARNING]
+> **The honest framing**: AI's energy use is growing fast and is a legitimate concern, especially
+> its local impact on grids and water use for cooling. It is also currently a small fraction of
+> global emissions, and some applications (materials discovery, grid optimization, climate
+> modelling) may offset their own cost. Both the alarmist and the dismissive framings overstate
+> their case.
 
 ---
 
 ## 5. Synthetic media and provenance
 
-📊 **Current capabilities:**
+**Current capabilities:**
 
 | Medium | State |
 |---|---|
@@ -184,7 +193,8 @@ their case.
 | Video | rapidly improving; short clips can be convincing |
 | Real-time video | emerging |
 
-⚠️ **The documented harms are concrete, not speculative:**
+> [!WARNING]
+> **The documented harms are concrete, not speculative:**
 
 | Harm | Status |
 |---|---|
@@ -194,11 +204,12 @@ their case.
 | **The liar's dividend** | real evidence dismissed as "probably AI" — arguably the larger systemic risk |
 | Fraudulent documents and identity | growing |
 
-🧠 **The liar's dividend is the underappreciated one.** The existence of convincing fakes lets
-genuine evidence be dismissed. The harm isn't only that people believe false things — it's that
-verification itself becomes harder, which erodes the evidentiary basis for accountability.
+> [!TIP]
+> **The liar's dividend is the underappreciated one.** The existence of convincing fakes lets
+> genuine evidence be dismissed. The harm isn't only that people believe false things — it's that
+> verification itself becomes harder, which erodes the evidentiary basis for accountability.
 
-📊 **Detection does not work reliably, and this is unlikely to change.**
+**Detection does not work reliably, and this is unlikely to change.**
 
 | Approach | Status |
 |---|---|
@@ -207,17 +218,19 @@ verification itself becomes harder, which erodes the evidentiary basis for accou
 | **Watermarking** (statistical, e.g. SynthID) | ⚠️ helps, but removable by paraphrase or re-encoding |
 | **C2PA / content credentials** | ⭐ signed provenance metadata; the most promising direction |
 
-🧠 **Why provenance beats detection.** Detection asks "is this fake?" — an adversarial problem you
-lose as generators improve. Provenance asks "can this be traced to a source?" — a cryptographic
-problem with a real answer. C2PA attaches a signed chain of custody at capture and through edits.
-⚠️ It only works if capture devices, editing software and platforms all support it, and metadata
-can be stripped — so absence of provenance can't be treated as proof of fakery.
+> [!TIP]
+> **Why provenance beats detection.** Detection asks "is this fake?" — an adversarial problem you
+> lose as generators improve. Provenance asks "can this be traced to a source?" — a cryptographic
+> problem with a real answer. C2PA attaches a signed chain of custody at capture and through edits.
+> ⚠️ It only works if capture devices, editing software and platforms all support it, and metadata
+> can be stripped — so absence of provenance can't be treated as proof of fakery.
 
 ---
 
 ## 6. Access and concentration
 
-⚠️ Frontier model training requires capital available to a small number of organizations.
+> [!WARNING]
+> Frontier model training requires capital available to a small number of organizations.
 
 | Concern | Detail |
 |---|---|
@@ -227,22 +240,23 @@ can be stripped — so absence of provenance can't be treated as proof of fakery
 | Data concentration | the web's content is unevenly distributed |
 | API dependency | applications built on models that can change or be withdrawn |
 
-📊 **Counterweights that are actually working**: capable open-weight models released within months
+**Counterweights that are actually working**: capable open-weight models released within months
 of frontier capability; efficiency gains that make small models increasingly good; distillation
 spreading capability downward; and academic access programmes. The capability gap between frontier
 and open models exists, but it has not widened as much as many predicted.
 
-🧠 **The "open" terminology is imprecise and worth being careful about.** Most "open source" models
-release *weights* but not training data, training code, or data-filtering pipelines — so they are
-not reproducible and many carry use restrictions. **"Open weights" is the accurate term for most
-of them.** Genuinely open models (OLMo, Pythia, some others) release everything and are far more
-valuable for research precisely because they are reproducible.
+> [!TIP]
+> **The "open" terminology is imprecise and worth being careful about.** Most "open source" models
+> release *weights* but not training data, training code, or data-filtering pipelines — so they are
+> not reproducible and many carry use restrictions. **"Open weights" is the accurate term for most
+> of them.** Genuinely open models (OLMo, Pythia, some others) release everything and are far more
+> valuable for research precisely because they are reproducible.
 
 ---
 
 ## 7. Regulation
 
-📊 A snapshot of the landscape (this section dates fastest — verify before relying on it):
+A snapshot of the landscape (this section dates fastest — verify before relying on it):
 
 | Jurisdiction | Approach |
 |---|---|
@@ -259,16 +273,17 @@ valuable for research precisely because they are reproducible.
 - Model evaluation and red-teaming obligations
 - Compute thresholds as a proxy for capability
 
-⚠️ **The structural difficulties are real, not excuses**: technology outpaces legislation;
-capability is hard to define legally; compute thresholds are a crude proxy that will age badly;
-jurisdictional arbitrage is easy; and compliance burden falls hardest on small developers, which
-can entrench incumbents.
+> [!WARNING]
+> **The structural difficulties are real, not excuses**: technology outpaces legislation;
+> capability is hard to define legally; compute thresholds are a crude proxy that will age badly;
+> jurisdictional arbitrage is easy; and compliance burden falls hardest on small developers, which
+> can entrench incumbents.
 
 ---
 
 ## 8. What to actually do
 
-📊 If you build with these systems, the concrete practices:
+If you build with these systems, the concrete practices:
 
 | Practice | Why |
 |---|---|
@@ -282,9 +297,10 @@ can entrench incumbents.
 | **Respect opt-outs** | `robots.txt`, licence terms, expressed preferences |
 | **Think about your worst case** | who is harmed if this fails badly, and how much? |
 
-🧠 **The most useful single question**: *who bears the cost when this system is wrong?* If the
-answer is "someone other than the people who deployed it", that asymmetry is where the ethical
-weight sits, and it is where extra care is warranted.
+> [!TIP]
+> **The most useful single question**: *who bears the cost when this system is wrong?* If the
+> answer is "someone other than the people who deployed it", that asymmetry is where the ethical
+> weight sits, and it is where extra care is warranted.
 
 ---
 

@@ -64,16 +64,17 @@ the amount of data, and the post-training.
 | Attention stability | **QK-norm** | bounds pre-softmax logits; prevents late-run spikes |
 | Precision | **BF16** + FP32 optimizer states | full FP32 range, half the memory |
 
-🧠 **The pattern across this table**: the modern architecture is the 2017 Transformer with things
-*removed* (biases, dropout, mean-centering, separate encoder) and two things *replaced* (activation,
-position encoding). Almost nothing was added. That convergence is a sign the architecture is near a
-local optimum — the action has moved to data, scale, and post-training.
+> [!TIP]
+> **The pattern across this table**: the modern architecture is the 2017 Transformer with things
+> *removed* (biases, dropout, mean-centering, separate encoder) and two things *replaced* (activation,
+> position encoding). Almost nothing was added. That convergence is a sign the architecture is near a
+> local optimum — the action has moved to data, scale, and post-training.
 
 ---
 
 ## 3. Where the parameters and the memory go
 
-🔢 **LLaMA-3 8B**, fully worked ($L{=}32$, $d{=}4096$, $H{=}32$, $H_{kv}{=}8$, $d_{ff}{=}14336$, $V{=}128256$):
+**LLaMA-3 8B**, fully worked ($L{=}32$, $d{=}4096$, $H{=}32$, $H_{kv}{=}8$, $d_{ff}{=}14336$, $V{=}128256$):
 
 | Component | Formula | Parameters |
 |---|---|---|
@@ -90,7 +91,7 @@ local optimum — the action has moved to data, scale, and post-training.
 Note GQA's effect: attention is $2.5d^2$ instead of $4d^2$ because $W_K$ and $W_V$ produce only
 $d/4$ outputs each.
 
-🔢 **Inference memory**, BF16, batch 1, 8192 tokens:
+**Inference memory**, BF16, batch 1, 8192 tokens:
 
 | Item | Size |
 |---|---|
@@ -103,7 +104,7 @@ Fits on a 24 GB consumer GPU. In **INT4** the weights drop to ~4 GB and the whol
 8 GB — which is why 4-bit quantization made local LLMs a real thing.
 → [Efficiency](07-efficiency.md)
 
-🔢 **Training memory** for the same model (AdamW, BF16, FP32 master):
+**Training memory** for the same model (AdamW, BF16, FP32 master):
 
 $$8.03\times10^9 \times 16\text{ bytes} = 128\text{ GB} \quad\text{+ activations}$$
 
@@ -136,7 +137,7 @@ them is the most common source of bad inference engineering.
   ⇒ scales with prompt length            ⇒ scales with output length
 ```
 
-📐 **The arithmetic intensity argument, which explains everything about LLM serving.**
+**The arithmetic intensity argument, which explains everything about LLM serving.**
 
 Decoding one token for a 7B model in BF16:
 - FLOPs: $2N = 1.4\times10^{10}$
@@ -147,11 +148,12 @@ An H100 has ~1000 TFLOP/s BF16 and ~3.35 TB/s HBM bandwidth → a ratio of ~300 
 intensity 1, you are using roughly $1/300$ of the available compute. **The GPU is idle, waiting on
 memory.**
 
-🧠 **The one fix that matters: batching.** Process 64 sequences at once and you read the weights
-*once* for 64 tokens of output. Arithmetic intensity rises to 64, throughput rises nearly 64×, and
-per-request latency barely changes.
+> [!TIP]
+> **The one fix that matters: batching.** Process 64 sequences at once and you read the weights
+> *once* for 64 tokens of output. Arithmetic intensity rises to 64, throughput rises nearly 64×, and
+> per-request latency barely changes.
 
-📊 **Practical consequences:**
+**Practical consequences:**
 
 | Observation | Explanation |
 |---|---|
@@ -170,7 +172,7 @@ naive static batching are large (often 5–20×).
 
 ## 5. Model size tiers, and what each is for
 
-📊 A practical map (parameter counts, September 2026):
+A practical map (parameter counts, September 2026):
 
 | Tier | Params | Runs on | Typical use |
 |---|---|---|---|
@@ -180,12 +182,13 @@ naive static batching are large (often 5–20×).
 | **Large** | 30–80 B | 1–4 datacenter GPUs | strong reasoning, code, agents |
 | **Frontier** | 200 B+ (often MoE) | a cluster | best-in-class capability |
 
-🧠 **The most useful trend to internalize**: capability at a given parameter count keeps improving.
-A 2026-vintage 8B model outperforms a 2022 70B model on most benchmarks. The gains come from
-better data (more, cleaner, more synthetic/curated), longer training well past Chinchilla-optimal,
-and much better post-training — **not** from architecture.
+> [!TIP]
+> **The most useful trend to internalize**: capability at a given parameter count keeps improving.
+> A 2026-vintage 8B model outperforms a 2022 70B model on most benchmarks. The gains come from
+> better data (more, cleaner, more synthetic/curated), longer training well past Chinchilla-optimal,
+> and much better post-training — **not** from architecture.
 
-📊 **Why models are trained far past compute-optimal**: Chinchilla optimizes *training* cost. If you
+**Why models are trained far past compute-optimal**: Chinchilla optimizes *training* cost. If you
 will serve billions of tokens, inference cost dominates the total, and a smaller model trained on
 more data is cheaper forever. LLaMA-3 8B saw ~15T tokens — about **1875 tokens per parameter**,
 roughly 94× the Chinchilla ratio of 20. → [Scaling laws](03-scaling-laws.md)
@@ -217,9 +220,10 @@ roughly 94× the Chinchilla ratio of 20. → [Scaling laws](03-scaling-laws.md)
 | **Memory to serve** | 140 GB (BF16) | **282 GB** ⚠️ |
 | Quality | baseline | better per FLOP |
 
-⚠️ **The MoE catch**: you save *compute*, not *memory*. All experts must be resident, because any
-token might route to any of them. MoE is a win when you are compute-bound (large batches) and lose
-when you are memory-bound (single-user local inference). → [Mixture of Experts](08-mixture-of-experts.md)
+> [!WARNING]
+> **The MoE catch**: you save *compute*, not *memory*. All experts must be resident, because any
+> token might route to any of them. MoE is a win when you are compute-bound (large batches) and lose
+> when you are memory-bound (single-user local inference). → [Mixture of Experts](08-mixture-of-experts.md)
 
 ---
 
@@ -240,7 +244,7 @@ graph LR
     style F fill:#276749,stroke:#22543d,color:#fff
 ```
 
-📊 **The cost asymmetry is striking:**
+**The cost asymmetry is striking:**
 
 | Stage | Compute | Data | Wall-clock |
 |---|---|---|---|
@@ -248,22 +252,24 @@ graph LR
 | SFT | ~0.5% | 10 K–1 M examples | hours–days |
 | Preference tuning | ~0.5% | 10 K–1 M comparisons | hours–days |
 
-🧠 **The "Superficial Alignment Hypothesis"** (Zhou et al., LIMA, 2023): essentially all knowledge
-and capability is acquired during pretraining; post-training only teaches the model *which
-distribution of responses to produce*. Evidence: LIMA fine-tuned LLaMA-65B on **1,000** carefully
-curated examples and was competitive with RLHF'd models on many prompts.
+> [!TIP]
+> **The "Superficial Alignment Hypothesis"** (Zhou et al., LIMA, 2023): essentially all knowledge
+> and capability is acquired during pretraining; post-training only teaches the model *which
+> distribution of responses to produce*. Evidence: LIMA fine-tuned LLaMA-65B on **1,000** carefully
+> curated examples and was competitive with RLHF'd models on many prompts.
 
-⚠️ **The hypothesis is only partly right, and the exception matters.** RL on verifiable tasks
-(math, code) at scale does appear to teach genuinely new capability, not just style — reasoning
-models trained this way solve problems their base models could not solve at any sampling budget.
-The current best understanding: **style is superficial, reasoning is not.**
-→ [Reasoning](10-reasoning.md)
+> [!WARNING]
+> **The hypothesis is only partly right, and the exception matters.** RL on verifiable tasks
+> (math, code) at scale does appear to teach genuinely new capability, not just style — reasoning
+> models trained this way solve problems their base models could not solve at any sampling budget.
+> The current best understanding: **style is superficial, reasoning is not.**
+> → [Reasoning](10-reasoning.md)
 
 ---
 
 ## 8. Reading a model config
 
-💻 A real `config.json` and what every field means:
+A real `config.json` and what every field means:
 
 ```jsonc
 {
@@ -284,11 +290,11 @@ The current best understanding: **style is superficial, reasoning is not.**
 }
 ```
 
-🔢 **Estimate the parameter count from this file in your head:**
+**Estimate the parameter count from this file in your head:**
 
 $$N \approx L(2.5d^2 + 3d\,d_{ff}) + 2Vd = 32(4.19\times10^7 + 1.76\times10^8) + 1.05\times10^9 \approx 8.0\text{ B}$$ ✓
 
-🔢 **And the FLOPs to train it on 15T tokens:**
+**And the FLOPs to train it on 15T tokens:**
 
 $$6 \times 8\times10^9 \times 1.5\times10^{13} = 7.2\times10^{23}\text{ FLOPs}$$
 

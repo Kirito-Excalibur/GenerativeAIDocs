@@ -36,7 +36,7 @@ series, plus Khan Academy's probability, are the standard fast path.
 - Sample from it
 - Compute perplexity on held-out text
 
-🔢 **Expected result**: a trigram model on Shakespeare reaches perplexity ~9 per character and
+**Expected result**: a trigram model on Shakespeare reaches perplexity ~9 per character and
 generates pronounceable nonsense.
 
 **Checkpoint** — you should be able to answer, without looking:
@@ -94,11 +94,12 @@ generates pronounceable nonsense.
 - RoPE
 - Train on TinyShakespeare (~1 MB)
 
-🔢 **Expected result**: ~10M parameters, 30–60 min on a consumer GPU, validation loss ~1.5
+**Expected result**: ~10M parameters, 30–60 min on a consumer GPU, validation loss ~1.5
 bits/char, output that looks like Shakespeare's punctuation and structure with nonsense content.
 
-⚠️ **Do this without copying nanoGPT.** Read it *after* you've struggled. The struggle is the
-learning.
+> [!WARNING]
+> **Do this without copying nanoGPT.** Read it *after* you've struggled. The struggle is the
+> learning.
 
 **Checkpoint**:
 1. Why divide by $\sqrt{d_k}$? Compute the softmax entropy with and without, for $d_k=64$.
@@ -176,7 +177,7 @@ learning.
 - DDPM ancestral sampling (1000 steps), then DDIM (50 steps) — compare quality and time
 - Then implement **flow matching** on the same data. Note that the training loop is shorter.
 
-🔢 **Expected result**: recognizable MNIST digits after ~30 min on a consumer GPU.
+**Expected result**: recognizable MNIST digits after ~30 min on a consumer GPU.
 
 **Checkpoint**:
 1. Derive $x_t = \sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon$ from the single-step form.
@@ -283,9 +284,10 @@ limit.
 6. **Keep a failure log.** Every bug you hit is a test case for your future evaluation suite, and
    re-reading it after six months is genuinely instructive.
 
-🧠 **The field moves fast, but the fundamentals don't.** Attention, the ELBO, score matching, KL
-divergence and scaling laws will still be correct in ten years. Model names, benchmark scores and
-API details will not. Spend your learning budget accordingly.
+> [!TIP]
+> **The field moves fast, but the fundamentals don't.** Attention, the ELBO, score matching, KL
+> divergence and scaling laws will still be correct in ten years. Model names, benchmark scores and
+> API details will not. Spend your learning budget accordingly.
 
 ---
 

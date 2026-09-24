@@ -11,7 +11,7 @@
 
 ## 1. Why position must be added
 
-📐 **The proof, in two lines.** Let $P$ be a permutation matrix. Then
+**The proof, in two lines.** Let $P$ be a permutation matrix. Then
 
 $$\text{Attention}(PX) = \operatorname{softmax}\!\left(\frac{PQ(PK)^\top}{\sqrt{d_k}}\right)PV
 = \operatorname{softmax}\!\left(\frac{PQK^\top P^\top}{\sqrt{d_k}}\right)PV = P\cdot\text{Attention}(X)$$
@@ -25,12 +25,14 @@ enters the computation**.
   "cat the sat"   ─┘
 ```
 
-🧠 A Transformer without positional information is a **bag-of-words model with fancy feature
-mixing**. That is fatal for language, where "dog bites man" and "man bites dog" differ entirely.
+> [!TIP]
+> A Transformer without positional information is a **bag-of-words model with fancy feature
+> mixing**. That is fatal for language, where "dog bites man" and "man bites dog" differ entirely.
 
-⚠️ Note that an *MLP* is position-independent too, and the residual stream just carries values
-along. Attention is the only place where positions could interact — so position information must
-be present before or inside attention.
+> [!WARNING]
+> Note that an *MLP* is position-independent too, and the residual stream just carries values
+> along. Attention is the only place where positions could interact — so position information must
+> be present before or inside attention.
 
 ---
 
@@ -45,13 +47,15 @@ be present before or inside attention.
 | **RoPE** | rotation applied to $Q,K$ | relative | ⚠️ with scaling | 0 | **LLaMA, GPT-NeoX, Qwen, most modern** |
 | NoPE | nothing (causal mask only) | implicit | ⚠️ | 0 | research curiosity |
 
-🧠 **The direction of travel**: absolute → relative, added-to-embeddings → applied-in-attention,
-learned → parameter-free. Each shift improves length generalization.
+> [!TIP]
+> **The direction of travel**: absolute → relative, added-to-embeddings → applied-in-attention,
+> learned → parameter-free. Each shift improves length generalization.
 
-⚠️ **NoPE is a genuinely surprising result**: decoder-only Transformers with *no* positional
-encoding at all still learn positional behaviour, because the causal mask breaks symmetry (token
-$i$ sees $i$ tokens, token $j$ sees $j$). Performance is competitive at small scale. It is not used
-in practice but it shows how much structure the mask alone provides.
+> [!WARNING]
+> **NoPE is a genuinely surprising result**: decoder-only Transformers with *no* positional
+> encoding at all still learn positional behaviour, because the causal mask breaks symmetry (token
+> $i$ sees $i$ tokens, token $j$ sees $j$). Performance is competitive at small scale. It is not used
+> in practice but it shows how much structure the mask alone provides.
 
 ---
 
@@ -73,11 +77,12 @@ Added directly to the token embedding: $x_{\text{in}} = E[\text{token}] + PE[pos
       └────────────────────► position
 ```
 
-🧠 **It is binary counting in continuous form.** Low dimensions oscillate fast (fine-grained "which
-of the last few tokens"), high dimensions oscillate slowly (coarse "roughly where in the
-document"). Together they give a unique fingerprint per position at multiple resolutions.
+> [!TIP]
+> **It is binary counting in continuous form.** Low dimensions oscillate fast (fine-grained "which
+> of the last few tokens"), high dimensions oscillate slowly (coarse "roughly where in the
+> document"). Together they give a unique fingerprint per position at multiple resolutions.
 
-📐 **The elegant property** — $PE_{pos+k}$ is a *linear function* of $PE_{pos}$:
+**The elegant property** — $PE_{pos+k}$ is a *linear function* of $PE_{pos}$:
 
 $$\begin{pmatrix}\sin(\omega(pos+k))\\ \cos(\omega(pos+k))\end{pmatrix}
 = \begin{pmatrix}\cos\omega k & \sin\omega k\\ -\sin\omega k & \cos\omega k\end{pmatrix}
@@ -86,9 +91,10 @@ $$\begin{pmatrix}\sin(\omega(pos+k))\\ \cos(\omega(pos+k))\end{pmatrix}
 A rotation by a fixed angle $\omega k$ depending only on the *offset* $k$. In principle the model
 can learn relative attention from absolute encodings.
 
-⚠️ **But it extrapolates badly in practice.** The theory says positions beyond training length are
-well-defined; the reality is the model never learned to use those particular phase combinations.
-Quality degrades sharply past $T_{\text{train}}$.
+> [!WARNING]
+> **But it extrapolates badly in practice.** The theory says positions beyond training length are
+> well-defined; the reality is the model never learned to use those particular phase combinations.
+> Quality degrades sharply past $T_{\text{train}}$.
 
 ---
 
@@ -104,7 +110,7 @@ Just an embedding table for positions. Used by BERT and GPT-2/3.
 | slightly better than sinusoidal in-distribution | zero extrapolation |
 | | $T_{\max}\cdot d$ wasted parameters (GPT-3: 25 M) |
 
-🔢 GPT-2's `wpe` is a $1024 \times 768$ table. Feed it 1025 tokens and you get an index error — not
+GPT-2's `wpe` is a $1024 \times 768$ table. Feed it 1025 tokens and you get an index error — not
 degraded quality, a **crash**. This hard limit is why learned absolute encodings were abandoned.
 
 ---
@@ -128,18 +134,20 @@ where $m_h$ is a **fixed, head-specific slope** (geometric: $2^{-8h/H}$ for head
   The further back, the bigger the penalty. A soft recency bias.
 ```
 
-🧠 **Different heads get different slopes**, so they have different effective "attention
-horizons": a head with $m = 2^{-1}$ looks only a few tokens back; a head with $m = 2^{-8}$ sees
-thousands. The model gets a built-in multi-scale view of the context.
+> [!TIP]
+> **Different heads get different slopes**, so they have different effective "attention
+> horizons": a head with $m = 2^{-1}$ looks only a few tokens back; a head with $m = 2^{-8}$ sees
+> thousands. The model gets a built-in multi-scale view of the context.
 
 ✅ **Extrapolation is excellent** — the bias is defined for *any* distance, so a model trained at
 1024 tokens works usably at 4096+ without modification. This was ALiBi's headline claim and it
 holds.
 
-⚠️ But the penalty is monotonic and unbounded: information from very far back is always
-down-weighted, so ALiBi models effectively have a soft sliding window. For tasks requiring exact
-retrieval from deep in a long context, that is a real limitation. It is one reason RoPE + explicit
-context extension overtook ALiBi.
+> [!WARNING]
+> But the penalty is monotonic and unbounded: information from very far back is always
+> down-weighted, so ALiBi models effectively have a soft sliding window. For tasks requiring exact
+> retrieval from deep in a long context, that is a real limitation. It is one reason RoPE + explicit
+> context extension overtook ALiBi.
 
 ---
 
@@ -173,7 +181,7 @@ where $m$ is the position index.
    position m=10: rotate pair i by 10·θᵢ
 ```
 
-📐 **The key property — the inner product depends only on the relative distance:**
+**The key property — the inner product depends only on the relative distance:**
 
 $$\langle R_m q,\; R_n k\rangle = q^\top R_m^\top R_n k = q^\top R_{n-m} k$$
 
@@ -181,7 +189,7 @@ because rotation matrices satisfy $R_m^\top R_n = R_{n-m}$. **Absolute rotations
 similarity.** This is the whole trick: you apply an absolute transform, and attention automatically
 sees only the difference.
 
-🔢 **Worked example.** $d = 4$ (2 pairs), $\theta_0 = 1.0$, $\theta_1 = 0.01$.
+**Worked example.** $d = 4$ (2 pairs), $\theta_0 = 1.0$, $\theta_1 = 0.01$.
 Take $q = [1, 0, 1, 0]$ at position $m = 2$, $k = [1, 0, 1, 0]$ at position $n = 5$.
 
 *Rotate $q$ by $m\theta$:*
@@ -207,7 +215,7 @@ $$q \cdot R_3 k = (1)(-0.990) + (0)(0.141) + (1)(0.9996) + (0)(0.0300) = 0.010$$
 
 **Identical.** Only the distance mattered.
 
-💻 The efficient implementation uses complex numbers:
+The efficient implementation uses complex numbers:
 
 ```python
 def precompute_rope(dim, max_seq, base=10000.0):
@@ -228,9 +236,10 @@ q = apply_rope(q, freqs_cis)
 k = apply_rope(k, freqs_cis)
 ```
 
-⚠️ **RoPE is applied to $Q$ and $K$ only, never to $V$.** Values carry content, not position —
-rotating them would corrupt what gets copied. Also note it is applied **inside every attention
-layer**, not once at the input. That is a genuine structural difference from additive encodings.
+> [!WARNING]
+> **RoPE is applied to $Q$ and $K$ only, never to $V$.** Values carry content, not position —
+> rotating them would corrupt what gets copied. Also note it is applied **inside every attention
+> layer**, not once at the input. That is a genuine structural difference from additive encodings.
 
 **Why RoPE won:**
 
@@ -246,7 +255,7 @@ layer**, not once at the input. That is a genuine structural difference from add
 
 ## 7. Extending the context window
 
-📊 A model trained at 4k tokens fails badly at 32k — perplexity explodes. The cause: RoPE angles
+A model trained at 4k tokens fails badly at 32k — perplexity explodes. The cause: RoPE angles
 $m\theta_i$ for $m > T_{\text{train}}$ land in regions of phase space the model never saw.
 
 ### Position interpolation (PI)
@@ -265,13 +274,14 @@ Squeeze positions into the trained range: replace $m$ with $m \cdot \frac{T_{\te
                                    fine-grained local resolution
 ```
 
-📊 Works, needs a short fine-tune (~1000 steps), and costs some local precision.
+Works, needs a short fine-tune (~1000 steps), and costs some local precision.
 
 ### NTK-aware scaling
 
-🧠 **The insight**: don't scale all frequencies equally. High-frequency dimensions encode *local*
-order (which matters and shouldn't be squeezed); low-frequency dimensions encode *global* position
-(which needs the extension). So increase the base $\theta$ instead:
+> [!TIP]
+> **The insight**: don't scale all frequencies equally. High-frequency dimensions encode *local*
+> order (which matters and shouldn't be squeezed); low-frequency dimensions encode *global* position
+> (which needs the extension). So increase the base $\theta$ instead:
 
 $$\theta_{\text{new}} = \theta_{\text{old}} \cdot s^{d/(d-2)}$$
 
@@ -284,7 +294,7 @@ Combines both, with per-dimension treatment based on the wavelength relative to 
 context, plus a temperature correction on the attention softmax to compensate for the increased
 number of tokens being averaged.
 
-📊 **Comparison** (extending a 4k model to 32k):
+**Comparison** (extending a 4k model to 32k):
 
 | Method | Fine-tuning needed | Quality retention |
 |---|---|---|
@@ -293,7 +303,7 @@ number of tokens being averaged.
 | NTK-aware | 0 steps | ✅ good |
 | **YaRN** | ~400 steps | ✅ **best** |
 
-🔢 **LLaMA-3.1's approach** (a good concrete reference): base $\theta$ raised from 10,000 to
+**LLaMA-3.1's approach** (a good concrete reference): base $\theta$ raised from 10,000 to
 500,000, plus continued pretraining on long documents in stages — 8k → 32k → 128k. The staged
 curriculum matters: jumping straight to the target length works much less well.
 
@@ -313,9 +323,10 @@ For images and video, position is not a scalar.
 | 3-D RoPE (height, width, time) | video diffusion Transformers |
 | Factorized: $PE(x,y) = PE_x(x) + PE_y(y)$ | many |
 
-🧠 Axial RoPE generalizes cleanly: allocate disjoint dimension groups to each axis, and the
-relative-position property holds independently per axis. A video model can then represent "two
-frames earlier and 30 pixels to the left" as a single relative offset.
+> [!TIP]
+> Axial RoPE generalizes cleanly: allocate disjoint dimension groups to each axis, and the
+> relative-position property holds independently per axis. A video model can then represent "two
+> frames earlier and 30 pixels to the left" as a single relative offset.
 
 ---
 

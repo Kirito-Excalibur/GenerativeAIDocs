@@ -35,12 +35,13 @@
 | Morphology | must be learned from scratch | partially captured | none |
 | Embedding params ($d{=}4096$) | 1 M | **200 M** | 4 B |
 
-🧠 **Why subword won.** Sequence length enters attention cost quadratically, so character-level is
-ruinously expensive for long documents. Word-level has an OOV problem that no amount of data
-fixes (proper nouns, typos, code identifiers, new words). Subword units give you short sequences
-*and* the ability to spell out anything unseen, one piece at a time.
+> [!TIP]
+> **Why subword won.** Sequence length enters attention cost quadratically, so character-level is
+> ruinously expensive for long documents. Word-level has an OOV problem that no amount of data
+> fixes (proper nouns, typos, code identifiers, new words). Subword units give you short sequences
+> *and* the ability to spell out anything unseen, one piece at a time.
 
-📊 **The compression ratio is the number to know**: English text averages **~4 characters per
+**The compression ratio is the number to know**: English text averages **~4 characters per
 token** for a 50k-vocabulary BPE tokenizer. Code averages ~3.5. Non-Latin scripts are much worse
 (§6).
 
@@ -161,10 +162,11 @@ To tokenize an unseen word, apply the merge rules **in the order they were learn
 → rule 5: `low est</w>`
 → **`["low", "est</w>"]`** — 2 tokens.
 
-🧠 Notice what just happened: `"lowest"` never appeared in training, yet it decomposed into two
-meaningful morphemes. That generalization is why BPE works.
+> [!TIP]
+> Notice what just happened: `"lowest"` never appeared in training, yet it decomposed into two
+> meaningful morphemes. That generalization is why BPE works.
 
-💻 A complete, correct BPE trainer in 25 lines:
+A complete, correct BPE trainer in 25 lines:
 
 ```python
 from collections import Counter, defaultdict
@@ -212,16 +214,18 @@ def encode(word, merges):
 | Subword regularization | ❌ (BPE-dropout hacks it in) | ❌ | ✅ native, sample different segmentations |
 | Used by | GPT-2/3/4, LLaMA, Mistral, most LLMs | BERT, DistilBERT, ELECTRA | T5, ALBERT, XLNet, many multilingual models |
 
-🧠 **WordPiece's criterion, explained.** BPE merges `th` because "th" is common. But "t" and "h" are
-*both* individually very common, so their co-occurrence is not surprising. WordPiece divides by the
-individual frequencies, effectively using pointwise mutual information. It prefers merges where the
-pair appears together *more than chance would predict*. In practice the two produce similar
-vocabularies.
+> [!TIP]
+> **WordPiece's criterion, explained.** BPE merges `th` because "th" is common. But "t" and "h" are
+> *both* individually very common, so their co-occurrence is not surprising. WordPiece divides by the
+> individual frequencies, effectively using pointwise mutual information. It prefers merges where the
+> pair appears together *more than chance would predict*. In practice the two produce similar
+> vocabularies.
 
-🧠 **Unigram's difference is more fundamental.** It starts with a large candidate vocabulary and
-*removes* tokens, keeping those whose removal hurts corpus likelihood most. Critically, it keeps a
-probability for each token, so a word has *many* possible segmentations with different
-probabilities:
+> [!TIP]
+> **Unigram's difference is more fundamental.** It starts with a large candidate vocabulary and
+> *removes* tokens, keeping those whose removal hurts corpus likelihood most. Critically, it keeps a
+> probability for each token, so a word has *many* possible segmentations with different
+> probabilities:
 
 ```
   "unbelievable"  →  un|bel|iev|able      p = 0.34
@@ -238,8 +242,9 @@ text.
 
 ## 4. Byte-level BPE: the trick that removes the last OOV
 
-⚠️ Character-level BPE has an unsolved edge case: what about a character that never appeared in
-training — a rare CJK ideograph, an emoji, a corrupted byte?
+> [!WARNING]
+> Character-level BPE has an unsolved edge case: what about a character that never appeared in
+> training — a rare CJK ideograph, an emoji, a corrupted byte?
 
 **GPT-2's answer**: operate on **UTF-8 bytes**, not characters. Base vocabulary = 256 byte values.
 Every possible string is representable, because every string *is* bytes.
@@ -252,12 +257,13 @@ Every possible string is representable, because every string *is* bytes.
   then run BPE over the byte sequence
 ```
 
-📊 **The cost**: a character outside ASCII takes 2–4 bytes, so worst case it becomes 2–4 tokens
+**The cost**: a character outside ASCII takes 2–4 bytes, so worst case it becomes 2–4 tokens
 before any merges apply. **The benefit**: genuinely zero OOV, ever. Used by GPT-2 onward, LLaMA,
 and essentially every modern model.
 
-⚠️ **The pre-tokenization regex matters more than people expect.** GPT-2 splits text with a regex
-before BPE, so merges never cross word boundaries:
+> [!WARNING]
+> **The pre-tokenization regex matters more than people expect.** GPT-2 splits text with a regex
+> before BPE, so merges never cross word boundaries:
 
 ```python
 pat = r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
@@ -266,17 +272,18 @@ pat = r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)
 Note `| ?\p{L}+`: the leading space is attached to the *following* word. So `" cat"` is one token
 and `"cat"` is a different one. This has real consequences:
 
-🔢 In GPT-2's tokenizer: `" the"` = token 262, `"the"` = token 1169, `"The"` = token 464. **Three
+In GPT-2's tokenizer: `" the"` = token 262, `"the"` = token 1169, `"The"` = token 464. **Three
 different embeddings for the same word.** A prompt ending in a trailing space therefore forces the
 model into the rarer, space-less continuation tokens and measurably degrades output. This is the
 mechanism behind the common advice "don't end your prompt with a space."
 
-⚠️ **Number tokenization** is the other regex-driven trap. GPT-2 lets BPE merge digit runs by
-frequency, so the chunk boundaries have nothing to do with place value: `"1234"` becomes
-`"12"+"34"` but `"5678"` becomes `" 5"+"678"`. Arithmetic then operates over inconsistent units.
-**Two modern fixes**: split every digit individually (LLaMA-1/2, via SentencePiece), or cap digit
-chunks at 3 characters so they align with thousands (GPT-4's `cl100k` and LLaMA-3, where
-`"1234567"` → `"123"+"456"+"7"`). Both measurably improve arithmetic.
+> [!WARNING]
+> **Number tokenization** is the other regex-driven trap. GPT-2 lets BPE merge digit runs by
+> frequency, so the chunk boundaries have nothing to do with place value: `"1234"` becomes
+> `"12"+"34"` but `"5678"` becomes `" 5"+"678"`. Arithmetic then operates over inconsistent units.
+> **Two modern fixes**: split every digit individually (LLaMA-1/2, via SentencePiece), or cap digit
+> chunks at 3 characters so they align with thousands (GPT-4's `cl100k` and LLaMA-3, where
+> `"1234567"` → `"123"+"456"+"7"`). Both measurably improve arithmetic.
 
 ---
 
@@ -291,10 +298,11 @@ chunks at 3 characters so they align with thousands (GPT-4's `cl100k` and LLaMA-
 | `<s>`, `[CLS]`, `[SEP]` | sequence start / classification / separator (BERT-style) |
 | `<fim_prefix/suffix/middle>` | fill-in-the-middle, for code completion |
 
-⚠️ **Special tokens are a security boundary.** If a user's text can contain the literal string
-`<|im_start|>system`, and your tokenizer encodes it as the *special token* rather than as ordinary
-text, the user has just injected a system message. **Always encode untrusted input with special
-token parsing disabled**:
+> [!WARNING]
+> **Special tokens are a security boundary.** If a user's text can contain the literal string
+> `<|im_start|>system`, and your tokenizer encodes it as the *special token* rather than as ordinary
+> text, the user has just injected a system message. **Always encode untrusted input with special
+> token parsing disabled**:
 
 ```python
 tokenizer.encode(user_text, allowed_special=set())   # tiktoken: raises on special tokens
@@ -306,7 +314,7 @@ tokenizer.encode(user_text, allowed_special=set())   # tiktoken: raises on speci
 
 ## 6. The multilingual tax
 
-📊 Tokens required for the same semantic content (approximate, GPT-4-class tokenizer):
+Tokens required for the same semantic content (approximate, GPT-4-class tokenizer):
 
 | Language | Chars/token | Tokens for the same paragraph | Relative cost |
 |---|---|---|---|
@@ -325,10 +333,11 @@ tokenizer.encode(user_text, allowed_special=set())   # tiktoken: raises on speci
    and each token carries less information.
 4. **Latency is 2–4× higher** — generation is per-token.
 
-🧠 The cause is the training-data distribution: merges are learned from a predominantly English
-corpus, so English words become single tokens while Telugu words are spelled out byte by byte.
-Multilingual-first tokenizers (mT5, NLLB, Gemma's 256k vocabulary, Aya) deliberately oversample
-low-resource languages when learning merges, which narrows the gap substantially.
+> [!TIP]
+> The cause is the training-data distribution: merges are learned from a predominantly English
+> corpus, so English words become single tokens while Telugu words are spelled out byte by byte.
+> Multilingual-first tokenizers (mT5, NLLB, Gemma's 256k vocabulary, Aya) deliberately oversample
+> low-resource languages when learning merges, which narrows the gap substantially.
 
 ---
 
@@ -355,12 +364,12 @@ character-level ciphers.
 The digits are not aligned to place value. The model must learn arithmetic over *inconsistent
 groupings* — as if you had to add numbers written in a base that changes per number.
 
-📊 **Fixes that measurably work**: single-digit tokenization (now standard), right-to-left digit
+**Fixes that measurably work**: single-digit tokenization (now standard), right-to-left digit
 grouping in threes, and explicitly reversed-digit output formats in fine-tuning data.
 
 ### (c) Glitch tokens
 
-📊 Some tokens exist in the vocabulary but appear ~never in the training data, because the
+Some tokens exist in the vocabulary but appear ~never in the training data, because the
 tokenizer was trained on a corpus that included data (e.g. scraped Reddit usernames) later filtered
 out of the LM training set. Their embeddings stay near their random initialization.
 
@@ -368,7 +377,8 @@ The famous GPT-2/3 example: `SolidGoldMagikarp` (a Reddit username). Prompting w
 bizarre, off-distribution behaviour — the model was being asked to condition on an embedding it
 had essentially never trained on.
 
-🧠 **The lesson**: tokenizer training set and model training set should be the same corpus.
+> [!TIP]
+> **The lesson**: tokenizer training set and model training set should be the same corpus.
 
 ### (d) The trailing-space problem
 
@@ -380,7 +390,7 @@ a natural token boundary — `"The answer is"` — and let the model emit the sp
 
 ## 8. Practical numbers
 
-📊 **Vocabulary sizes**:
+**Vocabulary sizes**:
 
 | Model family | Vocab | Notes |
 |---|---|---|
@@ -392,7 +402,7 @@ a natural token boundary — `"The answer is"` — and let the model emit the sp
 | Gemma | 256,000 | multilingual-first |
 | Qwen | ~152k | strong Chinese coverage |
 
-🔢 **The embedding-table trade-off.** With $d = 4096$:
+**The embedding-table trade-off.** With $d = 4096$:
 
 | Vocab | Embedding params | Share of a 7B model |
 |---|---|---|
@@ -405,7 +415,7 @@ costs embedding parameters and makes the final softmax more expensive. Empirical
 size should scale with model size** — Tao et al. (2024) find compute-optimal vocabulary grows
 sub-linearly with $N$, and that most models before 2024 were *under*-vocabularied.
 
-💻 **Always measure, never assume:**
+**Always measure, never assume:**
 
 ```python
 import tiktoken

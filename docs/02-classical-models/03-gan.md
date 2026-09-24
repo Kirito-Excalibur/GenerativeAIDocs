@@ -36,10 +36,11 @@ $$\min_G \max_D \; V(D,G) = \mathbb{E}_{x\sim p_{\text{data}}}[\log D(x)] + \mat
         (classify correctly)                 (fool the critic)
 ```
 
-🧠 **Intuition** — a forger and a detective. The detective learns to spot fakes; the forger learns
-to defeat the current detective. Each improvement forces the other to improve. At equilibrium the
-forgeries are indistinguishable from real currency and the detective is reduced to guessing
-($D \equiv 1/2$).
+> [!TIP]
+> **Intuition** — a forger and a detective. The detective learns to spot fakes; the forger learns
+> to defeat the current detective. Each improvement forces the other to improve. At equilibrium the
+> forgeries are indistinguishable from real currency and the detective is reduced to guessing
+> ($D \equiv 1/2$).
 
 **The crucial difference from every other model here**: there is no likelihood, no reconstruction,
 no explicit density. The *only* training signal is a learned critic. That is both the strength (no
@@ -50,7 +51,7 @@ training is going well).
 
 ## 2. Theory: what the game actually optimizes
 
-📐 **Step 1 — the optimal discriminator.** For a fixed $G$ with induced distribution $p_g$,
+**Step 1 — the optimal discriminator.** For a fixed $G$ with induced distribution $p_g$,
 maximize the integrand pointwise:
 
 $$V = \int_x \Big[p_{\text{data}}(x)\log D(x) + p_g(x)\log(1-D(x))\Big]dx$$
@@ -59,11 +60,12 @@ Setting $\frac{\partial}{\partial D}\big[a\log D + b\log(1-D)\big] = \frac{a}{D}
 
 $$\boxed{\;D^*(x) = \frac{p_{\text{data}}(x)}{p_{\text{data}}(x) + p_g(x)}\;}$$
 
-🧠 Read this: **the optimal discriminator is a density ratio estimator.** $D^*(x) = 0.5$ exactly
-where the two densities are equal. This is why "$D$ is at 0.5 everywhere" is the target equilibrium
-— and why a $D$ that reaches 1.0 on all real data means $p_g$ has no overlap with $p_{\text{data}}$.
+> [!TIP]
+> Read this: **the optimal discriminator is a density ratio estimator.** $D^*(x) = 0.5$ exactly
+> where the two densities are equal. This is why "$D$ is at 0.5 everywhere" is the target equilibrium
+> — and why a $D$ that reaches 1.0 on all real data means $p_g$ has no overlap with $p_{\text{data}}$.
 
-📐 **Step 2 — substitute back.**
+**Step 2 — substitute back.**
 
 $$
 \begin{aligned}
@@ -77,7 +79,7 @@ $$
 Since $D_{\mathrm{JS}} \ge 0$ with equality iff the distributions match, the global minimum over $G$
 is at $p_g = p_{\text{data}}$, where $V = -2\log 2 \approx -1.386$. ∎
 
-📊 **Diagnostic value**: if your GAN is training correctly with the original objective, $D$'s loss
+**Diagnostic value**: if your GAN is training correctly with the original objective, $D$'s loss
 should hover near $2\log 2 \approx 1.386$ (nats). A $D$ loss crashing to 0 means the discriminator
 has won and the generator is receiving no useful gradient.
 
@@ -85,7 +87,7 @@ has won and the generator is receiving no useful gradient.
 
 ## 3. Why GANs are hard: the four structural problems
 
-### (a) Vanishing gradients when $D$ wins
+### (a) Vanishing gradients when D wins
 
 If $D$ is too good, $D(G(z)) \approx 0$, so $\log(1 - D(G(z))) \approx \log 1 = 0$ — flat, no
 gradient. The generator is starved exactly when it most needs help.
@@ -114,7 +116,7 @@ rational strategy: the objective never asks $G$ to cover the data, only to fool 
                                   as D catches up)
 ```
 
-📊 The standard diagnostic is the **8-Gaussians / 25-Gaussians toy problem**: if your GAN variant
+The standard diagnostic is the **8-Gaussians / 25-Gaussians toy problem**: if your GAN variant
 can't cover 8 modes in 2-D, it won't cover the modes of ImageNet.
 
 | Mitigation | Mechanism |
@@ -142,12 +144,13 @@ with a separate metric (FID) and by looking at samples. This is a genuine engine
 
 ## 4. Wasserstein GAN: a better divergence
 
-⚠️ **The root problem with JSD.** If $p_{\text{data}}$ and $p_g$ live on low-dimensional manifolds
-that don't overlap — which, per the manifold hypothesis, is *generically* the case early in
-training — then $D_{\mathrm{JS}} = \log 2$ **constant**, so its gradient is zero. The objective
-gives no signal about *how far apart* the distributions are.
+> [!WARNING]
+> **The root problem with JSD.** If $p_{\text{data}}$ and $p_g$ live on low-dimensional manifolds
+> that don't overlap — which, per the manifold hypothesis, is *generically* the case early in
+> training — then $D_{\mathrm{JS}} = \log 2$ **constant**, so its gradient is zero. The objective
+> gives no signal about *how far apart* the distributions are.
 
-🔢 **The canonical example.** Let $p_0$ be a point mass at $x=0$ and $p_\theta$ a point mass at
+**The canonical example.** Let $p_0$ be a point mass at $x=0$ and $p_\theta$ a point mass at
 $x=\theta$. Then:
 
 | $\theta$ | $D_{\mathrm{JS}}$ | $W_1$ |
@@ -162,8 +165,9 @@ informative everywhere.**
 
 $$W_1(p, q) = \inf_{\gamma \in \Pi(p,q)} \mathbb{E}_{(x,y)\sim\gamma}\big[\|x-y\|\big]$$
 
-🧠 **"Earth mover's distance"** — the minimum total work to reshape one pile of dirt into another,
-where work = mass × distance moved.
+> [!TIP]
+> **"Earth mover's distance"** — the minimum total work to reshape one pile of dirt into another,
+> where work = mass × distance moved.
 
 **Kantorovich–Rubinstein duality** makes it computable:
 
@@ -182,7 +186,7 @@ $$\min_G\max_{\|D\|_L\le1} \; \mathbb{E}_{p_{\text{data}}}[D(x)] - \mathbb{E}_{p
 | **Gradient penalty (WGAN-GP)** | add $\lambda(\|\nabla_{\hat x}D(\hat x)\|_2 - 1)^2$, $\hat x$ on lines between real and fake | slow (needs a double backward), but effective |
 | **Spectral normalization** | divide each weight by $\sigma_{\max}(W)$ (power iteration) | cheap, robust — **the modern default** |
 
-💻 Spectral norm is one line in PyTorch:
+Spectral norm is one line in PyTorch:
 
 ```python
 d = nn.Sequential(
@@ -192,7 +196,7 @@ d = nn.Sequential(
 )
 ```
 
-📊 **Benefits reported for WGAN-family losses**: a critic loss that *correlates with sample
+**Benefits reported for WGAN-family losses**: a critic loss that *correlates with sample
 quality* (finally, a usable training curve), much reduced mode collapse, and tolerance for training
 $D$ to optimality — in fact WGAN *wants* $n_{\text{critic}} = 5$ critic steps per generator step,
 the opposite of standard GAN advice.
@@ -233,14 +237,15 @@ the opposite of standard GAN advice.
                                                      image
 ```
 
-🧠 **Why the mapping network matters** — $z \sim \mathcal{N}(0,I)$ is forced to be a nice round
-Gaussian, but the *actual* factors of variation in faces are not distributed that way (e.g. very
-few training images combine "child" with "beard", so that region should be empty). A round latent
-forced onto a non-round data distribution produces **entangled**, warped mappings. The learned
-$f: z \to w$ lets $\mathcal{W}$ take whatever shape it needs. Measured disentanglement
-(perceptual path length, linear separability) improves substantially.
+> [!TIP]
+> **Why the mapping network matters** — $z \sim \mathcal{N}(0,I)$ is forced to be a nice round
+> Gaussian, but the *actual* factors of variation in faces are not distributed that way (e.g. very
+> few training images combine "child" with "beard", so that region should be empty). A round latent
+> forced onto a non-round data distribution produces **entangled**, warped mappings. The learned
+> $f: z \to w$ lets $\mathcal{W}$ take whatever shape it needs. Measured disentanglement
+> (perceptual path length, linear separability) improves substantially.
 
-📊 **The practical payoff**: $\mathcal{W}$ and the extended $\mathcal{W}^+$ space support real
+**The practical payoff**: $\mathcal{W}$ and the extended $\mathcal{W}^+$ space support real
 semantic editing — find the "smile" direction with a linear probe, add $\alpha \cdot w_{\text{smile}}$,
 get a smiling version of the same face. GAN inversion (optimize $w$ to reconstruct a given photo)
 made this work on real images, and this was the dominant face-editing technology before diffusion.
@@ -249,7 +254,7 @@ made this work on real images, and this was the dominant face-editing technology
 
 ## 6. Practical training recipe
 
-💻 A working DCGAN training step, with the details that matter:
+A working DCGAN training step, with the details that matter:
 
 ```python
 import torch, torch.nn as nn
@@ -280,7 +285,7 @@ for real, _ in loader:
     opt_G.zero_grad(); loss_G.backward(); opt_G.step()
 ```
 
-📊 **The checklist that actually matters**
+**The checklist that actually matters**
 
 | Practice | Why |
 |---|---|
@@ -294,15 +299,16 @@ for real, _ in loader:
 | **EMA of $G$ weights** for sampling | large, consistent FID improvement, nearly free |
 | Track FID every ~5k steps | the loss curve tells you nothing (§3d) |
 
-⚠️ **The single most common bug**: forgetting `.detach()` on the fake batch in the $D$ step. Without
-it, $D$'s loss backpropagates into $G$ and actively trains $G$ to be *more* detectable. Symptom:
-the generator gets steadily worse while $D$'s loss looks fine.
+> [!WARNING]
+> **The single most common bug**: forgetting `.detach()` on the fake batch in the $D$ step. Without
+> it, $D$'s loss backpropagates into $G$ and actively trains $G$ to be *more* detectable. Symptom:
+> the generator gets steadily worse while $D$'s loss looks fine.
 
 ---
 
 ## 7. What happened to GANs
 
-📊 The turning point was Dhariwal & Nichol, *Diffusion Models Beat GANs on Image Synthesis* (2021):
+The turning point was Dhariwal & Nichol, *Diffusion Models Beat GANs on Image Synthesis* (2021):
 
 | Model | ImageNet 256×256 FID |
 |---|---|
@@ -321,10 +327,11 @@ Diffusion won on quality **and** coverage **and** training stability. GANs retai
 | Real-time / on-device generation | one forward pass beats any multi-step method |
 | Domain translation | CycleGAN's unpaired-translation setup has no diffusion equivalent as simple |
 
-🧠 **The intellectual legacy is larger than the deployment footprint.** "Train a network to
-critique another network's output" is now everywhere: it is the reward model in RLHF, the
-discriminator in neural codecs, the LPIPS-adjacent perceptual losses, and LLM-as-judge evaluation.
-The adversarial *idea* outlived the adversarial *architecture*.
+> [!TIP]
+> **The intellectual legacy is larger than the deployment footprint.** "Train a network to
+> critique another network's output" is now everywhere: it is the reward model in RLHF, the
+> discriminator in neural codecs, the LPIPS-adjacent perceptual losses, and LLM-as-judge evaluation.
+> The adversarial *idea* outlived the adversarial *architecture*.
 
 ---
 

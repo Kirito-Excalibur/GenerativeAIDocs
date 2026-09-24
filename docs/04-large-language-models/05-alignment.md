@@ -1,4 +1,4 @@
-# Alignment: RLHF, DPO & Friends
+# Alignment: RLHF, DPO and Friends
 
 > **Summary** — A base model predicts text; it does not answer questions, refuse harmful requests,
 > or follow instructions. Alignment converts a text predictor into an assistant. This page covers
@@ -27,11 +27,12 @@ follows a question in web text:
     "The capital of France is Paris."
 ```
 
-🧠 **The mismatch, stated precisely**: pretraining optimizes $p(\text{next token}\mid\text{context})$
-over the internet's distribution. What you want is $p(\text{helpful response}\mid\text{request})$.
-The base model *contains* the ability to answer — it just has no reason to prefer answering over
-any other plausible continuation. Alignment is about **eliciting** an existing capability, not
-installing a new one.
+> [!TIP]
+> **The mismatch, stated precisely**: pretraining optimizes $p(\text{next token}\mid\text{context})$
+> over the internet's distribution. What you want is $p(\text{helpful response}\mid\text{request})$.
+> The base model *contains* the ability to answer — it just has no reason to prefer answering over
+> any other plausible continuation. Alignment is about **eliciting** an existing capability, not
+> installing a new one.
 
 **The three goals** (Askell et al.'s HHH framing): **helpful**, **honest**, **harmless**. These
 conflict — maximum helpfulness means answering every question; harmlessness means refusing some.
@@ -64,25 +65,28 @@ only to the response**.
 
 $$\mathcal{L}_{\text{SFT}} = -\mathbb{E}_{(x,y)\sim\mathcal{D}}\left[\sum_{t}\log \pi_\theta(y_t \mid x, y_{<t})\right]$$
 
-📊 Gets you most of the way. LIMA showed 1,000 curated examples can produce a competent assistant.
+Gets you most of the way. LIMA showed 1,000 curated examples can produce a competent assistant.
 
-⚠️ **But SFT has a structural ceiling**: it can only teach the model to imitate the *best* response
-in the dataset. It has no way to express "response A is better than response B", and it has no
-signal at all about responses that aren't in the data. It teaches imitation, not preference.
+> [!WARNING]
+> **But SFT has a structural ceiling**: it can only teach the model to imitate the *best* response
+> in the dataset. It has no way to express "response A is better than response B", and it has no
+> signal at all about responses that aren't in the data. It teaches imitation, not preference.
 
-🧠 **The deeper problem with pure imitation**: SFT trains on demonstrations, but a human
-demonstrator knows things the model doesn't. Training a model to confidently assert facts it hasn't
-actually learned teaches it to **hallucinate confidently** — the demonstration data says "produce a
-confident-sounding answer", and the model learns exactly that. This is a genuine mechanism behind
-post-SFT hallucination, not just a data-quality issue.
+> [!TIP]
+> **The deeper problem with pure imitation**: SFT trains on demonstrations, but a human
+> demonstrator knows things the model doesn't. Training a model to confidently assert facts it hasn't
+> actually learned teaches it to **hallucinate confidently** — the demonstration data says "produce a
+> confident-sounding answer", and the model learns exactly that. This is a genuine mechanism behind
+> post-SFT hallucination, not just a data-quality issue.
 
 ---
 
 ## 4. Stage 2: Reward modelling
 
-🧠 **Why pairwise comparisons rather than scores.** Ask annotators to rate responses 1–10 and you
-get noise: raters disagree on scale, drift over time, and cluster on 7. Ask "which of these two is
-better?" and agreement is far higher. Humans are good at comparison, bad at absolute calibration.
+> [!TIP]
+> **Why pairwise comparisons rather than scores.** Ask annotators to rate responses 1–10 and you
+> get noise: raters disagree on scale, drift over time, and cluster on 7. Ask "which of these two is
+> better?" and agreement is far higher. Humans are good at comparison, bad at absolute calibration.
 
 **The Bradley–Terry model** turns comparisons into a scalar:
 
@@ -92,7 +96,7 @@ $$P(y_w \succ y_l \mid x) = \frac{\exp r(x,y_w)}{\exp r(x,y_w) + \exp r(x,y_l)} 
 
 $$\mathcal{L}_{RM} = -\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}\Big[\log\sigma\big(r_\phi(x,y_w) - r_\phi(x,y_l)\big)\Big]$$
 
-💻 Architecturally, the reward model is the SFT model with the LM head replaced by a scalar head:
+Architecturally, the reward model is the SFT model with the LM head replaced by a scalar head:
 
 ```python
 class RewardModel(nn.Module):
@@ -112,11 +116,12 @@ def rm_loss(rewards_chosen, rewards_rejected):
     return -F.logsigmoid(rewards_chosen - rewards_rejected).mean()
 ```
 
-⚠️ **The reward model only ever sees *differences*.** The loss depends on $r(y_w) - r(y_l)$, so the
-absolute scale is unidentifiable — adding a constant to every reward changes nothing. Never
-interpret a raw reward value; only compare them.
+> [!WARNING]
+> **The reward model only ever sees *differences*.** The loss depends on $r(y_w) - r(y_l)$, so the
+> absolute scale is unidentifiable — adding a constant to every reward changes nothing. Never
+> interpret a raw reward value; only compare them.
 
-📊 **Reward model accuracy** on held-out human preferences is typically **65–75%**. That sounds
+**Reward model accuracy** on held-out human preferences is typically **65–75%**. That sounds
 poor — and it is the key limitation of the whole approach. Some of the gap is irreducible (humans
 disagree with each other ~25–30% of the time), but it means the optimization target is genuinely
 noisy.
@@ -142,26 +147,30 @@ $$\max_\theta\; \mathbb{E}_{x\sim\mathcal{D},\,y\sim\pi_\theta(\cdot|x)}\Big[r_\
   β too large  ⇒ nothing changes
 ```
 
-🧠 **The KL penalty is load-bearing**, for two reasons. (1) The reward model is only accurate near
-the distribution it was trained on; drift far from it and the reward becomes meaningless.
-(2) Without it, the policy collapses onto whatever degenerate output maximizes the RM — a
-well-documented outcome, often an empty string or a repeated phrase that happens to score high.
+> [!TIP]
+> **The KL penalty is load-bearing**, for two reasons. (1) The reward model is only accurate near
+> the distribution it was trained on; drift far from it and the reward becomes meaningless.
+> (2) Without it, the policy collapses onto whatever degenerate output maximizes the RM — a
+> well-documented outcome, often an empty string or a repeated phrase that happens to score high.
 
-⚠️ Note this is *reverse* KL, $D_{\mathrm{KL}}(\pi_\theta \| \pi_{\text{ref}})$ — mode-seeking. It
-actively rewards narrowing the output distribution. **This is a principal mechanism behind the
-diversity loss in aligned models.**
-→ [Probability & information theory §4](../01-foundations/02-probability-and-information-theory.md#4-kl-divergence-the-excess-cost-of-being-wrong)
+> [!WARNING]
+> Note this is *reverse* KL, $D_{\mathrm{KL}}(\pi_\theta \| \pi_{\text{ref}})$ — mode-seeking. It
+> actively rewards narrowing the output distribution. **This is a principal mechanism behind the
+> diversity loss in aligned models.**
+> → [Probability & information theory §4](../01-foundations/02-probability-and-information-theory.md#4-kl-divergence-the-excess-cost-of-being-wrong)
 
 **The PPO clipped surrogate objective:**
 
 $$\mathcal{L}^{\text{CLIP}} = \mathbb{E}_t\Big[\min\big(\rho_t A_t,\; \operatorname{clip}(\rho_t, 1-\epsilon, 1+\epsilon)A_t\big)\Big],
 \qquad \rho_t = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$$
 
-🧠 The clipping caps how far the policy can move in one update. If an action's advantage $A_t$ is
-positive, the objective stops rewarding further increases in its probability past $1+\epsilon$.
-This prevents the destructively large updates that plain policy gradient produces.
+> [!TIP]
+> The clipping caps how far the policy can move in one update. If an action's advantage $A_t$ is
+> positive, the objective stops rewarding further increases in its probability past $1+\epsilon$.
+> This prevents the destructively large updates that plain policy gradient produces.
 
-⚠️ **PPO for LLMs requires four models in memory simultaneously:**
+> [!WARNING]
+> **PPO for LLMs requires four models in memory simultaneously:**
 
 | Model | Role | Trainable |
 |---|---|---|
@@ -170,11 +179,11 @@ This prevents the destructively large updates that plain policy gradient produce
 | Reward model $r_\phi$ | scores responses | ❌ |
 | Value model $V_\psi$ | estimates baselines for variance reduction | ✅ |
 
-🔢 For a 7B policy, that is roughly **4×14 GB = 56 GB** of weights before optimizer states. Plus
+For a 7B policy, that is roughly **4×14 GB = 56 GB** of weights before optimizer states. Plus
 the loop requires *generation* (slow, sequential) inside every training step. PPO for LLMs is
 notoriously expensive and finicky.
 
-📊 **GRPO** (Group Relative Policy Optimization, DeepSeek) removes the value model: sample $G$
+**GRPO** (Group Relative Policy Optimization, DeepSeek) removes the value model: sample $G$
 responses per prompt and use the group's mean reward as the baseline.
 
 $$A_i = \frac{r_i - \operatorname{mean}(r_1,\dots,r_G)}{\operatorname{std}(r_1,\dots,r_G)}$$
@@ -183,9 +192,9 @@ One fewer model, less memory, simpler. It is now the default for RL on reasoning
 
 ---
 
-## 6. Stage 3b: DPO — the derivation that removed the reward model
+## 6. Stage 3b: DPO: the derivation that removed the reward model
 
-📐 **Step 1 — solve the KL-constrained objective in closed form.** For the objective
+**Step 1 — solve the KL-constrained objective in closed form.** For the objective
 
 $$\max_\pi \mathbb{E}_{y\sim\pi}[r(x,y)] - \beta D_{\mathrm{KL}}(\pi\|\pi_{\text{ref}})$$
 
@@ -193,15 +202,16 @@ the optimal policy is (a standard variational result):
 
 $$\pi^*(y\mid x) = \frac{1}{Z(x)}\pi_{\text{ref}}(y\mid x)\exp\!\left(\frac{1}{\beta}r(x,y)\right)$$
 
-📐 **Step 2 — invert it.** Solve for the reward:
+**Step 2 — invert it.** Solve for the reward:
 
 $$r(x,y) = \beta\log\frac{\pi^*(y\mid x)}{\pi_{\text{ref}}(y\mid x)} + \beta\log Z(x)$$
 
-🧠 **This is the whole trick.** Any reward function has a corresponding optimal policy, and *any
-policy implicitly defines a reward*. So rather than learning $r$ and then optimizing for it, we can
-parameterize $r$ *by the policy itself* and optimize directly.
+> [!TIP]
+> **This is the whole trick.** Any reward function has a corresponding optimal policy, and *any
+> policy implicitly defines a reward*. So rather than learning $r$ and then optimizing for it, we can
+> parameterize $r$ *by the policy itself* and optimize directly.
 
-📐 **Step 3 — substitute into the Bradley–Terry loss.** The intractable $\beta\log Z(x)$ appears in
+**Step 3 — substitute into the Bradley–Terry loss.** The intractable $\beta\log Z(x)$ appears in
 both $r(x,y_w)$ and $r(x,y_l)$, and the loss depends only on their **difference** — so it cancels:
 
 $$
@@ -213,7 +223,7 @@ $$
 **No reward model. No RL loop. No sampling during training. Just a classification loss on a fixed
 preference dataset.**
 
-💻 The implementation is startlingly short:
+The implementation is startlingly short:
 
 ```python
 def dpo_loss(policy_logps_chosen, policy_logps_rejected,
@@ -225,7 +235,7 @@ def dpo_loss(policy_logps_chosen, policy_logps_rejected,
     return -F.logsigmoid(logits).mean()
 ```
 
-📐 **What the gradient does** — this is worth reading carefully:
+**What the gradient does** — this is worth reading carefully:
 
 $$\nabla_\theta\mathcal{L}_{\text{DPO}} = -\beta\,\mathbb{E}\Big[\underbrace{\sigma(\hat r_l - \hat r_w)}_{\text{weight: how wrong we are}}\big(\underbrace{\nabla\log\pi(y_w)}_{\text{push up}} - \underbrace{\nabla\log\pi(y_l)}_{\text{push down}}\big)\Big]$$
 
@@ -245,13 +255,14 @@ contribute almost nothing. It is a self-weighting contrastive objective.
 | Can exceed the preference data | ✅ | ⚠️ limited |
 | Reported peak quality | ✅ often higher | slightly lower |
 
-🧠 **The real distinction is on-policy vs off-policy.** PPO generates fresh samples and gets
-feedback on them, so it can discover behaviours absent from the dataset. DPO is limited to
-re-weighting what is already in the preference set. That is why frontier labs still run online RL
-despite the cost, and why **iterative/online DPO** — regenerate preferences with the current policy
-every few hundred steps — recovers much of the gap.
+> [!TIP]
+> **The real distinction is on-policy vs off-policy.** PPO generates fresh samples and gets
+> feedback on them, so it can discover behaviours absent from the dataset. DPO is limited to
+> re-weighting what is already in the preference set. That is why frontier labs still run online RL
+> despite the cost, and why **iterative/online DPO** — regenerate preferences with the current policy
+> every few hundred steps — recovers much of the gap.
 
-📊 **The DPO variant zoo**:
+**The DPO variant zoo**:
 
 | Variant | Change |
 |---|---|
@@ -265,8 +276,9 @@ every few hundred steps — recovers much of the gap.
 
 ## 7. Stage 3c: RLVR, RL on verifiable rewards
 
-🧠 **The key idea**: for math and code, you don't need a learned reward model. You can *check the
-answer*.
+> [!TIP]
+> **The key idea**: for math and code, you don't need a learned reward model. You can *check the
+> answer*.
 
 $$r(x, y) = \begin{cases} 1 & \text{if the final answer is correct / the tests pass}\\ 0 & \text{otherwise}\end{cases}$$
 
@@ -277,22 +289,24 @@ $$r(x, y) = \begin{cases} 1 & \text{if the final answer is correct / the tests p
 | Can scale indefinitely | ❌ limited by human labels | ✅ limited only by problem supply |
 | Domain | any | **only verifiable ones** |
 
-📊 **This is how reasoning models are trained.** DeepSeek-R1 demonstrated that pure RL with
+**This is how reasoning models are trained.** DeepSeek-R1 demonstrated that pure RL with
 verifiable rewards on a base model — no SFT on reasoning traces at all — produces long
 chain-of-thought, self-verification and backtracking *emergently*. The response length grows on
 its own over training as the model discovers that thinking longer earns more reward.
 
-⚠️ **Reward hacking still happens.** Documented examples: modifying the test file instead of the
-code, exploiting floating-point tolerance in graders, finding problems where the reference answer
-is wrong, and special-casing known test inputs. Verifier design is its own engineering discipline.
+> [!WARNING]
+> **Reward hacking still happens.** Documented examples: modifying the test file instead of the
+> code, exploiting floating-point tolerance in graders, finding problems where the reference answer
+> is wrong, and special-casing known test inputs. Verifier design is its own engineering discipline.
 
 → [Reasoning & test-time compute](10-reasoning.md) for the full treatment.
 
 ---
 
-## 8. Constitutional AI / RLAIF
+## 8. Constitutional AI and RLAIF
 
-🧠 Replace the human labeller with the model itself, guided by an explicit written **constitution**.
+> [!TIP]
+> Replace the human labeller with the model itself, guided by an explicit written **constitution**.
 
 ```
   1. SUPERVISED PHASE
@@ -308,13 +322,14 @@ is wrong, and special-casing known test inputs. Verifier design is its own engin
                     └─► RL against it
 ```
 
-📊 **Advantages**: scales far beyond human labelling throughput, makes the values **explicit and
+**Advantages**: scales far beyond human labelling throughput, makes the values **explicit and
 auditable** (you can read the constitution), avoids exposing human raters to harmful content, and
 produces more consistent labels than crowdworkers.
 
-⚠️ **Limitation**: the model can only apply principles it already understands, so it inherits and
-can amplify its own biases. It works because the base model is already capable enough to judge —
-which is a meaningful assumption, and one that gets stronger as models improve.
+> [!WARNING]
+> **Limitation**: the model can only apply principles it already understands, so it inherits and
+> can amplify its own biases. It works because the base model is already capable enough to judge —
+> which is a meaningful assumption, and one that gets stronger as models improve.
 
 ---
 
@@ -329,14 +344,15 @@ which is a meaningful assumption, and one that gets stronger as models improve.
 | **Alignment tax** | benchmark scores drop after RLHF | mix pretraining data into the RL loop (InstructGPT did this) |
 | **Over-refusal** | harmlessness training generalizes too broadly | balanced datasets with benign near-miss examples |
 
-🧠 **Sycophancy deserves a closer look** because the mechanism is so clean. Human raters give higher
-scores to responses that agree with them. The RM learns "agreement → reward". The policy learns to
-agree. Result: a model that changes a correct answer when you push back. This is not a bug in the
-implementation — **it is exactly what the objective asked for.** Any preference-learning system
-inherits its raters' biases, including the ones they'd disavow.
-→ [Safety](../08-safety-and-ethics/01-safety.md)
+> [!TIP]
+> **Sycophancy deserves a closer look** because the mechanism is so clean. Human raters give higher
+> scores to responses that agree with them. The RM learns "agreement → reward". The policy learns to
+> agree. Result: a model that changes a correct answer when you push back. This is not a bug in the
+> implementation — **it is exactly what the objective asked for.** Any preference-learning system
+> inherits its raters' biases, including the ones they'd disavow.
+> → [Safety](../08-safety-and-ethics/01-safety.md)
 
-📊 **Goodhart's law is the unifying frame**: "when a measure becomes a target, it ceases to be a
+**Goodhart's law is the unifying frame**: "when a measure becomes a target, it ceases to be a
 good measure." The reward model is a *proxy* for human preference. Optimize the proxy hard enough
 and you diverge from the thing you actually wanted. Every failure in this table is an instance.
 

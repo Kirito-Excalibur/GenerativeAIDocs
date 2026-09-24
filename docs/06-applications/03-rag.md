@@ -30,9 +30,10 @@
                         answer + citations
 ```
 
-🧠 **Why RAG rather than fine-tuning.** Fine-tuning changes *behaviour*; retrieval changes
-*knowledge*. Fine-tuning a model on your documents teaches it their style and makes it hallucinate
-confidently in that style. Retrieval puts the actual text in front of it.
+> [!TIP]
+> **Why RAG rather than fine-tuning.** Fine-tuning changes *behaviour*; retrieval changes
+> *knowledge*. Fine-tuning a model on your documents teaches it their style and makes it hallucinate
+> confidently in that style. Retrieval puts the actual text in front of it.
 
 | | RAG | Fine-tuning |
 |---|---|---|
@@ -47,9 +48,10 @@ confidently in that style. Retrieval puts the actual text in front of it.
 
 ## 2. Chunking: the decision that matters most
 
-⚠️ **Chunking quality sets the ceiling for everything downstream.** No amount of retrieval or
-reranking sophistication recovers from chunks that split a table in half or separate a claim from
-its qualifier.
+> [!WARNING]
+> **Chunking quality sets the ceiling for everything downstream.** No amount of retrieval or
+> reranking sophistication recovers from chunks that split a table in half or separate a claim from
+> its qualifier.
 
 ```
    TOO SMALL (128 tokens)            TOO LARGE (2000 tokens)
@@ -65,7 +67,7 @@ its qualifier.
    └──────────┘                      retrieval precision drops
 ```
 
-📊 **Strategies, in increasing order of quality and effort:**
+**Strategies, in increasing order of quality and effort:**
 
 | Strategy | How | When |
 |---|---|---|
@@ -76,10 +78,11 @@ its qualifier.
 | **Proposition** | an LLM rewrites text into standalone factual statements | expensive, high quality |
 | Late chunking | embed the whole document, then pool per chunk | keeps global context in each chunk embedding |
 
-🔢 **Starting parameters**: 512 tokens with 50–100 tokens of overlap. Overlap prevents a fact from
+**Starting parameters**: 512 tokens with 50–100 tokens of overlap. Overlap prevents a fact from
 being severed at a boundary.
 
-🧠 **Three techniques that punch above their weight:**
+> [!TIP]
+> **Three techniques that punch above their weight:**
 
 **(a) Contextual retrieval** — prepend an LLM-generated context sentence to each chunk before
 embedding it:
@@ -90,7 +93,7 @@ embedding it:
                     segment performance. Revenue grew 3% over the prior quarter."
 ```
 
-📊 Anthropic reported this substantially reduces retrieval failures. It costs one cheap LLM call
+Anthropic reported this substantially reduces retrieval failures. It costs one cheap LLM call
 per chunk at index time — a one-off expense for a permanent gain. It directly fixes the "this
 chunk is meaningless without knowing what document it came from" problem.
 
@@ -116,20 +119,22 @@ The user's query is often a poor retrieval key.
 | Step-back | ask a more general question first, retrieve background, then the specific one |
 | Routing | choose which index/collection to search |
 
-🧠 **HyDE (Hypothetical Document Embeddings) is the cleverest of these.** Queries and documents live
-in different linguistic registers — a question ("what causes X?") looks nothing like an answer
-passage ("X is caused by..."). Asking the LLM to *hallucinate* a plausible answer and embedding
-that puts the search vector in document-space, where the real answers are. The hallucination's
-factual content is irrelevant; only its shape matters.
+> [!TIP]
+> **HyDE (Hypothetical Document Embeddings) is the cleverest of these.** Queries and documents live
+> in different linguistic registers — a question ("what causes X?") looks nothing like an answer
+> passage ("X is caused by..."). Asking the LLM to *hallucinate* a plausible answer and embedding
+> that puts the search vector in document-space, where the real answers are. The hallucination's
+> factual content is irrelevant; only its shape matters.
 
-⚠️ Each of these adds latency and cost. Multi-query with 5 variants means 5× the retrieval work
-plus an LLM call. Measure whether it helps on *your* data before adopting it.
+> [!WARNING]
+> Each of these adds latency and cost. Multi-query with 5 variants means 5× the retrieval work
+> plus an LLM call. Measure whether it helps on *your* data before adopting it.
 
 ---
 
 ## 4. The failure taxonomy
 
-📊 This table is the most practically useful thing on this page. When RAG gives a bad answer,
+This table is the most practically useful thing on this page. When RAG gives a bad answer,
 diagnose *which stage* failed:
 
 | # | Failure | Symptom | Fix |
@@ -143,19 +148,20 @@ diagnose *which stage* failed:
 | 7 | **Ignored context** | model answers from parametric memory instead | prompt to use only the context; check for conflicts |
 | 8 | **Bad chunk boundaries** | truncated tables, split claims | structural chunking, larger overlap |
 
-🧠 **The diagnostic procedure**: for a failing query, check in order —
-(a) is the answer in the corpus? (b) is the right chunk in the top-50? (c) is it in the top-5 after
-reranking? (d) did the LLM use it? Each "no" points at exactly one fix. Debugging RAG without this
-decomposition is guesswork.
+> [!TIP]
+> **The diagnostic procedure**: for a failing query, check in order —
+> (a) is the answer in the corpus? (b) is the right chunk in the top-50? (c) is it in the top-5 after
+> reranking? (d) did the LLM use it? Each "no" points at exactly one fix. Debugging RAG without this
+> decomposition is guesswork.
 
-📊 **Empirically the most common failure is #2** — retrieval recall. This is why hybrid search and
+**Empirically the most common failure is #2** — retrieval recall. This is why hybrid search and
 reranking are the two highest-value additions.
 
 ---
 
 ## 5. Generation
 
-💻 A prompt template that handles the things that actually go wrong:
+A prompt template that handles the things that actually go wrong:
 
 ```python
 RAG_PROMPT = """Answer the question using ONLY the provided context.
@@ -185,22 +191,25 @@ def format_context(chunks):
         for i, c in enumerate(chunks, 1))
 ```
 
-🧠 **The reordering trick exploits "lost in the middle"**
-(→ [Long context §6](../04-large-language-models/09-long-context.md#6-what-long-context-actually-delivers)).
-Put your two best chunks at the extremes, where attention is strongest.
+> [!TIP]
+> **The reordering trick exploits "lost in the middle"**
+> (→ [Long context §6](../04-large-language-models/09-long-context.md#6-what-long-context-actually-delivers)).
+> Put your two best chunks at the extremes, where attention is strongest.
 
-⚠️ **Knowledge conflict** — when the retrieved context contradicts the model's parametric
-knowledge, behaviour is unpredictable. Models generally favour the context when it is clear and
-specific, and fall back on parametric memory when the context is vague. Explicit instructions
-help but are not a guarantee. For high-stakes applications, verify that cited claims actually
-appear in the cited chunk.
+> [!WARNING]
+> **Knowledge conflict** — when the retrieved context contradicts the model's parametric
+> knowledge, behaviour is unpredictable. Models generally favour the context when it is clear and
+> specific, and fall back on parametric memory when the context is vague. Explicit instructions
+> help but are not a guarantee. For high-stakes applications, verify that cited claims actually
+> appear in the cited chunk.
 
 ---
 
 ## 6. Evaluation
 
-⚠️ **Evaluate retrieval and generation separately.** A single end-to-end score tells you something
-is wrong but not what.
+> [!WARNING]
+> **Evaluate retrieval and generation separately.** A single end-to-end score tells you something
+> is wrong but not what.
 
 ### Retrieval metrics
 
@@ -212,7 +221,7 @@ is wrong but not what.
 | **nDCG@k** | $\frac{\text{DCG}@k}{\text{IDCG}@k}$, $\text{DCG}=\sum_i \frac{rel_i}{\log_2(i+1)}$ | graded relevance, position-weighted |
 | Hit rate | fraction of queries with ≥1 relevant hit | coarse but interpretable |
 
-🔢 **nDCG example.** Retrieved relevance grades $[3, 0, 2, 1]$ (ideal would be $[3,2,1,0]$):
+**nDCG example.** Retrieved relevance grades $[3, 0, 2, 1]$ (ideal would be $[3,2,1,0]$):
 
 $$\text{DCG} = \frac{3}{\log_2 2} + \frac{0}{\log_2 3} + \frac{2}{\log_2 4} + \frac{1}{\log_2 5} = 3 + 0 + 1 + 0.431 = 4.431$$
 $$\text{IDCG} = 3 + \frac{2}{1.585} + \frac{1}{2} + 0 = 3 + 1.262 + 0.5 = 4.762$$
@@ -227,11 +236,12 @@ $$\text{nDCG} = 4.431/4.762 = \mathbf{0.931}$$
 | **Context precision** | is the retrieved context on-topic? | judge each chunk's relevance |
 | **Context recall** | does the context contain everything needed? | check the ground-truth answer's claims against the context |
 
-🧠 **Faithfulness is the metric to prioritize** — it directly measures hallucination, which is the
-failure mode RAG exists to prevent. A system that is 95% faithful and 80% relevant is far more
-trustworthy than the reverse.
+> [!TIP]
+> **Faithfulness is the metric to prioritize** — it directly measures hallucination, which is the
+> failure mode RAG exists to prevent. A system that is 95% faithful and 80% relevant is far more
+> trustworthy than the reverse.
 
-📊 **Building an evaluation set without human labels**: have an LLM generate questions *from* your
+**Building an evaluation set without human labels**: have an LLM generate questions *from* your
 chunks. The source chunk is then the ground-truth relevant document by construction. This gives
 you a few hundred retrieval test cases in an hour. ⚠️ It is biased toward questions that are easy
 to answer from a single chunk — supplement with real user queries as soon as you have them.
@@ -249,21 +259,23 @@ to answer from a single chunk — supplement with real user queries as soon as y
 | **Recursive summarization** | hierarchical summaries (RAPTOR) | "what is this whole corpus about?" |
 | **Long-context RAG** | retrieve 50 chunks instead of 5 | when the window allows it |
 
-🧠 **GraphRAG addresses a genuine structural gap.** Standard RAG answers "what does document X say
-about Y?" It cannot answer "what are the main themes across all 10,000 documents?" — no single
-chunk contains that, so retrieval has nothing to find. GraphRAG precomputes community summaries at
-index time so global questions have something to retrieve.
+> [!TIP]
+> **GraphRAG addresses a genuine structural gap.** Standard RAG answers "what does document X say
+> about Y?" It cannot answer "what are the main themes across all 10,000 documents?" — no single
+> chunk contains that, so retrieval has nothing to find. GraphRAG precomputes community summaries at
+> index time so global questions have something to retrieve.
 
-🧠 **Long-context RAG is underrated.** Retrieval *recall* failures dominate (§4), and a big context
-window lets you trade precision for recall — retrieve 50 chunks and let the model sort it out.
-This is more robust than heroic efforts to get $k=5$ exactly right.
-→ [Long context §7](../04-large-language-models/09-long-context.md#7-long-context-vs-rag)
+> [!TIP]
+> **Long-context RAG is underrated.** Retrieval *recall* failures dominate (§4), and a big context
+> window lets you trade precision for recall — retrieve 50 chunks and let the model sort it out.
+> This is more robust than heroic efforts to get $k=5$ exactly right.
+> → [Long context §7](../04-large-language-models/09-long-context.md#7-long-context-vs-rag)
 
 ---
 
 ## 8. A complete implementation
 
-💻
+
 
 ```python
 from dataclasses import dataclass
@@ -312,12 +324,14 @@ class RAGPipeline:
                             for i, c in enumerate(top, 1)]}
 ```
 
-⚠️ **The `RELEVANCE_FLOOR` check is the single most important line for trustworthiness.** Without
-it, a query with no good match still retrieves the five *least bad* chunks and the model dutifully
-answers from irrelevant context. Calibrate the floor on known-unanswerable queries.
+> [!WARNING]
+> **The `RELEVANCE_FLOOR` check is the single most important line for trustworthiness.** Without
+> it, a query with no good match still retrieves the five *least bad* chunks and the model dutifully
+> answers from irrelevant context. Calibrate the floor on known-unanswerable queries.
 
-⚠️ **Metadata filters are how you do access control.** Never rely on the LLM to withhold
-information present in its context — filter at retrieval time, before anything reaches the model.
+> [!WARNING]
+> **Metadata filters are how you do access control.** Never rely on the LLM to withhold
+> information present in its context — filter at retrieval time, before anything reaches the model.
 
 ---
 

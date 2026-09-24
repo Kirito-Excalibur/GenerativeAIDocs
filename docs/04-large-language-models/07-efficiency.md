@@ -1,4 +1,4 @@
-# Efficiency: Quantization, Distillation & Sparsity
+# Efficiency: Quantization, Distillation and Sparsity
 
 > **Summary** — Making models smaller and faster without making them worse. Quantization (the
 > biggest win: 4× memory reduction for ~1% quality loss), distillation (transfer capability into a
@@ -12,12 +12,12 @@
 
 ## 1. Why this matters: the memory-bandwidth argument
 
-📐 From → [LLM architecture §4](01-llm-architecture.md#4-request-lifecycle-prefill-and-decode): decoding
+From → [LLM architecture §4](01-llm-architecture.md#4-request-lifecycle-prefill-and-decode): decoding
 is memory-bandwidth-bound. Every generated token requires reading **all** model weights from HBM.
 
 $$t_{\text{per token}} \approx \frac{\text{bytes of weights}}{\text{memory bandwidth}}$$
 
-🔢 **70B model on an H100** (3.35 TB/s):
+**70B model on an H100** (3.35 TB/s):
 
 | Precision | Weight bytes | Theoretical tokens/s | Fits on |
 |---|---|---|---|
@@ -29,9 +29,10 @@ $$t_{\text{per token}} \approx \frac{\text{bytes of weights}}{\text{memory bandw
 **Quantization gives a near-linear speedup on decode** because it directly reduces the bytes
 moved. This is a rare case where the same change improves memory, cost *and* latency together.
 
-⚠️ It does **not** speed up prefill much, which is compute-bound. And it does not reduce the KV
-cache unless you quantize that separately (which you can — KV cache quantization to INT8/FP8 is
-standard).
+> [!WARNING]
+> It does **not** speed up prefill much, which is compute-bound. And it does not reduce the KV
+> cache unless you quantize that separately (which you can — KV cache quantization to INT8/FP8 is
+> standard).
 
 ---
 
@@ -47,7 +48,7 @@ $$s = \frac{\max|W|}{2^{b-1}-1}, \qquad W_q = \operatorname{round}\!\left(\frac{
 
 $$s = \frac{\max(W) - \min(W)}{2^b - 1}, \qquad z = -\operatorname{round}\!\left(\frac{\min(W)}{s}\right), \qquad W_q = \operatorname{round}\!\left(\frac{W}{s}\right) + z$$
 
-🔢 **Worked example — INT8 symmetric.** Weights $W = [0.12, -0.45, 0.83, -0.21, 0.05]$.
+**Worked example — INT8 symmetric.** Weights $W = [0.12, -0.45, 0.83, -0.21, 0.05]$.
 
 $$s = \frac{0.83}{127} = 0.006535$$
 
@@ -66,9 +67,10 @@ weights** — as long as the range is well-behaved, which brings us to the probl
 
 ## 3. The outlier problem (why naive INT8 fails)
 
-⚠️ Transformer activations contain **massive outliers** — a few feature dimensions with magnitudes
-10–100× everything else. They appear in specific channels, consistently across tokens, and they
-emerge as models scale past ~6.7B parameters.
+> [!WARNING]
+> Transformer activations contain **massive outliers** — a few feature dimensions with magnitudes
+> 10–100× everything else. They appear in specific channels, consistently across tokens, and they
+> emerge as models scale past ~6.7B parameters.
 
 ```
    activation magnitudes across the hidden dimension
@@ -81,13 +83,13 @@ emerge as models scale past ~6.7B parameters.
        └──────────────────────────────────────────►  channel index
 ```
 
-🔢 **Why this destroys quantization.** If one value is 100 and the rest are ~1, then
+**Why this destroys quantization.** If one value is 100 and the rest are ~1, then
 $s = 100/127 = 0.787$. Every normal value in $[-1, 1]$ now rounds to one of $\{-1, 0, 1\}$ —
 **you've reduced them to 1.5 bits.** The outlier consumed the entire dynamic range.
 
-📊 The fixes, in order of how much they changed practice:
+The fixes, in order of how much they changed practice:
 
-### LLM.int8() — mixed-precision decomposition
+### LLM.int8(): mixed-precision decomposition
 
 Split the matmul: outlier dimensions (~0.1% of channels) stay in FP16, everything else goes INT8.
 
@@ -95,33 +97,35 @@ $$XW \approx \underbrace{X_{\text{outlier}}W_{\text{outlier}}}_{\text{FP16}} + \
 
 ✅ Essentially lossless. ⚠️ Slow — the mixed kernel is awkward and often no faster than FP16.
 
-### SmoothQuant — move the difficulty
+### SmoothQuant: move the difficulty
 
-🧠 Activations have outliers; weights don't. So **migrate** the difficulty from activations to
-weights with a per-channel scaling that cancels out mathematically:
+> [!TIP]
+> Activations have outliers; weights don't. So **migrate** the difficulty from activations to
+> weights with a per-channel scaling that cancels out mathematically:
 
 $$Y = (X\operatorname{diag}(s)^{-1})\cdot(\operatorname{diag}(s)W)$$
 
 Choose $s_j = \max|X_j|^\alpha / \max|W_j|^{1-\alpha}$ with $\alpha \approx 0.5$. The product is
 unchanged, but now *both* factors are quantization-friendly. ✅ Fast, ✅ INT8 throughout.
 
-### GPTQ — error-compensating weight quantization
+### GPTQ: error-compensating weight quantization
 
 Quantize weights one column at a time; after each, **update the remaining un-quantized weights** to
 compensate for the error introduced, using second-order (Hessian) information from a small
 calibration set.
 
-📊 Enables good 4-bit and even 3-bit weights. Takes minutes to hours to run once, offline.
+Enables good 4-bit and even 3-bit weights. Takes minutes to hours to run once, offline.
 
-### AWQ — activation-aware weight quantization
+### AWQ: activation-aware weight quantization
 
-🧠 Not all weights matter equally. Weights multiplying **large-activation** channels are far more
-important. AWQ identifies the ~1% salient channels (by activation magnitude, not weight magnitude)
-and scales them up before quantizing, preserving their precision.
+> [!TIP]
+> Not all weights matter equally. Weights multiplying **large-activation** channels are far more
+> important. AWQ identifies the ~1% salient channels (by activation magnitude, not weight magnitude)
+> and scales them up before quantizing, preserving their precision.
 
-📊 Faster to compute than GPTQ, comparable or better quality, and no backpropagation needed.
+Faster to compute than GPTQ, comparable or better quality, and no backpropagation needed.
 
-### NF4 — for fine-tuning
+### NF4: for fine-tuning
 
 Quantile-based 4-bit levels matched to the normal distribution of weights.
 → [Fine-tuning & PEFT §4](04-finetuning-peft.md#4-qlora-fine-tune-a-65b-model-on-one-gpu)
@@ -130,7 +134,7 @@ Quantile-based 4-bit levels matched to the normal distribution of weights.
 
 ## 4. The quantization method table
 
-📊 Quality impact on standard benchmarks (approximate; varies by model):
+Quality impact on standard benchmarks (approximate; varies by model):
 
 | Method | Bits (W/A) | Perplexity increase | Speedup | Use when |
 |---|---|---|---|---|
@@ -143,16 +147,18 @@ Quantile-based 4-bit levels matched to the normal distribution of weights.
 | 2-bit | 2/16 | 20%+ | 4× | generally unusable |
 | **BitNet b1.58** | 1.58/8 | — (trained this way) | large | requires training from scratch |
 
-🧠 **The 4-bit sweet spot is real and worth internalizing.** Going 16→8 bits is nearly free.
-8→4 costs ~1–3%. 4→3 falls off a cliff. There appears to be a genuine information threshold around
-4 bits per weight for post-training quantization of standard models.
+> [!TIP]
+> **The 4-bit sweet spot is real and worth internalizing.** Going 16→8 bits is nearly free.
+> 8→4 costs ~1–3%. 4→3 falls off a cliff. There appears to be a genuine information threshold around
+> 4 bits per weight for post-training quantization of standard models.
 
-🧠 **BitNet is the interesting outlier.** If you *train* with ternary weights $\{-1, 0, +1\}$ from
-scratch, the model adapts and reaches quality competitive with FP16 at the same parameter count.
-The catch: you can't convert an existing model — you must train it that way. Matrix multiplication
-becomes addition, which could eventually change inference hardware.
+> [!TIP]
+> **BitNet is the interesting outlier.** If you *train* with ternary weights $\{-1, 0, +1\}$ from
+> scratch, the model adapts and reaches quality competitive with FP16 at the same parameter count.
+> The catch: you can't convert an existing model — you must train it that way. Matrix multiplication
+> becomes addition, which could eventually change inference hardware.
 
-💻 Using quantized models in practice:
+Using quantized models in practice:
 
 ```python
 # AWQ / GPTQ via transformers
@@ -169,9 +175,10 @@ cfg = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
 # vLLM: --kv-cache-dtype fp8   (halves cache memory, ~no quality loss)
 ```
 
-⚠️ **Always evaluate after quantizing.** Perplexity is a weak proxy — a model can hold its
-perplexity while losing instruction-following or long-context retrieval. Run your actual task
-evaluation.
+> [!WARNING]
+> **Always evaluate after quantizing.** Perplexity is a weak proxy — a model can hold its
+> perplexity while losing instruction-following or long-context retrieval. Run your actual task
+> evaluation.
 
 ---
 
@@ -182,16 +189,17 @@ Train a small **student** to match a large **teacher**.
 $$\mathcal{L} = \alpha\underbrace{\mathcal{L}_{\text{CE}}(y_{\text{true}}, p_S)}_{\text{hard labels}}
 + (1-\alpha)\,\tau^2\underbrace{D_{\mathrm{KL}}\big(p_T^{(\tau)} \,\|\, p_S^{(\tau)}\big)}_{\text{soft labels}}$$
 
-🧠 **Why soft labels carry more information — "dark knowledge".** A hard label says "this is a 7".
-The teacher's full distribution says "this is a 7 (0.9), but it looks somewhat like a 1 (0.07) and
-a bit like a 9 (0.02)". That *relative structure over wrong answers* encodes the teacher's learned
-similarity metric, and it is far richer supervision than a one-hot vector.
+> [!TIP]
+> **Why soft labels carry more information — "dark knowledge".** A hard label says "this is a 7".
+> The teacher's full distribution says "this is a 7 (0.9), but it looks somewhat like a 1 (0.07) and
+> a bit like a 9 (0.02)". That *relative structure over wrong answers* encodes the teacher's learned
+> similarity metric, and it is far richer supervision than a one-hot vector.
 
-🔢 **Why $\tau^2$?** Softening by $\tau$ scales the gradients of the KL term by $1/\tau^2$.
+**Why $\tau^2$?** Softening by $\tau$ scales the gradients of the KL term by $1/\tau^2$.
 Multiplying by $\tau^2$ keeps the two loss terms balanced as you change $\tau$. Typical
 $\tau = 2$–$5$.
 
-📊 **The variants:**
+**The variants:**
 
 | Type | Signal | Notes |
 |---|---|---|
@@ -202,12 +210,13 @@ $\tau = 2$–$5$.
 | **Sequence-level** | teacher's full sampled sequences | standard for generative tasks |
 | **On-policy / GKD** | student samples, teacher scores them | fixes the train/inference mismatch |
 
-🧠 **On-policy distillation is the important refinement.** Standard sequence distillation trains
-the student on the *teacher's* outputs, but at inference the student sees its own. Generalized
-knowledge distillation (GKD) has the student generate and the teacher provide per-token feedback —
-the same exposure-bias fix as in autoregressive modelling generally.
+> [!TIP]
+> **On-policy distillation is the important refinement.** Standard sequence distillation trains
+> the student on the *teacher's* outputs, but at inference the student sees its own. Generalized
+> knowledge distillation (GKD) has the student generate and the teacher provide per-token feedback —
+> the same exposure-bias fix as in autoregressive modelling generally.
 
-📊 **Notable results:**
+**Notable results:**
 
 | Model | Approach | Outcome |
 |---|---|---|
@@ -216,13 +225,15 @@ the same exposure-bias fix as in autoregressive modelling generally.
 | Phi series | training on synthetic "textbook" data from a strong model | far above their weight class |
 | Distilled reasoning models | SFT on reasoning traces from a large RL-trained model | small models inherit much of the reasoning |
 
-⚠️ **Licensing**: most commercial API terms prohibit using outputs to train competing models. The
-technique works; check the terms.
+> [!WARNING]
+> **Licensing**: most commercial API terms prohibit using outputs to train competing models. The
+> technique works; check the terms.
 
-🧠 **The generalizable finding**: distillation transfers *behaviour* very effectively and *knowledge*
-less so. A distilled 7B model can imitate a frontier model's style and reasoning format nearly
-perfectly while still lacking the underlying factual coverage. This mirrors the fine-tuning
-lesson in → [PEFT §1](04-finetuning-peft.md#1-should-you-fine-tune-read-this-first).
+> [!TIP]
+> **The generalizable finding**: distillation transfers *behaviour* very effectively and *knowledge*
+> less so. A distilled 7B model can imitate a frontier model's style and reasoning format nearly
+> perfectly while still lacking the underlying factual coverage. This mirrors the fine-tuning
+> lesson in → [PEFT §1](04-finetuning-peft.md#1-should-you-fine-tune-read-this-first).
 
 ---
 
@@ -241,12 +252,13 @@ Remove weights. Two kinds:
    ❌ NO speedup on real hardware      ⚠️ ~50% sparsity ceiling
 ```
 
-⚠️ **The blunt truth about unstructured pruning**: 90% of weights zeroed gives **zero speedup** on a
-GPU, because dense matmul kernels don't skip zeros and sparse kernels have too much overhead at
-these sparsity levels. You save disk space and nothing else. This is why pruning has largely lost
-to quantization in practice.
+> [!WARNING]
+> **The blunt truth about unstructured pruning**: 90% of weights zeroed gives **zero speedup** on a
+> GPU, because dense matmul kernels don't skip zeros and sparse kernels have too much overhead at
+> these sparsity levels. You save disk space and nothing else. This is why pruning has largely lost
+> to quantization in practice.
 
-📊 **Modern methods that do work:**
+**Modern methods that do work:**
 
 | Method | Idea | Result |
 |---|---|---|
@@ -255,15 +267,17 @@ to quantization in practice.
 | 2:4 structured | exactly 2 nonzero per 4 | real ~1.5–2× speedup on Ampere+ tensor cores |
 | **Layer/depth pruning** | drop whole transformer blocks | real speedup; later layers are surprisingly redundant |
 
-🧠 **Wanda is worth knowing because it is so simple**: importance = weight magnitude times input
-activation magnitude. No Hessian, no gradients, one calibration pass. That it matches much more
-sophisticated methods suggests importance really is mostly about "does this weight see large
-inputs."
+> [!TIP]
+> **Wanda is worth knowing because it is so simple**: importance = weight magnitude times input
+> activation magnitude. No Hessian, no gradients, one calibration pass. That it matches much more
+> sophisticated methods suggests importance really is mostly about "does this weight see large
+> inputs."
 
-🧠 **The lottery ticket hypothesis** (Frankle & Carbin, 2018) — a randomly initialized dense network
-contains a sparse subnetwork that, trained *from the same initialization*, matches the full
-network. Theoretically fascinating; practically limited, because finding the ticket requires
-training the dense network first.
+> [!TIP]
+> **The lottery ticket hypothesis** (Frankle & Carbin, 2018) — a randomly initialized dense network
+> contains a sparse subnetwork that, trained *from the same initialization*, matches the full
+> network. Theoretically fascinating; practically limited, because finding the ticket requires
+> training the dense network first.
 
 ---
 
@@ -292,7 +306,7 @@ training the dense network first.
              or train a native low-bit model (BitNet-style)
 ```
 
-📊 **Stacking works, with caveats:**
+**Stacking works, with caveats:**
 
 | Combination | Combined effect |
 |---|---|

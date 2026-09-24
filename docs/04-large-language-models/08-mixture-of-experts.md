@@ -33,24 +33,26 @@
 $$y = \sum_{i \in \text{TopK}(x)} g_i(x)\cdot E_i(x), \qquad
 g(x) = \operatorname{softmax}\big(\text{TopK}(x W_r)\big)$$
 
-🧠 **The economics.** With $E = 8$ experts and $k = 2$ active:
-- Parameters: $8\times$ a dense block
-- FLOPs: $2\times$ a dense block
-- **You get 4× more capacity per unit of compute.**
+> [!TIP]
+> **The economics.** With $E = 8$ experts and $k = 2$ active:
+> - Parameters: $8\times$ a dense block
+> - FLOPs: $2\times$ a dense block
+> - **You get 4× more capacity per unit of compute.**
 
 Since loss follows a power law in parameters (→ [Scaling laws](03-scaling-laws.md)), more parameters
 at the same compute means lower loss. That is the entire argument, and it holds empirically.
 
-⚠️ **Only the MLP is replaced**, not attention. MLPs hold ~2/3 of a Transformer's parameters
-(→ [Transformer §3](../03-sequence-models/04-transformer.md#3-parameter-counting-exactly)), so that
-is where the capacity is. Attention is shared across all tokens, which also keeps the routing
-problem tractable.
+> [!WARNING]
+> **Only the MLP is replaced**, not attention. MLPs hold ~2/3 of a Transformer's parameters
+> (→ [Transformer §3](../03-sequence-models/04-transformer.md#3-parameter-counting-exactly)), so that
+> is where the capacity is. Attention is shared across all tokens, which also keeps the routing
+> problem tractable.
 
 ---
 
 ## 2. Active vs total parameters
 
-📊 The two numbers you must always distinguish:
+The two numbers you must always distinguish:
 
 | Model | Total params | Active/token | Experts | Top-$k$ |
 |---|---|---|---|---|
@@ -61,7 +63,7 @@ problem tractable.
 | DeepSeek-V3 | 671 B | 37 B | 256 + 1 shared | 8 |
 | Qwen1.5-MoE-A2.7B | 14.3 B | 2.7 B | 60 + 4 shared | 4 |
 
-🔢 **Why "8×7B" is 46.7 B, not 56 B.** Only the MLPs are replicated. For Mixtral:
+**Why "8×7B" is 46.7 B, not 56 B.** Only the MLPs are replicated. For Mixtral:
 
 | Component | Params |
 |---|---|
@@ -70,12 +72,13 @@ problem tractable.
 | × 32 layers × 8 experts | 45.1 B |
 | **Total** | **46.4 B** ≈ 46.7 B ✓ |
 
-🔢 **And active parameters**: shared (1.3 B) + 2 experts × 32 layers × 176 M = 1.3 + 11.3 = **12.6 B**
+**And active parameters**: shared (1.3 B) + 2 experts × 32 layers × 176 M = 1.3 + 11.3 = **12.6 B**
 ≈ 12.9 B ✓
 
-⚠️ **The serving consequence.** Mixtral 8×7B needs **93 GB** in BF16 (all experts resident) but
-computes like a 13B model. It is *cheap to run at scale* and *expensive to fit on one GPU*. MoE is
-a datacenter architecture, not a laptop one.
+> [!WARNING]
+> **The serving consequence.** Mixtral 8×7B needs **93 GB** in BF16 (all experts resident) but
+> computes like a 13B model. It is *cheap to run at scale* and *expensive to fit on one GPU*. MoE is
+> a datacenter architecture, not a laptop one.
 
 ```
      COMPUTE             MEMORY
@@ -90,9 +93,10 @@ a datacenter architecture, not a laptop one.
 
 ## 3. Load balancing: the core difficulty
 
-⚠️ **The failure mode**: routing is learned, and it has a self-reinforcing bias. An expert that is
-chosen slightly more often gets more gradient, becomes better, and is chosen even more often.
-Left alone, a handful of experts absorb everything and the rest are dead weight.
+> [!WARNING]
+> **The failure mode**: routing is learned, and it has a self-reinforcing bias. An expert that is
+> chosen slightly more often gets more gradient, becomes better, and is chosen even more often.
+> Left alone, a handful of experts absorb everything and the rest are dead weight.
 
 ```
   Without balancing                 With an auxiliary loss
@@ -116,12 +120,13 @@ $$\mathcal{L}_{\text{aux}} = \lambda \cdot E \cdot \sum_{i=1}^{E} f_i \cdot P_i$
 where $f_i$ = fraction of tokens routed to expert $i$ (a count), and $P_i$ = mean router
 probability for expert $i$ (differentiable).
 
-🧠 **Why the product $f_i P_i$?** $f_i$ comes from a hard top-$k$ selection and has no gradient.
-$P_i$ is differentiable but doesn't reflect actual assignment. Multiplying them gives a
-differentiable surrogate: the loss is minimized when both are uniform ($f_i = P_i = 1/E$), giving
-$\mathcal{L}_{\text{aux}} = \lambda$. Any imbalance raises it.
+> [!TIP]
+> **Why the product $f_i P_i$?** $f_i$ comes from a hard top-$k$ selection and has no gradient.
+> $P_i$ is differentiable but doesn't reflect actual assignment. Multiplying them gives a
+> differentiable surrogate: the loss is minimized when both are uniform ($f_i = P_i = 1/E$), giving
+> $\mathcal{L}_{\text{aux}} = \lambda$. Any imbalance raises it.
 
-📊 Typical $\lambda = 0.01$. Too high and routing becomes random (destroying specialization); too
+Typical $\lambda = 0.01$. Too high and routing becomes random (destroying specialization); too
 low and experts collapse.
 
 ### Capacity factor and token dropping
@@ -133,22 +138,24 @@ $$\text{capacity} = \text{CF}\times\frac{\text{tokens per batch}\times k}{E}$$
 Tokens beyond capacity are **dropped** — they skip the MLP entirely and pass through on the
 residual stream only.
 
-🔢 With CF = 1.25, 8 experts, 4096 tokens, $k=2$: capacity $= 1.25\times\frac{4096\times2}{8} = 1280$
+With CF = 1.25, 8 experts, 4096 tokens, $k=2$: capacity $= 1.25\times\frac{4096\times2}{8} = 1280$
 tokens per expert. A perfectly balanced batch sends 1024 per expert, so there's 25% headroom.
 
-⚠️ Token dropping is a real quality cost, and it makes the model's output depend on what *else* is
-in the batch — which breaks reproducibility. Trade-off: higher CF = less dropping, more wasted
-compute and memory.
+> [!WARNING]
+> Token dropping is a real quality cost, and it makes the model's output depend on what *else* is
+> in the batch — which breaks reproducibility. Trade-off: higher CF = less dropping, more wasted
+> compute and memory.
 
 ### Loss-free balancing
 
-📊 DeepSeek-V3 introduced an alternative: add a **learnable per-expert bias** to the routing logits,
+DeepSeek-V3 introduced an alternative: add a **learnable per-expert bias** to the routing logits,
 adjusted after each step (increase the bias of under-used experts, decrease the over-used ones).
 The bias affects *selection* but not the *gating weights*, so it balances load without adding a
 gradient term that fights the language-modelling objective.
 
-🧠 This is a nice example of solving a problem with a control loop instead of a loss term. The
-auxiliary loss always trades some quality for balance; the bias approach doesn't.
+> [!TIP]
+> This is a nice example of solving a problem with a control loop instead of a loss term. The
+> auxiliary loss always trades some quality for balance; the bias approach doesn't.
 
 ---
 
@@ -164,17 +171,18 @@ auxiliary loss always trades some quality for balance; the bias approach doesn't
 | Soft MoE | weighted mixture of *all* experts, no hard routing | fully differentiable; used in vision |
 | Hash routing | fixed hash of the token id | no learned router, surprisingly decent baseline |
 
-🧠 **DeepSeek's combination — fine-grained + shared experts — is the current best practice.**
-Splitting into many small experts gives $\binom{256}{8}$ possible combinations rather than
-$\binom{8}{2} = 28$, so routing can express far more specialization. Meanwhile 1 shared expert
-handles the generic transformations every token needs, freeing routed experts to specialize
-genuinely.
+> [!TIP]
+> **DeepSeek's combination — fine-grained + shared experts — is the current best practice.**
+> Splitting into many small experts gives $\binom{256}{8}$ possible combinations rather than
+> $\binom{8}{2} = 28$, so routing can express far more specialization. Meanwhile 1 shared expert
+> handles the generic transformations every token needs, freeing routed experts to specialize
+> genuinely.
 
 ---
 
 ## 5. What do experts specialize in?
 
-📊 **Not what you'd expect.** Mixtral's authors looked for topic specialization (one expert for
+**Not what you'd expect.** Mixtral's authors looked for topic specialization (one expert for
 biology, one for code) and **found almost none**. What they found instead:
 
 - **Syntactic/positional patterns** — experts specialize on token type and local structure.
@@ -182,12 +190,13 @@ biology, one for code) and **found almost none**. What they found instead:
   than chance.
 - **Some domain signal in code and math**, but weaker than expected.
 
-🧠 **Why the "topic expert" intuition is wrong.** Routing happens at *every layer* for *every
-token*. A token's path through the network is a sequence of $L$ expert choices, so specialization
-is distributed and compositional rather than assigned per-domain. Experts are more like reusable
-sub-operations than subject-matter specialists.
+> [!TIP]
+> **Why the "topic expert" intuition is wrong.** Routing happens at *every layer* for *every
+> token*. A token's path through the network is a sequence of $L$ expert choices, so specialization
+> is distributed and compositional rather than assigned per-domain. Experts are more like reusable
+> sub-operations than subject-matter specialists.
 
-📊 Fine-grained MoE models with more experts do show somewhat clearer specialization, which is one
+Fine-grained MoE models with more experts do show somewhat clearer specialization, which is one
 argument for that design.
 
 ---
@@ -207,8 +216,9 @@ At scale, experts live on different devices. Every MoE layer becomes an **all-to
                          dispatch tokens, combine results)
 ```
 
-⚠️ **This is the main systems cost of MoE**, and it can easily exceed the compute savings on a
-poorly connected cluster. Mitigations:
+> [!WARNING]
+> **This is the main systems cost of MoE**, and it can easily exceed the compute savings on a
+> poorly connected cluster. Mitigations:
 
 | Technique | Effect |
 |---|---|
@@ -217,7 +227,7 @@ poorly connected cluster. Mitigations:
 | Limit the number of devices a token can reach | DeepSeek caps tokens to $M$ nodes |
 | Capacity-limited dispatch | bounds the message size, making it predictable |
 
-📊 **For inference**, MoE has a different problem: batching. In a dense model, a batch of 64 tokens
+**For inference**, MoE has a different problem: batching. In a dense model, a batch of 64 tokens
 all use the same weights. In an MoE, they scatter across experts, so each expert gets a small
 batch — worse GPU utilization. MoE inference therefore wants *very* large batches to keep the
 per-expert matmuls efficient.
@@ -226,7 +236,7 @@ per-expert matmuls efficient.
 
 ## 7. Implementation
 
-💻 A complete, correct MoE layer:
+A complete, correct MoE layer:
 
 ```python
 import torch, torch.nn as nn, torch.nn.functional as F
@@ -275,12 +285,14 @@ class MoELayer(nn.Module):
         return out.view(B, T, d)
 ```
 
-⚠️ **The critical detail is the loop over experts, not tokens.** Gathering each expert's tokens and
-running one batched matmul is what makes MoE fast. A naive per-token loop is catastrophically slow.
-Production kernels (MegaBlocks, grouped GEMM) go further, expressing the whole layer as a single
-block-sparse matmul.
+> [!WARNING]
+> **The critical detail is the loop over experts, not tokens.** Gathering each expert's tokens and
+> running one batched matmul is what makes MoE fast. A naive per-token loop is catastrophically slow.
+> Production kernels (MegaBlocks, grouped GEMM) go further, expressing the whole layer as a single
+> block-sparse matmul.
 
-⚠️ **Don't forget to add `aux_loss` to your training loss.** Summing it across all MoE layers:
+> [!WARNING]
+> **Don't forget to add `aux_loss` to your training loss.** Summing it across all MoE layers:
 
 ```python
 total_loss = ce_loss + sum(m.aux_loss for m in model.modules() if isinstance(m, MoELayer))
@@ -300,10 +312,11 @@ total_loss = ce_loss + sum(m.aux_loss for m in model.modules() if isinstance(m, 
 | | Fine-tuning MoE is harder (experts overfit unevenly) |
 | | Poor small-batch inference efficiency |
 
-🧠 **When MoE is right**: you are compute-constrained in training, serve at high throughput, and
-have a well-connected multi-GPU cluster. **When it isn't**: single-GPU deployment, latency-critical
-small-batch serving, or memory-constrained environments. For local inference, a dense model of the
-same *active* size is usually the better choice.
+> [!TIP]
+> **When MoE is right**: you are compute-constrained in training, serve at high throughput, and
+> have a well-connected multi-GPU cluster. **When it isn't**: single-GPU deployment, latency-critical
+> small-batch serving, or memory-constrained environments. For local inference, a dense model of the
+> same *active* size is usually the better choice.
 
 ---
 

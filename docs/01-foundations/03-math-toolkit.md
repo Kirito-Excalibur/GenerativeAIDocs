@@ -23,7 +23,7 @@ Before any math, internalize the shape conventions. Almost every deep learning b
 | Images | $(B, C, H, W)$ | PyTorch; TensorFlow uses $(B,H,W,C)$ |
 | Latent (diffusion) | $(B, 4, H/8, W/8)$ | typical SD-style VAE latent |
 
-🔢 **Concretely**: a batch of 8 sequences of length 2048 in a $d=4096$ model:
+**Concretely**: a batch of 8 sequences of length 2048 in a $d=4096$ model:
 hidden states are $8 \times 2048 \times 4096 = 6.7\times10^7$ floats = 134 MB in BF16.
 The attention score matrix for 32 heads is $8\times32\times2048\times2048 = 1.07\times10^9$ entries
 = **2.1 GB for a single layer**. This number is why FlashAttention exists.
@@ -45,12 +45,13 @@ frameworks do, and it makes shape-checking your derivations trivial.
 | 5 | $y=\mathrm{softmax}(z)$, $\mathcal{L}=$ CE | $\partial \mathcal{L}/\partial z = y - y_{\text{true}}$ | the reason softmax+CE is standard |
 | 6 | $\mathcal{L} = \|x\|_2^2$ | $\partial \mathcal{L}/\partial x = 2x$ | |
 
-🧠 **The shape trick** — if you forget a rule, write down the shapes and there is usually only one
-way to combine the tensors that type-checks. Rule 2: $\partial\mathcal{L}/\partial W$ must be
-$(m,n)$; you have a $(m,)$ gradient and an $(n,)$ input; the only product that gives $(m,n)$ is the
-outer product $\delta x^\top$.
+> [!TIP]
+> **The shape trick** — if you forget a rule, write down the shapes and there is usually only one
+> way to combine the tensors that type-checks. Rule 2: $\partial\mathcal{L}/\partial W$ must be
+> $(m,n)$; you have a $(m,)$ gradient and an $(n,)$ input; the only product that gives $(m,n)$ is the
+> outer product $\delta x^\top$.
 
-📐 **Derivation of rule 5** (the softmax+cross-entropy gradient), because it's worth seeing once:
+**Derivation of rule 5** (the softmax+cross-entropy gradient), because it's worth seeing once:
 
 With $p_i = e^{z_i}/\sum_k e^{z_k}$ and $\mathcal{L} = -\sum_i y_i \log p_i$:
 
@@ -72,9 +73,10 @@ If $z \sim p_Z$ and $x = f(z)$ with $f$ **invertible and differentiable**, then
 $$\boxed{\;p_X(x) = p_Z(f^{-1}(x))\left|\det \frac{\partial f^{-1}}{\partial x}\right|
 = p_Z(z)\left|\det\frac{\partial f}{\partial z}\right|^{-1}\;}$$
 
-🧠 **Intuition** — probability is *conserved*. If a transformation stretches a region of space by a
-factor $|\det J|$, the density in that region must drop by the same factor so that total mass stays
-1. The determinant of the Jacobian is exactly the local volume-scaling factor.
+> [!TIP]
+> **Intuition** — probability is *conserved*. If a transformation stretches a region of space by a
+> factor $|\det J|$, the density in that region must drop by the same factor so that total mass stays
+> 1. The determinant of the Jacobian is exactly the local volume-scaling factor.
 
 ```
    z-space (uniform)               x = f(z) stretches           density must drop
@@ -86,7 +88,7 @@ factor $|\det J|$, the density in that region must drop by the same factor so th
                                 p_X(x)·Δx = p_Z(z)·Δz  (mass preserved)
 ```
 
-🔢 **1-D worked example** — $z \sim \mathcal{U}(0,1)$, $x = f(z) = 2z$. Then $|f'| = 2$, so
+**1-D worked example** — $z \sim \mathcal{U}(0,1)$, $x = f(z) = 2z$. Then $|f'| = 2$, so
 $p_X(x) = 1/2$ on $[0,2]$. Total mass $= 2 \times 1/2 = 1$ ✓. Stretching by 2 halves the density.
 
 **Why this matters**: → [Normalizing flows](../02-classical-models/04-normalizing-flows.md) use this
@@ -116,7 +118,7 @@ For $z \sim \mathcal{N}(0, I_d)$, the squared norm $\|z\|^2$ follows $\chi^2_d$,
 
 $$\mathbb{E}[\|z\|^2] = d, \qquad \|z\| \approx \sqrt{d} \pm \frac{1}{\sqrt{2}}$$
 
-🔢 For $d = 512$: $\|z\| \approx 22.6$, with standard deviation ≈ 0.7. **Relative width shrinks as
+For $d = 512$: $\|z\| \approx 22.6$, with standard deviation ≈ 0.7. **Relative width shrinks as
 $1/\sqrt{d}$.** Essentially *no* samples are near the origin — even though the origin is the mode
 of the density.
 
@@ -124,10 +126,11 @@ of the density.
 
 *Exact χ-distribution densities of ‖z‖ for z ~ N(0, I_d). The peak moves out to √(d−1) ≈ √d while its width stays about 0.7 — so in 512 dimensions essentially no samples lie anywhere near the origin, even though the origin is where the density is highest.*
 
-⚠️ **Practical consequence** — linear interpolation between two latent codes $z_1, z_2$ passes
-*through* the low-density interior. Midpoint norm is about $\sqrt{d/2}$ instead of $\sqrt{d}$,
-i.e. the interpolant is off-distribution and decodes to mush. **Use spherical interpolation
-(slerp)** instead:
+> [!WARNING]
+> **Practical consequence** — linear interpolation between two latent codes $z_1, z_2$ passes
+> *through* the low-density interior. Midpoint norm is about $\sqrt{d/2}$ instead of $\sqrt{d}$,
+> i.e. the interpolant is off-distribution and decodes to mush. **Use spherical interpolation
+> (slerp)** instead:
 
 $$\mathrm{slerp}(z_1,z_2;t) = \frac{\sin((1-t)\Omega)}{\sin\Omega}z_1 + \frac{\sin(t\Omega)}{\sin\Omega}z_2,
 \qquad \Omega = \arccos\frac{z_1\cdot z_2}{\|z_1\|\|z_2\|}$$
@@ -139,17 +142,17 @@ This keeps the norm roughly constant, staying on the shell where the decoder was
 For random unit vectors in $\mathbb{R}^d$, $\mathbb{E}[\cos\theta] = 0$ and
 $\mathrm{Std}[\cos\theta] = 1/\sqrt{d}$.
 
-🔢 $d=768$: typical cosine similarity between two random vectors is $\pm 0.036$. So an observed
+$d=768$: typical cosine similarity between two random vectors is $\pm 0.036$. So an observed
 cosine of $0.3$ between two embeddings, which sounds low, is actually **8 standard deviations**
 from random. This is why cosine-similarity thresholds must be calibrated per-model, never taken
 from intuition. → [Embeddings](../06-applications/02-embeddings-and-vector-search.md)
 
-### Fact 3: Johnson–Lindenstrauss — you can pack a lot in
+### Fact 3: Johnson–Lindenstrauss: you can pack a lot in
 
 You can embed $n$ points into $k = O(\log n / \epsilon^2)$ dimensions while preserving all pairwise
 distances to within $(1\pm\epsilon)$.
 
-🔢 One million points, 10% distortion: $k \approx 8\ln(10^6)/0.01 \approx 11{,}000$ — but in
+One million points, 10% distortion: $k \approx 8\ln(10^6)/0.01 \approx 11{,}000$ — but in
 practice, with real (non-adversarial) data, 768 dimensions suffice for far more points. Relatedly,
 the number of *nearly* orthogonal directions in $\mathbb{R}^d$ grows **exponentially** in $d$,
 which is the basis of the superposition hypothesis in interpretability: a $d$-dimensional residual
@@ -169,12 +172,13 @@ obtained by keeping the top $k$ singular values:
 
 $$\|W - W_k\|_F^2 = \sum_{i>k}\sigma_i^2$$
 
-🧠 **Intuition + why LoRA works** — empirically, the *update* $\Delta W$ learned during fine-tuning
-has a rapidly decaying singular value spectrum: it is approximately low-rank. So instead of
-learning a full $m\times n$ update, learn $\Delta W = BA$ with $B\in\mathbb{R}^{m\times r}$,
-$A \in \mathbb{R}^{r\times n}$, $r \ll \min(m,n)$.
+> [!TIP]
+> **Intuition + why LoRA works** — empirically, the *update* $\Delta W$ learned during fine-tuning
+> has a rapidly decaying singular value spectrum: it is approximately low-rank. So instead of
+> learning a full $m\times n$ update, learn $\Delta W = BA$ with $B\in\mathbb{R}^{m\times r}$,
+> $A \in \mathbb{R}^{r\times n}$, $r \ll \min(m,n)$.
 
-🔢 **Parameter saving** — $d = 4096$ attention projection, $r = 8$:
+**Parameter saving** — $d = 4096$ attention projection, $r = 8$:
 
 | | Parameters |
 |---|---|
@@ -203,11 +207,12 @@ $A \in \mathbb{R}^{r\times n}$, $r \ll \min(m,n)$.
 | Spectral | $\sigma_{\max}(W)$ | Lipschitz constants, spectral norm GAN regularization |
 | Cosine "distance" | $1 - \frac{x\cdot y}{\|x\|\|y\|}$ | embedding retrieval |
 
-⚠️ **Pitfall** — cosine similarity is *not* a metric (no triangle inequality). Many ANN index
-structures assume a metric; they handle cosine by **L2-normalizing vectors first**, after which
-$\|x-y\|^2 = 2 - 2\cos\theta$, making Euclidean and cosine ranking equivalent. If you forget to
-normalize, your recall quietly degrades.
-→ [Vector search](../06-applications/02-embeddings-and-vector-search.md)
+> [!WARNING]
+> **Pitfall** — cosine similarity is *not* a metric (no triangle inequality). Many ANN index
+> structures assume a metric; they handle cosine by **L2-normalizing vectors first**, after which
+> $\|x-y\|^2 = 2 - 2\cos\theta$, making Euclidean and cosine ranking equivalent. If you forget to
+> normalize, your recall quietly degrades.
+> → [Vector search](../06-applications/02-embeddings-and-vector-search.md)
 
 ---
 
@@ -217,7 +222,7 @@ A function is convex if $f(\lambda x + (1-\lambda)y) \le \lambda f(x) + (1-\lamb
 problems have a unique global minimum. **Neural network losses are wildly non-convex** —
 permuting hidden units gives combinatorially many equivalent minima.
 
-📊 Yet training works. The empirical explanation:
+Yet training works. The empirical explanation:
 
 1. In high dimensions, **saddle points vastly outnumber local minima**. At a random critical point
    of a random high-dimensional function, the probability that all $d$ eigenvalues of the Hessian
@@ -228,9 +233,10 @@ permuting hidden units gives combinatorially many equivalent minima.
 3. Loss landscapes with skip connections are dramatically smoother than without — this is a
    significant part of why ResNets and pre-norm Transformers train so much more reliably.
 
-🧠 **The takeaway for a practitioner**: you are not searching for *the* minimum; you are looking for
-*any* point in a wide, flat basin. Wide minima generalize better than sharp ones, which is the
-motivation behind SAM, large-batch warmup schedules, and weight averaging (EMA, model soups).
+> [!TIP]
+> **The takeaway for a practitioner**: you are not searching for *the* minimum; you are looking for
+> *any* point in a wide, flat basin. Wide minima generalize better than sharp ones, which is the
+> motivation behind SAM, large-batch warmup schedules, and weight averaging (EMA, model soups).
 
 ---
 
@@ -246,18 +252,20 @@ motivation behind SAM, large-batch warmup schedules, and weight averaging (EMA, 
 | INT8 | 8 | integer | $[-128,127]$ | inference quantization |
 | NF4 | 4 | normal-float | — | QLoRA weight storage |
 
-🧠 **Why BF16 beat FP16 for training** — BF16 keeps FP32's 8 exponent bits, so it has the same
-*dynamic range* and gradients never overflow or underflow to zero. It sacrifices mantissa bits
-(precision), which matters far less because gradient noise from mini-batching already swamps the
-low-order bits. FP16's narrow range required fragile loss-scaling machinery; BF16 mostly just
-works.
+> [!TIP]
+> **Why BF16 beat FP16 for training** — BF16 keeps FP32's 8 exponent bits, so it has the same
+> *dynamic range* and gradients never overflow or underflow to zero. It sacrifices mantissa bits
+> (precision), which matters far less because gradient noise from mini-batching already swamps the
+> low-order bits. FP16's narrow range required fragile loss-scaling machinery; BF16 mostly just
+> works.
 
-⚠️ **Pitfall** — accumulate in FP32 even when multiplying in BF16. Summing $10^6$ BF16 values
-naively loses significant accuracy (adding a small number to a large one is a no-op when the
-exponent gap exceeds the mantissa width). Framework matmul kernels do this correctly by default;
-hand-written reductions often do not.
+> [!WARNING]
+> **Pitfall** — accumulate in FP32 even when multiplying in BF16. Summing $10^6$ BF16 values
+> naively loses significant accuracy (adding a small number to a large one is a no-op when the
+> exponent gap exceeds the mantissa width). Framework matmul kernels do this correctly by default;
+> hand-written reductions often do not.
 
-🔢 **Memory math for a 7B model** (the number you will compute a hundred times):
+**Memory math for a 7B model** (the number you will compute a hundred times):
 
 | Component | Bytes/param | Total |
 |---|---|---|

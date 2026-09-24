@@ -19,11 +19,12 @@ Imagine a dataset of handwritten digits. Two very different questions:
 | "Is this image a 7?" | **Discriminative** | $p(y \mid x)$ | A label |
 | "Draw me a 7." | **Generative** | $p(x \mid y)$ or $p(x)$ | A new image |
 
-🧠 **Intuition** — A discriminative model is a *border guard*: it only needs to know where the line
-between countries is. A generative model is a *cartographer*: it must know the shape of the entire
-terrain, including regions nowhere near any border. The cartographer's job is enormously harder,
-but once you have the map you can do things the border guard never could — navigate, plan routes,
-spot when someone hands you a forged map.
+> [!TIP]
+> **Intuition** — A discriminative model is a *border guard*: it only needs to know where the line
+> between countries is. A generative model is a *cartographer*: it must know the shape of the entire
+> terrain, including regions nowhere near any border. The cartographer's job is enormously harder,
+> but once you have the map you can do things the border guard never could — navigate, plan routes,
+> spot when someone hands you a forged map.
 
 Formally, the border guard needs only the *decision boundary*: the set $\{x : p(y{=}1 \mid x) = 0.5\}$.
 That is a surface of dimension $d-1$ in a $d$-dimensional space. The cartographer needs the full
@@ -46,13 +47,14 @@ Discriminative                          Generative
                                           compress, detect anomalies
 ```
 
-⚠️ **Pitfall** — "Generative" in "generative AI" is used loosely. A modern LLM trained with RLHF is
-no longer a clean density model of web text; a GAN never models a density at all. The useful
-definition is behavioural: **a model that produces novel, structured, high-dimensional output.**
+> [!WARNING]
+> **Pitfall** — "Generative" in "generative AI" is used loosely. A modern LLM trained with RLHF is
+> no longer a clean density model of web text; a GAN never models a density at all. The useful
+> definition is behavioural: **a model that produces novel, structured, high-dimensional output.**
 
 ---
 
-## 2. Why modelling $p(x)$ is hard: the curse of dimensionality
+## 2. Why modelling p(x) is hard: the curse of dimensionality
 
 Suppose you want to model $28 \times 28$ binary images (tiny MNIST). The sample space has
 
@@ -61,7 +63,7 @@ $$2^{784} \approx 10^{236}$$
 possible images. A lookup table is impossible — there are roughly $10^{80}$ atoms in the observable
 universe. Your training set has maybe $6 \times 10^4$ examples.
 
-🔢 **Worked example — how sparse is the data?**
+**Worked example — how sparse is the data?**
 
 If you tried to cover the space by binning each of $d$ dimensions into just 2 bins, you would need
 $2^d$ bins. With 60,000 samples:
@@ -169,7 +171,7 @@ relative weights right.
 
 ### Factor 1: Compute (the dominant factor)
 
-📊 **Training compute of landmark models** (FLOPs, log scale)
+**Training compute of landmark models** (FLOPs, log scale)
 
 ![Log-scale scatter of training compute for seven landmark models from AlexNet (5e17 FLOPs, 2012) to Llama 3.1 405B (3.8e25 FLOPs, 2024), with a fitted exponential trend](../assets/figures/compute-growth.svg)
 
@@ -185,7 +187,7 @@ money*: cluster sizes grew from 1 GPU to $10^5$ accelerators.
 The internet provided a corpus of human-generated text and images at a scale nobody could have
 curated deliberately.
 
-📊 **Dataset scale**
+**Dataset scale**
 
 | Dataset | Size | Domain | Year |
 |---|---|---|---|
@@ -196,11 +198,12 @@ curated deliberately.
 | LAION-5B | 5.85 B image–text pairs | web | 2022 |
 | Modern frontier corpora | 10–30+ T tokens | web+code+books+synthetic | 2024+ |
 
-⚠️ **The looming constraint** — high-quality public text is finite (estimates: $10^{13}$–$10^{14}$
-tokens). Frontier runs are within an order of magnitude of it. Hence the shift toward synthetic
-data, multimodal data, and *test-time* compute (→ [Reasoning](../04-large-language-models/10-reasoning.md)).
+> [!WARNING]
+> **The looming constraint** — high-quality public text is finite (estimates: $10^{13}$–$10^{14}$
+> tokens). Frontier runs are within an order of magnitude of it. Hence the shift toward synthetic
+> data, multimodal data, and *test-time* compute (→ [Reasoning](../04-large-language-models/10-reasoning.md)).
 
-### Factor 3: Architecture & algorithms
+### Factor 3: Architecture and algorithms
 
 | Year | Idea | Why it mattered |
 |---|---|---|
@@ -212,12 +215,13 @@ data, multimodal data, and *test-time* compute (→ [Reasoning](../04-large-lang
 | 2022 | InstructGPT / RLHF, latent diffusion | alignment makes models usable; diffusion becomes cheap |
 | 2023+ | MoE, long context, RL on reasoning | decouple capacity from cost; buy capability with inference compute |
 
-🧠 **Intuition on why the Transformer specifically** — Recurrent networks process tokens one at a
-time, so training a sequence of length $n$ takes $n$ sequential steps and gradients must travel $n$
-hops. The Transformer makes every position directly reachable from every other in *one* hop and
-makes all positions computable *in parallel*. It converted the bottleneck from "sequential depth"
-to "matrix multiplication throughput" — exactly the thing GPUs are good at. Scaling then became an
-engineering problem rather than a research problem. → [The Transformer](../03-sequence-models/04-transformer.md)
+> [!TIP]
+> **Intuition on why the Transformer specifically** — Recurrent networks process tokens one at a
+> time, so training a sequence of length $n$ takes $n$ sequential steps and gradients must travel $n$
+> hops. The Transformer makes every position directly reachable from every other in *one* hop and
+> makes all positions computable *in parallel*. It converted the bottleneck from "sequential depth"
+> to "matrix multiplication throughput" — exactly the thing GPUs are good at. Scaling then became an
+> engineering problem rather than a research problem. → [The Transformer](../03-sequence-models/04-transformer.md)
 
 ---
 
@@ -228,7 +232,7 @@ You never see $p_{\text{data}}$. You see $N$ samples from it. Training almost al
 
 $$\theta^* = \arg\max_\theta \frac{1}{N}\sum_{i=1}^{N} \log p_\theta(x^{(i)})$$
 
-📐 **Derivation — why MLE is the same as minimizing KL divergence**
+**Derivation — why MLE is the same as minimizing KL divergence**
 
 $$
 \begin{aligned}
@@ -298,7 +302,7 @@ Two ways to condition, and the distinction matters:
 
 ## 8. Emergence, or the lack of it
 
-📊 A widely-cited observation is that some capabilities appear *suddenly* at scale. The GPT-3
+A widely-cited observation is that some capabilities appear *suddenly* at scale. The GPT-3
 paper's own arithmetic results are a clean example: the 13B model (≈$2\times10^{22}$ training FLOPs)
 solves 3-digit addition **under 10%** of the time, while the 175B model (≈$3\times10^{23}$) solves
 it **80.2%** of the time ([Brown et al. 2020](https://arxiv.org/abs/2005.14165), §3.9.1).
@@ -312,11 +316,12 @@ smoothly. Change the metric, and the cliff becomes a ramp.
 
 *Synthetic illustration of Schaeffer et al.'s argument: exact match on a 5-digit answer is (per-digit accuracy)⁵, so a smooth underlying improvement shows up as a sudden jump.*
 
-🧠 **The honest summary** — the *underlying* competence improves smoothly and predictably with
-compute (→ [Scaling laws](../04-large-language-models/03-scaling-laws.md)). Whether that shows up
-as a sudden jump depends on how you measure. But it is also true that *which* smooth improvement
-crosses a usefulness threshold at what scale is not currently predictable, and that is a genuine
-open problem, not a metric artifact.
+> [!TIP]
+> **The honest summary** — the *underlying* competence improves smoothly and predictably with
+> compute (→ [Scaling laws](../04-large-language-models/03-scaling-laws.md)). Whether that shows up
+> as a sudden jump depends on how you measure. But it is also true that *which* smooth improvement
+> crosses a usefulness threshold at what scale is not currently predictable, and that is a genuine
+> open problem, not a metric artifact.
 
 ---
 

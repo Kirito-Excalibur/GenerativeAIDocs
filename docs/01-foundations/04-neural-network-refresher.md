@@ -17,12 +17,13 @@ A stack of these is a multilayer perceptron. The **universal approximation theor
 hidden layer with enough units can approximate any continuous function on a compact set —
 but it says nothing about *how many* units, or whether gradient descent can find them.
 
-🧠 **Why depth beats width** — a depth-$L$ network with ReLU units can carve input space into
-exponentially many linear regions in $L$, but only polynomially many in width. Depth composes
-features: edges → textures → parts → objects. Width memorizes. Empirically, depth wins until
-optimization difficulty catches up — which is exactly what residual connections fixed.
+> [!TIP]
+> **Why depth beats width** — a depth-$L$ network with ReLU units can carve input space into
+> exponentially many linear regions in $L$, but only polynomially many in width. Depth composes
+> features: edges → textures → parts → objects. Width memorizes. Empirically, depth wins until
+> optimization difficulty catches up — which is exactly what residual connections fixed.
 
-📊 In a modern Transformer, **roughly two-thirds of all parameters sit in MLP blocks**, not
+In a modern Transformer, **roughly two-thirds of all parameters sit in MLP blocks**, not
 attention. For $d_{\text{ff}} = 4d$: attention contributes $4d^2$ per layer, MLP $8d^2$. With
 SwiGLU's three matrices at $d_{\text{ff}} = \frac{8}{3}d$, it's $3 \cdot d \cdot \frac83 d = 8d^2$
 — same total, by design. → [Transformer](../03-sequence-models/04-transformer.md)
@@ -40,7 +41,7 @@ the backward pass is only ~2× the forward pass.
 $$x \xrightarrow{\;w_1\;} z_1 \xrightarrow{\;\tanh\;} a_1 \xrightarrow{\;w_2\;} z_2 = \hat y,
 \qquad \mathcal{L} = \tfrac12(\hat y - y)^2$$
 
-🔢 **Forward pass** with $x = 2.0$, $w_1 = 0.5$, $w_2 = -1.5$, target $y = 1.0$ (biases zero):
+**Forward pass** with $x = 2.0$, $w_1 = 0.5$, $w_2 = -1.5$, target $y = 1.0$ (biases zero):
 
 | Step | Computation | Value |
 |---|---|---|
@@ -49,7 +50,7 @@ $$x \xrightarrow{\;w_1\;} z_1 \xrightarrow{\;\tanh\;} a_1 \xrightarrow{\;w_2\;} 
 | $z_2 = w_2 a_1$ | $-1.5 \times 0.7616$ | $-1.1424$ |
 | $\mathcal{L} = \frac12(z_2-y)^2$ | $\frac12(-2.1424)^2$ | $2.2949$ |
 
-🔢 **Backward pass** — propagate $\delta = \partial\mathcal{L}/\partial(\cdot)$ right to left:
+**Backward pass** — propagate $\delta = \partial\mathcal{L}/\partial(\cdot)$ right to left:
 
 | Step | Rule | Value |
 |---|---|---|
@@ -75,11 +76,12 @@ FORWARD  ───────────────────────�
   δx     ∂L/∂w₁=2.699   δ_z₁=1.350    δ_a₁=3.214   ∂L/∂w₂=-1.632   δ_ŷ=-2.142
 ```
 
-⚠️ **The memory cost of "cache"** — every forward activation must be stored for the backward pass.
-For a Transformer, activation memory scales as $O(B \cdot T \cdot d \cdot L)$ and often *exceeds*
-parameter memory. **Gradient checkpointing** trades this for compute: store only layer boundaries,
-recompute the rest during backward. Cost: ~33% more compute; benefit: $O(\sqrt L)$ instead of
-$O(L)$ activation memory. → [Pretraining](../04-large-language-models/02-pretraining.md)
+> [!WARNING]
+> **The memory cost of "cache"** — every forward activation must be stored for the backward pass.
+> For a Transformer, activation memory scales as $O(B \cdot T \cdot d \cdot L)$ and often *exceeds*
+> parameter memory. **Gradient checkpointing** trades this for compute: store only layer boundaries,
+> recompute the rest during backward. Cost: ~33% more compute; benefit: $O(\sqrt L)$ instead of
+> $O(L)$ activation memory. → [Pretraining](../04-large-language-models/02-pretraining.md)
 
 ---
 
@@ -106,14 +108,16 @@ $O(L)$ activation memory. → [Pretraining](../04-large-language-models/02-pretr
   kink at 0        smooth everywhere    smooth, non-monotone
 ```
 
-🧠 **Why GELU over ReLU** — GELU is $x \cdot P(Z \le x)$ for $Z \sim \mathcal{N}(0,1)$: "scale the
-input by the probability that it is larger than a random draw." It is a soft, probabilistic gate.
-Practically, the benefit is smoothness — the gradient is continuous, which suits the very small
-learning rates and long schedules that Transformer training uses. The measured quality gain is
-small but consistent.
+> [!TIP]
+> **Why GELU over ReLU** — GELU is $x \cdot P(Z \le x)$ for $Z \sim \mathcal{N}(0,1)$: "scale the
+> input by the probability that it is larger than a random draw." It is a soft, probabilistic gate.
+> Practically, the benefit is smoothness — the gradient is continuous, which suits the very small
+> learning rates and long schedules that Transformer training uses. The measured quality gain is
+> small but consistent.
 
-🧠 **Why SwiGLU (the actual modern choice)** — a **gated linear unit** splits the projection in two
-and lets one half *multiply* the other:
+> [!TIP]
+> **Why SwiGLU (the actual modern choice)** — a **gated linear unit** splits the projection in two
+> and lets one half *multiply* the other:
 
 $$\mathrm{SwiGLU}(x) = \big(\mathrm{Swish}(xW_{\text{gate}})\big) \odot (xW_{\text{up}})$$
 
@@ -122,7 +126,7 @@ approximate. Gating lets the network learn "attend to feature A *only when* feat
 in one layer. Cost: three weight matrices instead of two, so implementations shrink
 $d_{\text{ff}}$ from $4d$ to $\frac{8}{3}d$ to keep the parameter count identical.
 
-📊 Noam Shazeer's *GLU Variants Improve Transformer* (2020) reports consistent perplexity gains
+Noam Shazeer's *GLU Variants Improve Transformer* (2020) reports consistent perplexity gains
 for SwiGLU/GeGLU at matched parameters. It is used in LLaMA, PaLM, Mistral, Qwen and most modern
 open models. → [LLM architecture](../04-large-language-models/01-llm-architecture.md)
 
@@ -160,12 +164,13 @@ $$\mathrm{LN}(x) = \gamma \odot \frac{x - \mu}{\sqrt{\sigma^2+\epsilon}} + \beta
 **RMSNorm** — drop the mean subtraction entirely:
 $$\mathrm{RMSNorm}(x) = \gamma \odot \frac{x}{\sqrt{\frac1d\sum_i x_i^2 + \epsilon}}$$
 
-🧠 **Why RMSNorm won** — Zhang & Sennrich (2019) showed the re-centering does essentially nothing;
-the *re-scaling* is what stabilizes training. Removing the mean saves one pass over the feature
-dimension and one set of bias parameters — around 7–10% wall-clock in practice for zero quality
-loss. LLaMA popularized it and it is now standard.
+> [!TIP]
+> **Why RMSNorm won** — Zhang & Sennrich (2019) showed the re-centering does essentially nothing;
+> the *re-scaling* is what stabilizes training. Removing the mean saves one pass over the feature
+> dimension and one set of bias parameters — around 7–10% wall-clock in practice for zero quality
+> loss. LLaMA popularized it and it is now standard.
 
-🔢 **Worked example** — $x = [2, -1, 3, 0]$, $\gamma = 1$, $\epsilon = 0$:
+**Worked example** — $x = [2, -1, 3, 0]$, $\gamma = 1$, $\epsilon = 0$:
 
 *LayerNorm*: $\mu = 1.0$, centered $= [1,-2,2,-1]$, $\sigma^2 = \frac{1+4+4+1}{4}=2.5$,
 $\sigma = 1.581$ → output $[0.632, -1.265, 1.265, -0.632]$. (Mean 0, variance 1. ✓)
@@ -194,23 +199,24 @@ $\sigma = 1.581$ → output $[0.632, -1.265, 1.265, -0.632]$. (Mean 0, variance 
   norm sits ON the residual path           from input to output
 ```
 
-📐 **Why it matters mathematically** — in pre-norm, the residual stream is
+**Why it matters mathematically** — in pre-norm, the residual stream is
 $x_{L} = x_0 + \sum_{l=1}^{L} F_l(\mathrm{Norm}(x_{l-1}))$. The gradient
 $\partial x_L / \partial x_0$ contains an explicit identity term, so gradients reach layer 0
 undiminished regardless of depth. In post-norm, every residual addition is followed by a
 normalization that *rescales* the whole stream, so the gradient gets multiplied by a
 (typically <1) factor $L$ times → exponential decay with depth.
 
-📊 **Practical consequence**: post-norm Transformers deeper than ~12 layers require a careful
+**Practical consequence**: post-norm Transformers deeper than ~12 layers require a careful
 learning-rate warmup or they diverge. Pre-norm models train to 100+ layers with minimal warmup.
 Every LLM since GPT-2 uses pre-norm. The tradeoff: pre-norm models have slightly worse final
 quality at equal depth, which some architectures fix with **sandwich norm** (norm before *and*
 after the sublayer) or QK-norm.
 
-⚠️ **Known failure mode** — the residual stream in a pre-norm model grows in magnitude with depth
-(each layer adds to it, nothing rescales it). In very deep or long-trained models this can cause
-activation outliers that break INT8 quantization.
-→ [Efficiency](../04-large-language-models/07-efficiency.md)
+> [!WARNING]
+> **Known failure mode** — the residual stream in a pre-norm model grows in magnitude with depth
+> (each layer adds to it, nothing rescales it). In very deep or long-trained models this can cause
+> activation outliers that break INT8 quantization.
+> → [Efficiency](../04-large-language-models/07-efficiency.md)
 
 ---
 
@@ -218,7 +224,8 @@ activation outliers that break INT8 quantization.
 
 $$y = x + F(x)$$
 
-🧠 **Three ways to see why this works:**
+> [!TIP]
+> **Three ways to see why this works:**
 
 1. **Optimization**: learning $F(x) = 0$ (identity) is easy; learning $H(x) = x$ from scratch
    through nonlinearities is hard. Residuals make the identity the *default*.
@@ -228,7 +235,7 @@ $$y = x + F(x)$$
    ensemble of $2^L$ paths of varying depth. Most of the gradient flows through the *short* paths,
    which is why removing a single residual layer barely hurts.
 
-📊 Before ResNet (2015), 20-layer plain networks performed *worse* than 8-layer ones — pure
+Before ResNet (2015), 20-layer plain networks performed *worse* than 8-layer ones — pure
 optimization failure, not overfitting. After residuals: 152 layers, then 1000+.
 
 **In Transformers the residual stream is a first-class object.** The interpretability view:
@@ -243,7 +250,7 @@ stream is a shared communication bus, not a pipeline.
 The goal: keep activation variance ≈ constant across layers at step 0. Too large → explosion; too
 small → the signal dies before reaching the output.
 
-📐 For $y = Wx$ with $W_{ij}$ i.i.d. mean-zero variance $\sigma_w^2$ and $x$ having variance
+For $y = Wx$ with $W_{ij}$ i.i.d. mean-zero variance $\sigma_w^2$ and $x$ having variance
 $\sigma_x^2$ per component:
 
 $$\mathrm{Var}(y_i) = \sum_{j=1}^{n_{\text{in}}}\mathrm{Var}(W_{ij}x_j) = n_{\text{in}}\sigma_w^2\sigma_x^2$$
@@ -257,11 +264,12 @@ To preserve variance we need $\sigma_w^2 = 1/n_{\text{in}}$.
 | **LeCun** | $\frac{1}{n_{\text{in}}}$ | SELU |
 | **GPT-2 style** | $\mathcal{N}(0, 0.02^2)$, residual projections scaled by $1/\sqrt{2L}$ | Transformers |
 
-🧠 **The GPT-2 residual trick** — with $L$ layers each adding to the residual stream, variance
-accumulates as $L\sigma^2$. Scaling the output projection of each block by $1/\sqrt{2L}$ keeps the
-stream's variance stable at initialization regardless of depth. Small detail, real stability gain.
+> [!TIP]
+> **The GPT-2 residual trick** — with $L$ layers each adding to the residual stream, variance
+> accumulates as $L\sigma^2$. Scaling the output projection of each block by $1/\sqrt{2L}$ keeps the
+> stream's variance stable at initialization regardless of depth. Small detail, real stability gain.
 
-💻 In practice:
+In practice:
 
 ```python
 def _init_weights(self, module):
@@ -291,15 +299,17 @@ for name, p in model.named_parameters():
 | **Early stopping** | stop before overfit | ⚠️ irrelevant at <1 epoch |
 | **Gradient clipping** | cap $\|g\|$ | ✅ essential (typically 1.0) |
 
-🧠 **Why dropout largely disappeared from pretraining** — dropout fights *overfitting*. Frontier
-pretraining runs see each token roughly once (or a handful of times); the model is
-under-fitting, not over-fitting. Adding dropout just wastes compute. It reappears during
-**fine-tuning**, where datasets are small and epochs are many.
+> [!TIP]
+> **Why dropout largely disappeared from pretraining** — dropout fights *overfitting*. Frontier
+> pretraining runs see each token roughly once (or a handful of times); the model is
+> under-fitting, not over-fitting. Adding dropout just wastes compute. It reappears during
+> **fine-tuning**, where datasets are small and epochs are many.
 
-⚠️ **Pitfall** — weight decay in Adam is **not** the same as L2 regularization. Adam divides the
-gradient by $\sqrt{v}$, so an L2 term added to the gradient gets scaled differently for each
-parameter. **AdamW** applies decay directly to the weights, decoupled from the adaptive scaling.
-Always use AdamW. → [Optimization](05-optimization.md)
+> [!WARNING]
+> **Pitfall** — weight decay in Adam is **not** the same as L2 regularization. Adam divides the
+> gradient by $\sqrt{v}$, so an L2 term added to the gradient gets scaled differently for each
+> parameter. **AdamW** applies decay directly to the weights, decoupled from the adaptive scaling.
+> Always use AdamW. → [Optimization](05-optimization.md)
 
 ---
 

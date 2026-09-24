@@ -1,4 +1,4 @@
-# Optimization & Training Dynamics
+# Optimization and Training Dynamics
 
 > **Summary** — How a 10-billion-parameter model actually gets trained: the optimizer family from
 > SGD to AdamW (with the memory bill for each), learning-rate schedules and why warmup exists,
@@ -30,9 +30,10 @@ graph LR
 
 $$v_t = \beta v_{t-1} + g_t, \qquad \theta_t = \theta_{t-1} - \eta v_t$$
 
-🧠 A ball rolling downhill. Momentum averages out gradient noise and builds speed along consistent
-directions. With $\beta = 0.9$, the effective averaging window is $\frac{1}{1-\beta} = 10$ steps
-and the effective step size along a consistent direction is $\frac{1}{1-\beta} = 10\times$ larger.
+> [!TIP]
+> A ball rolling downhill. Momentum averages out gradient noise and builds speed along consistent
+> directions. With $\beta = 0.9$, the effective averaging window is $\frac{1}{1-\beta} = 10$ steps
+> and the effective step size along a consistent direction is $\frac{1}{1-\beta} = 10\times$ larger.
 
 ### Adam
 
@@ -47,17 +48,18 @@ $$
 
 Defaults: $\beta_1 = 0.9$, $\beta_2 = 0.999$ (LLMs often use $0.95$), $\epsilon = 10^{-8}$.
 
-🧠 **The core idea** — divide by the running magnitude of the gradient, so every parameter gets a
-step of roughly the same *size* regardless of its gradient scale. Embedding gradients for rare
-tokens are tiny; attention gradients are large. Plain SGD would need a different learning rate for
-each. Adam normalizes them automatically.
+> [!TIP]
+> **The core idea** — divide by the running magnitude of the gradient, so every parameter gets a
+> step of roughly the same *size* regardless of its gradient scale. Embedding gradients for rare
+> tokens are tiny; attention gradients are large. Plain SGD would need a different learning rate for
+> each. Adam normalizes them automatically.
 
-📐 **Why bias correction is needed** — $m_0 = 0$, so $m_1 = (1-\beta_1)g_1 = 0.1g_1$, a 10×
+**Why bias correction is needed** — $m_0 = 0$, so $m_1 = (1-\beta_1)g_1 = 0.1g_1$, a 10×
 underestimate. Since $\mathbb{E}[m_t] = (1-\beta_1^t)\mathbb{E}[g]$, dividing by $(1-\beta_1^t)$
 restores an unbiased estimate. The correction matters for roughly the first $1/(1-\beta_2) = 1000$
 steps and then becomes negligible.
 
-🔢 **Worked example — one Adam step**
+**Worked example — one Adam step**
 
 $g_1 = 0.1$, $\eta = 10^{-3}$, first step:
 
@@ -75,19 +77,21 @@ Adam so robust to scale — and also why the learning rate is the hyperparameter
 
 ### AdamW: the decoupling fix
 
-⚠️ Adding L2 regularization to the gradient ($g \leftarrow g + \lambda\theta$) inside Adam is
-**wrong**. The $\lambda\theta$ term gets divided by $\sqrt{\hat v}$ along with everything else, so
-parameters with large gradients get *less* effective decay — the opposite of the intent.
+> [!WARNING]
+> Adding L2 regularization to the gradient ($g \leftarrow g + \lambda\theta$) inside Adam is
+> **wrong**. The $\lambda\theta$ term gets divided by $\sqrt{\hat v}$ along with everything else, so
+> parameters with large gradients get *less* effective decay — the opposite of the intent.
 
 **AdamW** applies decay directly:
 
 $$\theta_t = \theta_{t-1} - \eta\left(\frac{\hat m_t}{\sqrt{\hat v_t}+\epsilon} + \lambda\theta_{t-1}\right)$$
 
-📊 This single change (Loshchilov & Hutter, 2017) improved generalization enough that AdamW is now
+This single change (Loshchilov & Hutter, 2017) improved generalization enough that AdamW is now
 universal. Typical $\lambda = 0.1$ for LLM pretraining.
 
-⚠️ **Do not decay** LayerNorm/RMSNorm gains, biases, or embeddings. Shrinking a normalization gain
-toward zero destroys the layer's scale; standard practice splits parameters into two groups:
+> [!WARNING]
+> **Do not decay** LayerNorm/RMSNorm gains, biases, or embeddings. Shrinking a normalization gain
+> toward zero destroys the layer's scale; standard practice splits parameters into two groups:
 
 ```python
 decay, no_decay = [], []
@@ -106,7 +110,7 @@ opt = torch.optim.AdamW([
 
 ## 2. The optimizer memory bill
 
-📊 Per-parameter state, mixed-precision training:
+Per-parameter state, mixed-precision training:
 
 | Optimizer | States | Bytes/param (BF16 weights) | 7B model |
 |---|---|---|---|
@@ -117,10 +121,11 @@ opt = torch.optim.AdamW([
 | Adafactor | factored $v$ | ≈ 2+2+4+$\epsilon$ = **~8** | 56 GB |
 | LoRA (base frozen) | only adapter states | ~2/param + tiny | **~15 GB** |
 
-🧠 **Adafactor's trick** — instead of storing the full $v \in \mathbb{R}^{m\times n}$ for a weight
-matrix, store row sums $R \in \mathbb{R}^m$ and column sums $C \in \mathbb{R}^n$, and reconstruct
-$v_{ij} \approx R_i C_j / \sum_k R_k$. Memory drops from $O(mn)$ to $O(m+n)$. Used for T5 and many
-TPU-trained models.
+> [!TIP]
+> **Adafactor's trick** — instead of storing the full $v \in \mathbb{R}^{m\times n}$ for a weight
+> matrix, store row sums $R \in \mathbb{R}^m$ and column sums $C \in \mathbb{R}^n$, and reconstruct
+> $v_{ij} \approx R_i C_j / \sum_k R_k$. Memory drops from $O(mn)$ to $O(m+n)$. Used for T5 and many
+> TPU-trained models.
 
 This table is *why* distributed training exists. → [Pretraining](../04-large-language-models/02-pretraining.md)
 
@@ -137,28 +142,29 @@ as the peak value.
 
 ### Warmup: why it is not optional
 
-📐 **The Adam variance argument** — at step $t$, $\hat v_t$ is estimated from very few samples. Its
+**The Adam variance argument** — at step $t$, $\hat v_t$ is estimated from very few samples. Its
 relative variance is large, so $1/\sqrt{\hat v_t}$ occasionally takes huge values and produces a
 wild update. Early wild updates land the model in a bad region it may never escape. Warmup keeps
 $\eta$ small until $\hat v$ has enough samples to be reliable. (This is exactly the analysis in
 *On the Variance of the Adaptive Learning Rate*, Liu et al. 2019, which motivated RAdam.)
 
-📐 **The post-norm argument** — in post-norm Transformers, gradients at initialization are badly
+**The post-norm argument** — in post-norm Transformers, gradients at initialization are badly
 scaled with depth, and a large first step diverges immediately. Pre-norm reduces but does not
 eliminate the need.
 
-📊 Typical: linear warmup over 0.5–2% of total steps (e.g. 2000 steps of a 500k-step run).
+Typical: linear warmup over 0.5–2% of total steps (e.g. 2000 steps of a 500k-step run).
 
 ### Cosine decay
 
 $$\eta_t = \eta_{\min} + \tfrac12(\eta_{\max}-\eta_{\min})\left(1 + \cos\!\left(\pi\frac{t - t_{\text{warm}}}{T - t_{\text{warm}}}\right)\right)$$
 
-⚠️ **Cosine has a serious practical flaw**: the schedule depends on $T$, the *total* step count, so
-you must decide the length of the run in advance. Stop early and you get a model that never
-annealed; extend the run and the schedule is wrong. This is why **WSD (Warmup–Stable–Decay)** has
-gained ground: hold the LR constant indefinitely, and decay rapidly only over the final ~10% of
-whatever budget you end up using. It gives comparable final loss *and* lets you checkpoint-and-
-branch mid-run.
+> [!WARNING]
+> **Cosine has a serious practical flaw**: the schedule depends on $T$, the *total* step count, so
+> you must decide the length of the run in advance. Stop early and you get a model that never
+> annealed; extend the run and the schedule is wrong. This is why **WSD (Warmup–Stable–Decay)** has
+> gained ground: hold the LR constant indefinitely, and decay rapidly only over the final ~10% of
+> whatever budget you end up using. It gives comparable final loss *and* lets you checkpoint-and-
+> branch mid-run.
 
 | Schedule | Formula | Pros | Cons |
 |---|---|---|---|
@@ -174,7 +180,7 @@ branch mid-run.
 
 Larger batch → less gradient noise → you can take larger steps. But the return diminishes.
 
-📐 **Gradient noise scale** (McCandlish et al., 2018). Define
+**Gradient noise scale** (McCandlish et al., 2018). Define
 
 $$B_{\text{crit}} = \frac{\mathrm{tr}(H\Sigma)}{G^\top H G}$$
 
@@ -193,18 +199,19 @@ $$\frac{\text{steps at batch }B}{\text{steps at batch }\infty} \approx 1 + \frac
 - $B_{\text{crit}}$ **grows during training** as the loss decreases — so batch-size ramping
   (start small, grow) is compute-optimal and is used in real frontier runs.
 
-📊 Typical LLM batch sizes: 0.5M–4M tokens per step at frontier scale, e.g. 2048 sequences × 2048
+Typical LLM batch sizes: 0.5M–4M tokens per step at frontier scale, e.g. 2048 sequences × 2048
 tokens = 4.2M tokens.
 
-### Learning rate ↔ batch size scaling
+### Scaling the learning rate with batch size
 
 | Rule | Formula | When |
 |---|---|---|
 | Linear scaling | $\eta \propto B$ | SGD, vision, small batches |
 | Square-root scaling | $\eta \propto \sqrt B$ | Adam, large batches |
 
-🧠 The square-root rule for Adam comes from the fact that Adam's update is already normalized by
-gradient magnitude; only the *noise* reduction ($\propto 1/\sqrt B$) is left to compensate for.
+> [!TIP]
+> The square-root rule for Adam comes from the fact that Adam's update is already normalized by
+> gradient magnitude; only the *noise* reduction ($\propto 1/\sqrt B$) is left to compensate for.
 
 ---
 
@@ -212,14 +219,16 @@ gradient magnitude; only the *noise* reduction ($\propto 1/\sqrt B$) is left to 
 
 $$g \leftarrow g \cdot \min\!\left(1, \frac{c}{\|g\|_2}\right), \qquad c \text{ typically } 1.0$$
 
-🧠 Rare batches (a weird document, a long repeated string, a numerical edge case) produce gradients
-orders of magnitude larger than typical. Without clipping, one such batch can destroy a run that
-cost millions of dollars. Clipping caps the damage without changing the gradient *direction*.
+> [!TIP]
+> Rare batches (a weird document, a long repeated string, a numerical edge case) produce gradients
+> orders of magnitude larger than typical. Without clipping, one such batch can destroy a run that
+> cost millions of dollars. Clipping caps the damage without changing the gradient *direction*.
 
-⚠️ **Clip on the global norm across all parameters**, not per-parameter. Per-parameter clipping
-changes the direction of the overall update and degrades quality.
+> [!WARNING]
+> **Clip on the global norm across all parameters**, not per-parameter. Per-parameter clipping
+> changes the direction of the overall update and degrades quality.
 
-💻 Standard training step:
+Standard training step:
 
 ```python
 loss.backward()
@@ -229,7 +238,7 @@ optimizer.zero_grad(set_to_none=True)   # set_to_none saves memory vs zeroing
 scheduler.step()
 ```
 
-📊 **Monitor `grad_norm`** — it is the single most informative training diagnostic. Healthy
+**Monitor `grad_norm`** — it is the single most informative training diagnostic. Healthy
 pretraining shows a slow decay with occasional 2–3× spikes. A sustained rise, or spikes above
 ~10×, means trouble is coming.
 
@@ -262,7 +271,7 @@ $2^{-24} \approx 6\times10^{-8}$) fix this.
 | Mantissa bits | 10 | 7 |
 | Recommendation | legacy | **use this** |
 
-📊 Speedup from BF16 on tensor-core hardware: roughly 2× vs FP32, plus half the activation memory.
+Speedup from BF16 on tensor-core hardware: roughly 2× vs FP32, plus half the activation memory.
 FP8 gives another ~1.5–2× on H100-class hardware but needs per-tensor scaling factors and careful
 handling of outlier channels.
 
@@ -270,7 +279,7 @@ handling of outlier channels.
 
 ## 7. Loss spikes: the debugging playbook
 
-📊 Real large runs *will* spike. The loss jumps from 2.1 to 6.0 in a few steps and either recovers
+Real large runs *will* spike. The loss jumps from 2.1 to 6.0 in a few steps and either recovers
 or diverges.
 
 ```
@@ -296,13 +305,15 @@ or diverges.
 | FP16 overflow | NaN, not a spike | switch to BF16 |
 | Embedding norm growth | slow drift then spike | decay embeddings, or z-loss |
 
-🧠 **QK-norm**, the most effective modern fix: apply RMSNorm to $Q$ and $K$ before computing
-attention scores. This bounds $\|q\|\|k\|$, so the pre-softmax logits cannot blow up, which is the
-mechanism behind most mid-training instability in large models.
+> [!TIP]
+> **QK-norm**, the most effective modern fix: apply RMSNorm to $Q$ and $K$ before computing
+> attention scores. This bounds $\|q\|\|k\|$, so the pre-softmax logits cannot blow up, which is the
+> mechanism behind most mid-training instability in large models.
 
-🧠 **z-loss** — add $10^{-4}\cdot(\log Z)^2$ where $Z$ is the softmax partition function. It keeps
-the logits from drifting to large absolute values, which both stabilizes training and improves
-post-training quantization.
+> [!TIP]
+> **z-loss** — add $10^{-4}\cdot(\log Z)^2$ where $Z$ is the softmax partition function. It keeps
+> the logits from drifting to large absolute values, which both stabilizes training and improves
+> post-training quantization.
 
 **The standard recovery procedure** for a real run: roll back to a checkpoint ~100–500 steps before
 the spike, skip the offending data shard, and resume. Many public training logs (OPT, BLOOM)
@@ -312,7 +323,7 @@ document doing exactly this dozens of times.
 
 ## 8. Hyperparameter starting points
 
-📊 Sensible defaults for a decoder-only LM. Start here, then tune the LR.
+Sensible defaults for a decoder-only LM. Start here, then tune the LR.
 
 | Hyperparameter | Value | Notes |
 |---|---|---|
@@ -337,10 +348,11 @@ document doing exactly this dozens of times.
 | 7 B | $3\times10^{-4}$ (LLaMA-2 used this) |
 | 70 B | $1.5\times10^{-4}$ |
 
-🧠 **μP (maximal update parameterization)** is the principled answer: reparameterize initialization
-and per-layer learning rates so that the *optimal* LR is invariant to width. Then tune
-hyperparameters on a 40M-parameter proxy model and **transfer them directly** to a 10B run. This
-is a genuinely large cost saving and is used by several frontier labs.
+> [!TIP]
+> **μP (maximal update parameterization)** is the principled answer: reparameterize initialization
+> and per-layer learning rates so that the *optimal* LR is invariant to width. Then tune
+> hyperparameters on a 40M-parameter proxy model and **transfer them directly** to a 10B run. This
+> is a genuinely large cost saving and is used by several frontier labs.
 
 ---
 

@@ -16,15 +16,16 @@ $$p_\theta(x_1,\dots,x_n) = \prod_{i=1}^{n} p_\theta(x_i \mid x_1,\dots,x_{i-1})
 This is **exact** — the chain rule is an identity, not an approximation. The modelling choice is
 only in how you parameterize each conditional.
 
-🧠 **Intuition** — you have replaced one impossible problem (a distribution over $|\mathcal{V}|^n$
-sequences) with $n$ tractable problems (a distribution over $|\mathcal{V}|$ next tokens). It is the
-same move as writing a long number in decimal: rather than naming one of $10^{20}$ integers, you
-name 20 digits in order.
+> [!TIP]
+> **Intuition** — you have replaced one impossible problem (a distribution over $|\mathcal{V}|^n$
+> sequences) with $n$ tractable problems (a distribution over $|\mathcal{V}|$ next tokens). It is the
+> same move as writing a long number in decimal: rather than naming one of $10^{20}$ integers, you
+> name 20 digits in order.
 
 The cost is that you must pick an **order**. For text the order is obvious. For images it is not —
 raster scan is arbitrary, and the arbitrariness hurts.
 
-🔢 **Concretely** — vocabulary 50,000, sequence length 1024:
+**Concretely** — vocabulary 50,000, sequence length 1024:
 - Joint distribution table: $50000^{1024} \approx 10^{4800}$ entries. Impossible.
 - AR factorization: 1024 softmaxes over 50,000 options each. A single forward pass of a network.
 
@@ -53,10 +54,11 @@ $$\mathcal{L} = -\sum_{i=1}^{n}\log p_\theta(x_i \mid x_{<i}) \quad\text{(cross-
  loss = mean of n cross-entropies            (this is the latency problem)
 ```
 
-⚠️ **Exposure bias** — at training time the model always sees a *correct* prefix; at inference it
-sees its own, possibly flawed, output. Errors compound: one bad token shifts the distribution into
-a region the model never trained on. This is the theoretical explanation for degeneration
-(repetition loops, drift in long generations).
+> [!WARNING]
+> **Exposure bias** — at training time the model always sees a *correct* prefix; at inference it
+> sees its own, possibly flawed, output. Errors compound: one bad token shifts the distribution into
+> a region the model never trained on. This is the theoretical explanation for degeneration
+> (repetition loops, drift in long generations).
 
 In practice the effect is smaller than the theory suggests for well-trained large models, and the
 main mitigations are decoding-side (nucleus sampling, repetition penalties) rather than
@@ -73,7 +75,7 @@ Let's actually build a bigram model on a tiny corpus, by hand.
 **Corpus**: `"the cat sat on the mat the cat ate"`
 **Vocabulary**: `{the, cat, sat, on, mat, ate}` → 6 tokens.
 
-🔢 **Count the bigrams:**
+**Count the bigrams:**
 
 | context | next | count |
 |---|---|---|
@@ -85,12 +87,12 @@ Let's actually build a bigram model on a tiny corpus, by hand.
 | on | the | 1 |
 | mat | the | 1 |
 
-🔢 **Maximum-likelihood conditionals** — $p(w' \mid w) = \frac{C(w,w')}{C(w)}$:
+**Maximum-likelihood conditionals** — $p(w' \mid w) = \frac{C(w,w')}{C(w)}$:
 
 $$p(\text{cat}\mid\text{the}) = \tfrac{2}{3} = 0.667, \quad p(\text{mat}\mid\text{the}) = \tfrac13 = 0.333$$
 $$p(\text{sat}\mid\text{cat}) = p(\text{ate}\mid\text{cat}) = 0.5$$
 
-🔢 **Score the sequence** `"the cat sat"`:
+**Score the sequence** `"the cat sat"`:
 
 $$p(\text{the cat sat}) = p(\text{the}) \cdot p(\text{cat}\mid\text{the})\cdot p(\text{sat}\mid\text{cat})
 = 0.333 \times 0.667 \times 0.5 = 0.111$$
@@ -98,12 +100,13 @@ $$p(\text{the cat sat}) = p(\text{the}) \cdot p(\text{cat}\mid\text{the})\cdot p
 Per-token cross-entropy: $-\frac13(\ln 0.333 + \ln 0.667 + \ln 0.5) = \frac13(1.100+0.405+0.693) = 0.733$ nats.
 Perplexity $= e^{0.733} = 2.08$ — the model is about as confused as a fair coin flip per token.
 
-⚠️ **Why n-grams fail, quantitatively** — a 5-gram model over a 50k vocabulary has
-$50000^5 = 3\times10^{23}$ parameters. Essentially every context is unseen; you need smoothing
-(Kneser-Ney) just to avoid assigning zero probability. **Neural models fix this by sharing
-parameters across contexts**: a learned embedding means "cat" and "dog" produce similar
-predictions even if "the dog sat" never appeared in training. That generalization-by-sharing is
-the entire contribution of neural language modelling.
+> [!WARNING]
+> **Why n-grams fail, quantitatively** — a 5-gram model over a 50k vocabulary has
+> $50000^5 = 3\times10^{23}$ parameters. Essentially every context is unseen; you need smoothing
+> (Kneser-Ney) just to avoid assigning zero probability. **Neural models fix this by sharing
+> parameters across contexts**: a learned embedding means "cat" and "dog" produce similar
+> predictions even if "the dog sat" never appeared in training. That generalization-by-sharing is
+> the entire contribution of neural language modelling.
 
 ---
 
@@ -137,7 +140,7 @@ the entire contribution of neural language modelling.
  kernel weights                   with L layers              before softmax
 ```
 
-💻 **Causal attention mask** — the three lines that make a Transformer autoregressive:
+**Causal attention mask** — the three lines that make a Transformer autoregressive:
 
 ```python
 mask = torch.tril(torch.ones(T, T, dtype=torch.bool))      # lower triangular
@@ -146,9 +149,10 @@ scores = scores.masked_fill(~mask, float('-inf'))          # future → -inf
 attn = scores.softmax(dim=-1)                              # -inf → 0 weight
 ```
 
-⚠️ **The off-by-one that breaks everything** — the model must predict token $i{+}1$ from tokens
-$\le i$. Get the shift wrong and the model can see the answer; your loss drops to near-zero and
-your generations are garbage. The canonical form:
+> [!WARNING]
+> **The off-by-one that breaks everything** — the model must predict token $i{+}1$ from tokens
+> $\le i$. Get the shift wrong and the model can see the answer; your loss drops to near-zero and
+> your generations are garbage. The canonical form:
 
 ```python
 logits = model(tokens[:, :-1])          # inputs:  positions 0 .. T-2
@@ -166,14 +170,14 @@ you have information leakage.
 
 ## 5. PixelCNN and WaveNet: AR beyond text
 
-### PixelCNN — images as a raster scan
+### PixelCNN: images as a raster scan
 
 $$p(x) = \prod_{i=1}^{H\cdot W} p(x_i \mid x_{<i})$$
 
 with the pixels ordered row by row, left to right, and each pixel's three colour channels ordered
 R→G→B.
 
-📊 **Why it lost to diffusion:**
+**Why it lost to diffusion:**
 
 | Issue | Detail |
 |---|---|
@@ -182,21 +186,22 @@ R→G→B.
 | Long-range structure | Global coherence must travel through thousands of local steps. |
 | The "blind spot" | Naive masked convolutions leave a wedge of context unreachable; Gated PixelCNN needed two separate stacks (vertical + horizontal) to fix it. |
 
-🧠 But the *idea* survived in a better form: **tokenize the image first**. VQ-VAE compresses a
-$256\times256$ image to a $32\times32$ grid of discrete codes — 1024 tokens instead of 196,608.
-Then run a Transformer over those. This is VQGAN/DALL·E-1, and it is still how most video and
-audio generation handles discreteness.
-→ [VAE § VQ-VAE](02-vae.md#7-vq-vae-discrete-latents)
+> [!TIP]
+> But the *idea* survived in a better form: **tokenize the image first**. VQ-VAE compresses a
+> $256\times256$ image to a $32\times32$ grid of discrete codes — 1024 tokens instead of 196,608.
+> Then run a Transformer over those. This is VQGAN/DALL·E-1, and it is still how most video and
+> audio generation handles discreteness.
+> → [VAE § VQ-VAE](02-vae.md#7-vq-vae-discrete-latents)
 
-### WaveNet — raw audio
+### WaveNet: raw audio
 
 Dilated causal convolutions: layer $l$ has dilation $2^l$, so $L$ layers give a receptive field of
 $2^L$ samples with only $O(L)$ depth.
 
-🔢 30 layers → receptive field of $2^{30}$? No — stacked in blocks of 10 (dilations 1,2,…,512),
+30 layers → receptive field of $2^{30}$? No — stacked in blocks of 10 (dilations 1,2,…,512),
 repeated 3×, giving a receptive field of $3 \times 1023 \approx 3000$ samples ≈ 190 ms at 16 kHz.
 
-📊 The killer statistic: generating 1 second of 16 kHz audio requires **16,000 sequential forward
+The killer statistic: generating 1 second of 16 kHz audio requires **16,000 sequential forward
 passes**. Original WaveNet took minutes to generate seconds of speech. Parallel WaveNet solved this
 by distilling into an inverse-autoregressive flow — an early, important example of
 *distillation to break the sequential bottleneck*, the same idea that now powers few-step
@@ -214,7 +219,7 @@ diffusion.
 | **Sampling, KV cache** | $O(n^2 d + nd^2)$ | amortized $O(nd + d^2)$ per token |
 | KV cache memory | $2 L H_{kv} d_h n \cdot$ bytes | the real inference constraint |
 
-🔢 **KV cache for a 70B model** ($L=80$, $H_{kv}=8$ with GQA, $d_h=128$, BF16), 8192 tokens:
+**KV cache for a 70B model** ($L=80$, $H_{kv}=8$ with GQA, $d_h=128$, BF16), 8192 tokens:
 
 $$2 \times 80 \times 8 \times 128 \times 8192 \times 2\text{ bytes} = 2.68 \text{ GB per sequence}$$
 
@@ -226,7 +231,7 @@ attention was adopted universally.
 
 ## 7. Minimal implementation
 
-💻 A complete character-level autoregressive Transformer. This is the whole idea in ~60 lines.
+A complete character-level autoregressive Transformer. This is the whole idea in ~60 lines.
 
 ```python
 import torch, torch.nn as nn, torch.nn.functional as F, math
@@ -296,12 +301,13 @@ class GPT(nn.Module):
         return idx
 ```
 
-📊 Trained on ~1 MB of Shakespeare (~40 min on a laptop GPU), this produces syntactically
+Trained on ~1 MB of Shakespeare (~40 min on a laptop GPU), this produces syntactically
 plausible pseudo-Shakespeare. The architecture is the same one used at 10,000× the scale; only
 the numbers change.
 
-⚠️ Note `generate` above recomputes the full forward pass every step — $O(n^2)$ total work. A real
-implementation caches K and V. → [Inference & decoding](../04-large-language-models/06-inference-and-decoding.md)
+> [!WARNING]
+> Note `generate` above recomputes the full forward pass every step — $O(n^2)$ total work. A real
+> implementation caches K and V. → [Inference & decoding](../04-large-language-models/06-inference-and-decoding.md)
 
 ---
 
@@ -316,11 +322,12 @@ implementation caches K and V. → [Inference & decoding](../04-large-language-m
 | Scales predictably — → [Scaling laws](../04-large-language-models/03-scaling-laws.md) | No learned latent space for editing or interpolation |
 | Trivially handles variable-length data | Cannot revise an earlier token once emitted |
 
-🧠 **On "cannot revise"** — an AR model commits to token $i$ before seeing token $i{+}1$. Humans
-draft and revise. This is the structural argument for diffusion language models and for
-**chain-of-thought**: CoT lets the model use extra tokens as a scratchpad, effectively buying
-revision at the cost of sequence length.
-→ [Reasoning](../04-large-language-models/10-reasoning.md)
+> [!TIP]
+> **On "cannot revise"** — an AR model commits to token $i$ before seeing token $i{+}1$. Humans
+> draft and revise. This is the structural argument for diffusion language models and for
+> **chain-of-thought**: CoT lets the model use extra tokens as a scratchpad, effectively buying
+> revision at the cost of sequence length.
+> → [Reasoning](../04-large-language-models/10-reasoning.md)
 
 ---
 

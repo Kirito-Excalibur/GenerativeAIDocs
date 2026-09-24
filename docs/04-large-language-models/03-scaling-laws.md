@@ -24,15 +24,17 @@ with (Kaplan et al., 2020): $\alpha_N \approx 0.076$, $\alpha_D \approx 0.095$, 
 
 *IsoFLOP curves from the Chinchilla parametric fit L = E + A/N^α + B/D^β with the paper's published constants, where each curve holds C = 6ND fixed. For any budget there is a best model size: too small and it can't learn; too big and it sees too little data. Joining the minima traces out the power law. (See §2 for why the published constants disagree with the paper's 20-tokens-per-parameter rule.)*
 
-🧠 **Why this is remarkable.** Nothing in deep learning theory predicts a clean power law. It holds
-across seven orders of magnitude of compute, across architectures, across modalities (text, image,
-video, math), and across languages. It is one of the most robust empirical regularities in machine
-learning — and nobody fully understands why.
+> [!TIP]
+> **Why this is remarkable.** Nothing in deep learning theory predicts a clean power law. It holds
+> across seven orders of magnitude of compute, across architectures, across modalities (text, image,
+> video, math), and across languages. It is one of the most robust empirical regularities in machine
+> learning — and nobody fully understands why.
 
-⚠️ **Power laws are ruthless, though.** $\alpha_N = 0.076$ means a **10× bigger model** gives
-$10^{0.076} = 1.19\times$ lower loss — a **19% reduction**. To halve the loss you need
-$2^{1/0.076} \approx 10^{2.7} \approx 500\times$ the parameters. Progress is real but expensive,
-and diminishing returns are built in.
+> [!WARNING]
+> **Power laws are ruthless, though.** $\alpha_N = 0.076$ means a **10× bigger model** gives
+> $10^{0.076} = 1.19\times$ lower loss — a **19% reduction**. To halve the loss you need
+> $2^{1/0.076} \approx 10^{2.7} \approx 500\times$ the parameters. Progress is real but expensive,
+> and diminishing returns are built in.
 
 ---
 
@@ -43,13 +45,14 @@ and diminishing returns are built in.
 Conclusion: **model size matters much more than data.** Given 10× more compute, make the model
 ~5.5× bigger and the dataset only ~1.8× bigger.
 
-📊 Consequence: GPT-3 (175 B parameters) was trained on only 300 B tokens — a ratio of **1.7 tokens
+Consequence: GPT-3 (175 B parameters) was trained on only 300 B tokens — a ratio of **1.7 tokens
 per parameter**.
 
-### Hoffmann et al. (2022) — "Chinchilla"
+### Hoffmann et al. (2022): "Chinchilla"
 
-⚠️ Kaplan's experiments held the learning-rate schedule fixed regardless of the training length, so
-short runs were systematically under-trained. Correcting this changes the conclusion **completely**.
+> [!WARNING]
+> Kaplan's experiments held the learning-rate schedule fixed regardless of the training length, so
+> short runs were systematically under-trained. Correcting this changes the conclusion **completely**.
 
 The Chinchilla parametric fit:
 
@@ -65,11 +68,12 @@ with fitted values:
 | $B$ | 410.7 | data coefficient |
 | $\beta$ | 0.28 | data exponent |
 
-🧠 **The $E$ term matters conceptually**: no matter how much compute you spend, loss cannot go below
-~1.69 nats/token. Language is genuinely stochastic — many continuations are valid. Any claim of
-unbounded improvement from scale alone contradicts this fit.
+> [!TIP]
+> **The $E$ term matters conceptually**: no matter how much compute you spend, loss cannot go below
+> ~1.69 nats/token. Language is genuinely stochastic — many continuations are valid. Any claim of
+> unbounded improvement from scale alone contradicts this fit.
 
-📐 **Deriving the compute-optimal allocation.** Minimize $L(N,D)$ subject to $C = 6ND$.
+**Deriving the compute-optimal allocation.** Minimize $L(N,D)$ subject to $C = 6ND$.
 
 Substitute $D = C/(6N)$:
 
@@ -93,17 +97,18 @@ training runs directly) put the constant at about **20 tokens per parameter**:
 
 $$\boxed{\;\textbf{scale } N \textbf{ and } D \textbf{ equally: } D \approx 20N\;}$$
 
-⚠️ **A known inconsistency worth knowing about.** The exponents above follow from the paper's
-published fit, but its *constants* do not reproduce the 20:1 ratio: plugging $A$, $B$, $E$ into
-the optimization gives 30–80 tokens per parameter, rising with budget (see the IsoFLOP figure
-above). [Besiroglu et al. (2024)](https://arxiv.org/abs/2404.10102) re-fit the paper's data and
-found that the published parametric estimates are inconsistent with the other two methods and
-have implausibly narrow confidence intervals; their corrected fit agrees with the ~20:1 rule. Use
-20 tokens/param as the rule of thumb, and treat the published $A$, $B$, $E$ as illustrative.
+> [!WARNING]
+> **A known inconsistency worth knowing about.** The exponents above follow from the paper's
+> published fit, but its *constants* do not reproduce the 20:1 ratio: plugging $A$, $B$, $E$ into
+> the optimization gives 30–80 tokens per parameter, rising with budget (see the IsoFLOP figure
+> above). [Besiroglu et al. (2024)](https://arxiv.org/abs/2404.10102) re-fit the paper's data and
+> found that the published parametric estimates are inconsistent with the other two methods and
+> have implausibly narrow confidence intervals; their corrected fit agrees with the ~20:1 rule. Use
+> 20 tokens/param as the rule of thumb, and treat the published $A$, $B$, $E$ as illustrative.
 
 ### The Chinchilla demonstration
 
-📊 Gopher (280 B params, 300 B tokens) vs Chinchilla (70 B params, 1.4 T tokens) — **identical
+Gopher (280 B params, 300 B tokens) vs Chinchilla (70 B params, 1.4 T tokens) — **identical
 compute budget**:
 
 | | Gopher | Chinchilla |
@@ -117,7 +122,7 @@ compute budget**:
 **A 4× smaller model that is better AND 4× cheaper to serve.** This result immediately
 reorganized the field.
 
-🔢 **How badly was GPT-3 mis-allocated?** At $C = 3.14\times10^{23}$ FLOPs, the $D = 20N$ rule gives
+**How badly was GPT-3 mis-allocated?** At $C = 3.14\times10^{23}$ FLOPs, the $D = 20N$ rule gives
 $N = \sqrt{C/120} \approx 51$ B parameters and $D \approx 1.0$ T tokens. GPT-3 used 175 B parameters
 on 300 B tokens: **~3.4× too many parameters and ~3.4× too few tokens** for its budget. (Check:
 $6 \times 51\text{B} \times 1.02\text{T} \approx 3.1\times10^{23}$ ✓.)
@@ -126,7 +131,7 @@ $6 \times 51\text{B} \times 1.02\text{T} \approx 3.1\times10^{23}$ ✓.)
 
 ## 3. Working the numbers
 
-🔢 **Problem 1: I have \$1M of H100 time. What should I train?**
+**Problem 1: I have \$1M of H100 time. What should I train?**
 
 *Step 1 — convert money to FLOPs.* \$1M at \$2/GPU-hour = 500,000 GPU-hours. At 400 TFLOP/s
 effective:
@@ -141,7 +146,7 @@ $$\boxed{\;N \approx 77\text{ B parameters}, \qquad D = 20N \approx 1.55\text{ T
 
 *Check*: $6 \times 7.75\times10^{10}\times1.55\times10^{12} = 7.2\times10^{23}$ ✓
 
-🔢 **Problem 2: but I will serve 10 trillion tokens. Now what?**
+**Problem 2: but I will serve 10 trillion tokens. Now what?**
 
 Total lifetime cost = training + inference:
 
@@ -160,20 +165,21 @@ formally; the qualitative answer is dramatic:
 | 1 T tokens | ~150 |
 | 10 T+ tokens | **500–2000** |
 
-📊 **This is exactly what the industry does.** LLaMA-3 8B: 15 T tokens = **1875 tokens/parameter**,
+**This is exactly what the industry does.** LLaMA-3 8B: 15 T tokens = **1875 tokens/parameter**,
 94× Chinchilla. It is "compute-inefficient" for training and dramatically cheaper for everyone who
 uses it.
 
-🧠 **The generalizable lesson**: Chinchilla answers "how do I get the lowest loss for a fixed
-training budget?" That is almost never the actual business question. The real question is "how do I
-get the best capability per dollar over the model's lifetime?", and its answer is a much smaller,
-much longer-trained model.
+> [!TIP]
+> **The generalizable lesson**: Chinchilla answers "how do I get the lowest loss for a fixed
+> training budget?" That is almost never the actual business question. The real question is "how do I
+> get the best capability per dollar over the model's lifetime?", and its answer is a much smaller,
+> much longer-trained model.
 
 ---
 
 ## 4. The scaling law zoo
 
-📊 Power laws show up nearly everywhere someone has looked:
+Power laws show up nearly everywhere someone has looked:
 
 | Domain | Scaling behaviour | Source |
 |---|---|---|
@@ -188,21 +194,24 @@ much longer-trained model.
 | **Inference-time compute** | log-linear in samples/thinking tokens | Snell 2024, Brown 2024 |
 | Vocabulary size | compute-optimal $V$ grows sub-linearly with $N$ | Tao et al. 2024 |
 
-🧠 **The data-constrained result deserves emphasis** (Muennighoff et al., 2023). If you are out of
-unique tokens, repeating data is *nearly* as good as new data for up to **~4 epochs**; value decays
-after that and becomes negligible past ~16 epochs. This matters because frontier runs are
-approaching the limit of high-quality public text.
+> [!TIP]
+> **The data-constrained result deserves emphasis** (Muennighoff et al., 2023). If you are out of
+> unique tokens, repeating data is *nearly* as good as new data for up to **~4 epochs**; value decays
+> after that and becomes negligible past ~16 epochs. This matters because frontier runs are
+> approaching the limit of high-quality public text.
 
-🧠 **The inference-compute law is the most important recent addition.** Accuracy improves
-predictably with the number of samples drawn or reasoning tokens generated — a *second* axis of
-scaling that doesn't require retraining. It is the theoretical basis for reasoning models.
-→ [Reasoning](10-reasoning.md)
+> [!TIP]
+> **The inference-compute law is the most important recent addition.** Accuracy improves
+> predictably with the number of samples drawn or reasoning tokens generated — a *second* axis of
+> scaling that doesn't require retraining. It is the theoretical basis for reasoning models.
+> → [Reasoning](10-reasoning.md)
 
 ---
 
 ## 5. Where scaling laws break
 
-⚠️ Do not over-extrapolate. Known limits and caveats:
+> [!WARNING]
+> Do not over-extrapolate. Known limits and caveats:
 
 | Limit | Detail |
 |---|---|
@@ -213,16 +222,17 @@ scaling that doesn't require retraining. It is the theoretical basis for reasoni
 | **Optimizer/hyperparameter assumptions** | the laws assume near-optimal LR, batch size and schedule. A badly-tuned run does not follow them. |
 | **Downstream-task laws are noisier** | benchmark accuracy vs compute is much less clean than loss vs compute. |
 
-🧠 **"Loss ≠ capability" is the one that matters most in practice.** Scaling laws predict the *loss*
-beautifully and say essentially nothing about whether your model will be able to do multi-step
-arithmetic. Labs run downstream evals during training precisely because loss alone is not a
-sufficient statistic.
+> [!TIP]
+> **"Loss ≠ capability" is the one that matters most in practice.** Scaling laws predict the *loss*
+> beautifully and say essentially nothing about whether your model will be able to do multi-step
+> arithmetic. Labs run downstream evals during training precisely because loss alone is not a
+> sufficient statistic.
 
 ---
 
 ## 6. Fitting your own scaling law
 
-💻 The practical procedure, used before every large run:
+The practical procedure, used before every large run:
 
 ```python
 import numpy as np
@@ -263,12 +273,13 @@ print(f"For C={C_target:.0e}: N={N_opt/1e9:.1f}B params, D={D_opt/1e12:.2f}T tok
 print(f"Predicted loss: {chinchilla((N_opt, D_opt), *params):.3f}")
 ```
 
-⚠️ **Fit in log space** and weight runs equally in log-loss, not linear loss — otherwise the
-large-loss small runs dominate the fit. Also: **use runs that are each individually well-tuned**
-(correct LR schedule for that run's length). The original Kaplan/Chinchilla discrepancy came
-entirely from getting this wrong.
+> [!WARNING]
+> **Fit in log space** and weight runs equally in log-loss, not linear loss — otherwise the
+> large-loss small runs dominate the fit. Also: **use runs that are each individually well-tuned**
+> (correct LR schedule for that run's length). The original Kaplan/Chinchilla discrepancy came
+> entirely from getting this wrong.
 
-📊 Frontier labs run "scaling ladders" of 10–30 small models (1M–1B parameters) before committing
+Frontier labs run "scaling ladders" of 10–30 small models (1M–1B parameters) before committing
 to a large run, and predict the final loss to within a few percent. The prediction is what makes a
 $100M commitment defensible.
 

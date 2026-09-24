@@ -147,7 +147,8 @@
   Each era's bottleneck became the next era's solved problem.
 ```
 
-🧠 **Three observations worth carrying away:**
+> [!TIP]
+> **Three observations worth carrying away:**
 
 1. **Most "new" ideas are old ideas that finally had enough compute.** Diffusion (1949 physics,
    2015 ML), attention (1990s), neural LMs (2003), MoE (1991), RL from human preferences (2017).

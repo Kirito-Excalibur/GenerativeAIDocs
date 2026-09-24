@@ -1,4 +1,4 @@
-# Structured Output & Constrained Decoding
+# Structured Output and Constrained Decoding
 
 > **Summary** — Getting an LLM to emit valid JSON, a specific schema, or any formal grammar — with
 > a *guarantee*, not a hope. The mechanism is simple: compile the grammar into a finite-state
@@ -28,9 +28,10 @@
   literally unreachable
 ```
 
-🧠 **Level 3 is a different kind of thing.** Levels 1 and 2 reduce the probability of failure.
-Level 3 makes failure *impossible* — it is a correctness guarantee in the same sense a type system
-is. If your downstream code parses the output, this distinction matters.
+> [!TIP]
+> **Level 3 is a different kind of thing.** Levels 1 and 2 reduce the probability of failure.
+> Level 3 makes failure *impossible* — it is a correctness guarantee in the same sense a type system
+> is. If your downstream code parses the output, this distinction matters.
 
 ---
 
@@ -61,15 +62,16 @@ is. If your downstream code parses the output, this distinction matters.
 3. At each decoding step, look up the mask for the current state, set disallowed logits to
    $-\infty$, sample, and advance the FSM.
 
-📊 **The cost is near zero at runtime** because step 2 is done once, offline. The expensive part is
+**The cost is near zero at runtime** because step 2 is done once, offline. The expensive part is
 compilation, which is cached per schema. Modern implementations (XGrammar, Outlines) report
 overhead of a few percent or less.
 
-⚠️ **The subtlety: tokens vs characters.** The grammar is defined over characters, but the model
-emits *tokens*, which span multiple characters. A token like `":"` or `", "` or `"}]}"` may advance
-the FSM several states at once, and a token may be *partially* valid (valid prefix, invalid
-continuation). Handling this correctly — building the token-level FSM from the character-level one
-— is the actual engineering content of these libraries.
+> [!WARNING]
+> **The subtlety: tokens vs characters.** The grammar is defined over characters, but the model
+> emits *tokens*, which span multiple characters. A token like `":"` or `", "` or `"}]}"` may advance
+> the FSM several states at once, and a token may be *partially* valid (valid prefix, invalid
+> continuation). Handling this correctly — building the token-level FSM from the character-level one
+> — is the actual engineering content of these libraries.
 
 ---
 
@@ -83,7 +85,7 @@ continuation). Handling this correctly — building the token-level FSM from the
 | Enum / choice | trivial FSM | `"positive" \| "negative" \| "neutral"` |
 | Type coercion | FSM | integer, float, boolean, ISO date |
 
-💻 The common libraries:
+The common libraries:
 
 ```python
 # --- Outlines: regex, JSON schema, or a Pydantic model ---
@@ -108,7 +110,7 @@ result: Invoice = generator("Extract the invoice: ...")   # a typed object, guar
 # response_format={"type": "json_schema", "json_schema": {...}}
 ```
 
-📊 **API-level structured output** (OpenAI's Structured Outputs, Anthropic's tool-use schemas,
+**API-level structured output** (OpenAI's Structured Outputs, Anthropic's tool-use schemas,
 Gemini's response schema) is the same mechanism exposed as a parameter. If your provider offers it,
 use it — you get the guarantee without running your own inference stack.
 
@@ -116,8 +118,9 @@ use it — you get the guarantee without running your own inference stack.
 
 ## 4. The quality trade-off
 
-⚠️ **Constraints guarantee *syntax*, not *semantics*.** A model forced into a schema it finds
-unnatural will produce valid JSON containing worse content.
+> [!WARNING]
+> **Constraints guarantee *syntax*, not *semantics*.** A model forced into a schema it finds
+> unnatural will produce valid JSON containing worse content.
 
 ```
   Unconstrained:                      Over-constrained:
@@ -127,12 +130,13 @@ unnatural will produce valid JSON containing worse content.
    high risk in a 5-year term..."
 ```
 
-🧠 **Why this happens.** Constrained decoding masks tokens the model *wanted* to emit. If the
-model's natural high-probability continuation was "Let me look at clause 8.3 first...", masking
-that forces it into a lower-probability region of its distribution — exactly where its outputs are
-less reliable.
+> [!TIP]
+> **Why this happens.** Constrained decoding masks tokens the model *wanted* to emit. If the
+> model's natural high-probability continuation was "Let me look at clause 8.3 first...", masking
+> that forces it into a lower-probability region of its distribution — exactly where its outputs are
+> less reliable.
 
-📊 **The fix that reliably works: give the model a place to think first.**
+**The fix that reliably works: give the model a place to think first.**
 
 ```json
 {
@@ -147,14 +151,16 @@ less reliable.
 }
 ```
 
-⚠️ **Field order matters**, because generation is autoregressive. Put `reasoning` **first** so the
-classification is conditioned on it. Put it last and it is a post-hoc rationalization with no
-influence — the same principle as
-→ [chain-of-thought ordering](01-prompt-engineering.md#ask-for-reasoning-before-the-answer).
+> [!WARNING]
+> **Field order matters**, because generation is autoregressive. Put `reasoning` **first** so the
+> classification is conditioned on it. Put it last and it is a post-hoc rationalization with no
+> influence — the same principle as
+> → [chain-of-thought ordering](01-prompt-engineering.md#ask-for-reasoning-before-the-answer).
 
-🧠 **JSON Schema's `properties` order is not guaranteed to be honoured by every implementation.**
-Check that your library generates fields in declaration order; some do not, and the reasoning
-field silently stops helping.
+> [!TIP]
+> **JSON Schema's `properties` order is not guaranteed to be honoured by every implementation.**
+> Check that your library generates fields in declaration order; some do not, and the reasoning
+> field silently stops helping.
 
 ---
 
@@ -171,15 +177,17 @@ field silently stops helping.
 | Set `"additionalProperties": false` | allow arbitrary extra keys |
 | Make optional things genuinely optional | mark everything `required` |
 
-🧠 **The "not found" value is the most commonly missed one.** A schema requiring
-`{"price": number}` forces the model to emit *some* number even when the document contains no
-price. Add `{"price": {"type": ["number", "null"]}}` and an explicit instruction, and extraction
-accuracy on absent fields goes from ~0 to near-perfect. **You cannot constrain your way out of
-having asked the wrong question.**
+> [!TIP]
+> **The "not found" value is the most commonly missed one.** A schema requiring
+> `{"price": number}` forces the model to emit *some* number even when the document contains no
+> price. Add `{"price": {"type": ["number", "null"]}}` and an explicit instruction, and extraction
+> accuracy on absent fields goes from ~0 to near-perfect. **You cannot constrain your way out of
+> having asked the wrong question.**
 
-🧠 **Dynamic keys are a trap**: `{"Paris": 5, "Tokyo": 3}` cannot be expressed as a fixed schema and
-forces the model into an open structure. Use `[{"city": "Paris", "count": 5}, ...]` instead —
-constrainable, and easier to validate.
+> [!TIP]
+> **Dynamic keys are a trap**: `{"Paris": 5, "Tokyo": 3}` cannot be expressed as a fixed schema and
+> forces the model into an open structure. Use `[{"city": "Paris", "count": 5}, ...]` instead —
+> constrainable, and easier to validate.
 
 ---
 
@@ -200,7 +208,7 @@ tool call is constrained to match it.
                                    ✅ `unit` guaranteed to be a valid enum value
 ```
 
-📊 **This is why modern tool calling is so much more reliable than 2023-era "output a JSON blob"
+**This is why modern tool calling is so much more reliable than 2023-era "output a JSON blob"
 prompting.** The failure mode "the model produced malformed arguments" is structurally eliminated,
 which directly raises per-step agent reliability — and per
 → [Agents §4](04-agents-and-tool-use.md#4-the-compounding-error-problem), per-step reliability is
@@ -254,7 +262,7 @@ def robust_parse(model, prompt, schema: type[BaseModel], max_retries=2):
                        f"Error: {e}\nOutput ONLY valid JSON matching the schema.")
 ```
 
-📊 **Prefilling `{`** (level 1.5) costs nothing and eliminates the most common failure — the model
+**Prefilling `{`** (level 1.5) costs nothing and eliminates the most common failure — the model
 prefacing its JSON with "Sure! Here's the JSON:". Combined with retry-on-error, this reaches ~99%
 without any special inference support.
 

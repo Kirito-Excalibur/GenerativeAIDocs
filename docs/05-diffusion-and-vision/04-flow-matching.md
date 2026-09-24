@@ -1,4 +1,4 @@
-# Flow Matching & Rectified Flow
+# Flow Matching and Rectified Flow
 
 > **Summary** — Diffusion's curved sampling trajectories are what force many steps. Flow matching
 > asks a simpler question: learn a velocity field that transports noise to data along **straight
@@ -29,9 +29,10 @@
    ⇒ 20-50 NFE                          ⇒ 1-10 NFE
 ```
 
-🧠 **The core observation.** Every ODE solver approximates the trajectory with straight segments.
-If the true trajectory is curved, each segment leaves it, and you need many small steps to keep the
-error bounded. If the true trajectory *is* a straight line, a single Euler step is **exact**.
+> [!TIP]
+> **The core observation.** Every ODE solver approximates the trajectory with straight segments.
+> If the true trajectory is curved, each segment leaves it, and you need many small steps to keep the
+> error bounded. If the true trajectory *is* a straight line, a single Euler step is **exact**.
 
 So: rather than accepting whatever paths the diffusion SDE produces, **design the paths to be
 straight.**
@@ -49,16 +50,17 @@ Differentiate:
 
 $$\frac{dx_t}{dt} = x_1 - x_0 \;\equiv\; u_t(x_t \mid x_0, x_1)$$
 
-🧠 **The target velocity is constant along each path** — it is just the displacement from noise to
-data. No schedule, no $\bar\alpha_t$, no closed-form posterior. Straight lines have constant
-velocity, by definition.
+> [!TIP]
+> **The target velocity is constant along each path** — it is just the displacement from noise to
+> data. No schedule, no $\bar\alpha_t$, no closed-form posterior. Straight lines have constant
+> velocity, by definition.
 
 **The training objective** — conditional flow matching:
 
 $$\boxed{\;\mathcal{L}_{\text{CFM}} = \mathbb{E}_{t\sim\mathcal{U}[0,1],\;x_0\sim\mathcal{N}(0,I),\;x_1\sim p_{\text{data}}}
 \Big[\big\|v_\theta\big((1-t)x_0 + t x_1,\ t\big) - (x_1 - x_0)\big\|^2\Big]\;}$$
 
-📐 **Why this trains the right thing.** The individual conditional paths cross each other, so the
+**Why this trains the right thing.** The individual conditional paths cross each other, so the
 target velocity at a given point $(x_t, t)$ is ambiguous — different $(x_0, x_1)$ pairs passing
 through the same point want different velocities. But the MSE-optimal prediction at any point is
 the **conditional expectation**:
@@ -69,11 +71,12 @@ Lipman et al.'s theorem: this expected velocity field is exactly the **marginal*
 that transports $\mathcal{N}(0,I)$ to $p_{\text{data}}$. **Regressing on ambiguous conditional
 targets yields the correct unambiguous marginal field.**
 
-🧠 This is precisely the same structure as diffusion's $\epsilon$-prediction: the network cannot
-know which specific noise was added, so it predicts the mean, and the mean is what the theory
-requires. The "ambiguity" is a feature.
+> [!TIP]
+> This is precisely the same structure as diffusion's $\epsilon$-prediction: the network cannot
+> know which specific noise was added, so it predicts the mean, and the mean is what the theory
+> requires. The "ambiguity" is a feature.
 
-💻 **Training, complete:**
+**Training, complete:**
 
 ```python
 def flow_matching_loss(model, x1):
@@ -92,7 +95,7 @@ def flow_matching_loss(model, x1):
 — same simplicity, but arrived at directly rather than through a variational bound that then
 collapses.
 
-💻 **Sampling:**
+**Sampling:**
 
 ```python
 @torch.no_grad()
@@ -123,7 +126,7 @@ guidance-specific machinery.
 | Typical NFE | 20–50 | **5–20** |
 | Boundary at $t{=}1$ | $x_T$ is *approximately* $\mathcal{N}(0,I)$ | $x_0$ is *exactly* $\mathcal{N}(0,I)$ |
 
-📐 **They're closely related.** Diffusion's probability-flow ODE is also a velocity field; flow
+**They're closely related.** Diffusion's probability-flow ODE is also a velocity field; flow
 matching just chooses a different (straighter) interpolation. In fact, diffusion can be written as
 flow matching with a specific curved schedule:
 
@@ -135,11 +138,12 @@ $$x_t = \alpha_t x_1 + \sigma_t x_0$$
 | **Rectified flow** | $t$ | $1-t$ | **straight** |
 | Cosine | $\cos(\pi t/2)$ | $\sin(\pi t/2)$ | curved, but nicely behaved |
 
-🧠 **So flow matching is a *generalization* of diffusion**, not a competitor. The framework lets you
-pick the interpolation, and the straight one happens to be best for sampling efficiency. This is
-the cleanest way to hold both ideas in your head at once.
+> [!TIP]
+> **So flow matching is a *generalization* of diffusion**, not a competitor. The framework lets you
+> pick the interpolation, and the straight one happens to be best for sampling efficiency. This is
+> the cleanest way to hold both ideas in your head at once.
 
-📊 **The "exactly $\mathcal{N}(0,I)$" row matters more than it looks.** In diffusion, $\bar\alpha_T$
+**The "exactly $\mathcal{N}(0,I)$" row matters more than it looks.** In diffusion, $\bar\alpha_T$
 is small but nonzero, so $x_T$ retains a faint trace of $x_0$ — a train/test mismatch (you sample
 from pure noise, but the model was trained on slightly-signal-contaminated noise). This
 *signal-to-noise-ratio-at-the-terminal-step* problem causes the well-known difficulty generating
@@ -169,26 +173,28 @@ different conditional paths cross.
 3. **Retrain** on the coupled pairs $(x_0, \hat x_1)$ — these are pairs the flow actually connects.
 4. Repeat.
 
-📐 **Liu et al.'s theorem**: each reflow round produces a coupling with *lower* transport cost and
+**Liu et al.'s theorem**: each reflow round produces a coupling with *lower* transport cost and
 straighter paths, and the procedure never increases the marginal distribution's distance from the
 target.
 
-📊 After 1–2 reflow rounds, paths are straight enough for **1–2 step generation**. InstaFlow used
+After 1–2 reflow rounds, paths are straight enough for **1–2 step generation**. InstaFlow used
 this to produce a one-step text-to-image model from Stable Diffusion.
 
-⚠️ **The cost**: each round requires generating a large synthetic dataset with the current model,
-and quality degrades slightly with each round (you're training on your own outputs). Two rounds is
-typically the practical limit.
+> [!WARNING]
+> **The cost**: each round requires generating a large synthetic dataset with the current model,
+> and quality degrades slightly with each round (you're training on your own outputs). Two rounds is
+> typically the practical limit.
 
 ---
 
 ## 5. Timestep sampling: the detail that matters in practice
 
-⚠️ Uniform $t \sim \mathcal{U}[0,1]$ is *not* optimal. The middle timesteps ($t \approx 0.5$) are
-where the prediction problem is hardest and where the perceptually important structure is decided.
-Near $t=0$ the answer is nearly pure noise; near $t=1$ it is nearly the data.
+> [!WARNING]
+> Uniform $t \sim \mathcal{U}[0,1]$ is *not* optimal. The middle timesteps ($t \approx 0.5$) are
+> where the prediction problem is hardest and where the perceptually important structure is decided.
+> Near $t=0$ the answer is nearly pure noise; near $t=1$ it is nearly the data.
 
-📊 **SD3's logit-normal sampling** — sample $t$ from a distribution concentrated in the middle:
+**SD3's logit-normal sampling** — sample $t$ from a distribution concentrated in the middle:
 
 $$t = \sigma(u), \qquad u \sim \mathcal{N}(m, s^2), \quad m = 0,\ s = 1$$
 
@@ -196,20 +202,21 @@ $$t = \sigma(u), \qquad u \sim \mathcal{N}(m, s^2), \quad m = 0,\ s = 1$$
 
 *Logit-normal(0, 1): t = σ(u), u ~ N(0, 1). It samples mid-range timesteps about 1.6× as often as uniform and almost never samples the near-trivial ends.*
 
-📊 **Resolution-dependent shifting** — higher resolutions need noise shifted toward larger $t$,
+**Resolution-dependent shifting** — higher resolutions need noise shifted toward larger $t$,
 because more pixels mean more redundancy and a given noise level destroys *relatively* less
 information. SD3 applies a resolution-dependent shift:
 
 $$t_{\text{shifted}} = \frac{s\cdot t}{1 + (s-1)t}, \qquad s \propto \sqrt{\frac{\text{resolution}}{\text{base resolution}}}$$
 
-🧠 This is one of those details that looks like a hyperparameter footnote and is actually load-
-bearing: without it, high-resolution flow-matching models produce blurry global structure.
+> [!TIP]
+> This is one of those details that looks like a hyperparameter footnote and is actually load-
+> bearing: without it, high-resolution flow-matching models produce blurry global structure.
 
 ---
 
 ## 6. Where it's used
 
-📊 Production systems built on flow matching:
+Production systems built on flow matching:
 
 | System | Notes |
 |---|---|
@@ -220,17 +227,18 @@ bearing: without it, high-resolution flow-matching models produce blurry global 
 | Molecular/protein generation | flow matching on manifolds (SE(3)-equivariant) |
 | Some robot policies | flow matching for action sequences |
 
-🧠 **The manifold generalization is worth knowing about.** Flow matching extends naturally to
-Riemannian manifolds — replace linear interpolation with geodesic interpolation and the velocity
-with a tangent vector. That makes it the natural tool for data with geometric structure: rotations
-(SO(3)), protein backbones (SE(3)), spheres, tori. Diffusion on manifolds is much more awkward
-because "add Gaussian noise" isn't well-defined.
+> [!TIP]
+> **The manifold generalization is worth knowing about.** Flow matching extends naturally to
+> Riemannian manifolds — replace linear interpolation with geodesic interpolation and the velocity
+> with a tangent vector. That makes it the natural tool for data with geometric structure: rotations
+> (SO(3)), protein backbones (SE(3)), spheres, tori. Diffusion on manifolds is much more awkward
+> because "add Gaussian noise" isn't well-defined.
 
 ---
 
 ## 7. Implementation with CFG and a proper sampler
 
-💻 A complete flow-matching model with conditioning and guidance:
+A complete flow-matching model with conditioning and guidance:
 
 ```python
 import torch, torch.nn.functional as F
@@ -277,10 +285,11 @@ class FlowMatching:
         return x
 ```
 
-🧠 Note that **classifier-free guidance transfers unchanged** — the formula
-$v_u + w(v_c - v_u)$ is identical in form to the diffusion version. Everything built on top of
-diffusion (CFG, ControlNet, LoRA, inpainting) carries over to flow matching with minimal changes,
-which is a large part of why adoption was so fast.
+> [!TIP]
+> Note that **classifier-free guidance transfers unchanged** — the formula
+> $v_u + w(v_c - v_u)$ is identical in form to the diffusion version. Everything built on top of
+> diffusion (CFG, ControlNet, LoRA, inpainting) carries over to flow matching with minimal changes,
+> which is a large part of why adoption was so fast.
 
 ---
 

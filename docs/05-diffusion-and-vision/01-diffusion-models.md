@@ -25,15 +25,17 @@
   REVERSE (learned — a network predicts the noise to remove)
 ```
 
-🧠 **Why this is easier than it looks.** Learning to go from pure noise to a photo in one step is
-an impossibly hard problem. But learning to make a *slightly* noisy image *slightly* less noisy is
-easy — it's a local denoising regression, essentially supervised learning. Diffusion decomposes an
-impossible problem into $T$ easy ones.
+> [!TIP]
+> **Why this is easier than it looks.** Learning to go from pure noise to a photo in one step is
+> an impossibly hard problem. But learning to make a *slightly* noisy image *slightly* less noisy is
+> easy — it's a local denoising regression, essentially supervised learning. Diffusion decomposes an
+> impossible problem into $T$ easy ones.
 
-🧠 **The second reason it works**: the reverse of a *small* Gaussian noise step is itself
-approximately Gaussian. That is a theorem (Feller), and it means the model only ever has to output
-a mean and a variance — not an arbitrary distribution. The step size must be small for the
-approximation to hold, which is exactly why $T$ is large.
+> [!TIP]
+> **The second reason it works**: the reverse of a *small* Gaussian noise step is itself
+> approximately Gaussian. That is a theorem (Feller), and it means the model only ever has to output
+> a mean and a variance — not an arbitrary distribution. The step size must be small for the
+> approximation to hold, which is exactly why $T$ is large.
 
 ---
 
@@ -44,15 +46,16 @@ $$q(x_t \mid x_{t-1}) = \mathcal{N}\!\left(x_t;\ \sqrt{1-\beta_t}\,x_{t-1},\ \be
 with a **variance schedule** $\beta_1 < \beta_2 < \dots < \beta_T$, typically
 $\beta_1 = 10^{-4}$ to $\beta_T = 0.02$ over $T = 1000$ steps.
 
-🧠 **Why the $\sqrt{1-\beta_t}$ factor?** It shrinks the signal by exactly as much as the noise
-grows, keeping the total variance at 1. Without it, variance would accumulate and $x_T$ would
-explode instead of converging to $\mathcal{N}(0,I)$.
+> [!TIP]
+> **Why the $\sqrt{1-\beta_t}$ factor?** It shrinks the signal by exactly as much as the noise
+> grows, keeping the total variance at 1. Without it, variance would accumulate and $x_T$ would
+> explode instead of converging to $\mathcal{N}(0,I)$.
 
 ### The closed form (the key practical trick)
 
 Let $\alpha_t = 1-\beta_t$ and $\bar\alpha_t = \prod_{s=1}^{t}\alpha_s$.
 
-📐 **Derivation.** Write $x_t = \sqrt{\alpha_t}x_{t-1} + \sqrt{1-\alpha_t}\,\epsilon_{t-1}$ and
+**Derivation.** Write $x_t = \sqrt{\alpha_t}x_{t-1} + \sqrt{1-\alpha_t}\,\epsilon_{t-1}$ and
 substitute recursively:
 
 $$
@@ -72,11 +75,12 @@ By induction:
 $$\boxed{\;q(x_t\mid x_0) = \mathcal{N}\!\left(x_t;\ \sqrt{\bar\alpha_t}\,x_0,\ (1-\bar\alpha_t)I\right)
 \quad\Longleftrightarrow\quad x_t = \sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\epsilon\;}$$
 
-🧠 **This is what makes training feasible.** You can sample $x_t$ for a *random* $t$ in one line,
-without simulating the chain. Training becomes: pick a random image, pick a random timestep, add
-the corresponding noise, predict it. No sequential simulation anywhere in training.
+> [!TIP]
+> **This is what makes training feasible.** You can sample $x_t$ for a *random* $t$ in one line,
+> without simulating the chain. Training becomes: pick a random image, pick a random timestep, add
+> the corresponding noise, predict it. No sequential simulation anywhere in training.
 
-🔢 **Schedule values** for linear $\beta$ from $10^{-4}$ to $0.02$, $T=1000$:
+**Schedule values** for linear $\beta$ from $10^{-4}$ to $0.02$, $T=1000$:
 
 | $t$ | $\beta_t$ | $\bar\alpha_t$ | $\sqrt{\bar\alpha_t}$ (signal) | $\sqrt{1-\bar\alpha_t}$ (noise) | SNR |
 |---|---|---|---|---|---|
@@ -92,14 +96,15 @@ the corresponding noise, predict it. No sequential simulation anywhere in traini
 
 *Computed for T = 1000: linear β from 10⁻⁴ to 0.02 (Ho et al. 2020) vs the cosine schedule with s = 0.008 (Nichol & Dhariwal 2021). Under the linear schedule the image is essentially gone by t ≈ 700, so the last 30% of steps carry almost no information.*
 
-⚠️ **The linear schedule is suboptimal** and it shows starkly in the table: by $t = 500$ the signal
-is down to $\sqrt{\bar\alpha} = 0.28$, and by $t = 700$ it is 0.083 — the image is already
-destroyed, so the last 30% of timesteps do almost nothing. Nichol & Dhariwal's **cosine schedule** fixes this:
+> [!WARNING]
+> **The linear schedule is suboptimal** and it shows starkly in the table: by $t = 500$ the signal
+> is down to $\sqrt{\bar\alpha} = 0.28$, and by $t = 700$ it is 0.083 — the image is already
+> destroyed, so the last 30% of timesteps do almost nothing. Nichol & Dhariwal's **cosine schedule** fixes this:
 
 $$\bar\alpha_t = \frac{f(t)}{f(0)}, \qquad f(t) = \cos^2\!\left(\frac{t/T + s}{1+s}\cdot\frac{\pi}{2}\right), \quad s = 0.008$$
 
 It destroys information more gradually, spending more steps in the informative middle range.
-📊 Measurably better FID, especially at low resolutions.
+Measurably better FID, especially at low resolutions.
 
 ---
 
@@ -110,7 +115,7 @@ $$p_\theta(x_{t-1}\mid x_t) = \mathcal{N}\!\left(x_{t-1};\ \mu_\theta(x_t, t),\ 
 We need to learn $\mu_\theta$. The key is that the **true** posterior, when conditioned on $x_0$,
 is available in closed form.
 
-📐 **Derivation via Bayes.**
+**Derivation via Bayes.**
 
 $$q(x_{t-1}\mid x_t, x_0) = \frac{q(x_t\mid x_{t-1})\,q(x_{t-1}\mid x_0)}{q(x_t\mid x_0)}$$
 
@@ -122,12 +127,14 @@ $$q(x_{t-1}\mid x_t, x_0) = \mathcal{N}\!\left(x_{t-1};\ \tilde\mu_t(x_t,x_0),\ 
 $$\tilde\mu_t(x_t,x_0) = \frac{\sqrt{\bar\alpha_{t-1}}\beta_t}{1-\bar\alpha_t}x_0 + \frac{\sqrt{\alpha_t}(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}x_t,
 \qquad \tilde\beta_t = \frac{1-\bar\alpha_{t-1}}{1-\bar\alpha_t}\beta_t$$
 
-🧠 **Read $\tilde\mu_t$**: it is a weighted average of "where you are" ($x_t$) and "where you're
-going" ($x_0$). Early in the reverse process ($t$ large), the $x_t$ term dominates and steps are
-cautious. Late ($t$ small), $x_0$ dominates.
+> [!TIP]
+> **Read $\tilde\mu_t$**: it is a weighted average of "where you are" ($x_t$) and "where you're
+> going" ($x_0$). Early in the reverse process ($t$ large), the $x_t$ term dominates and steps are
+> cautious. Late ($t$ small), $x_0$ dominates.
 
-⚠️ **But we don't know $x_0$ at sampling time** — that's what we're generating. The resolution: use
-the closed form to express $x_0$ in terms of $x_t$ and the noise:
+> [!WARNING]
+> **But we don't know $x_0$ at sampling time** — that's what we're generating. The resolution: use
+> the closed form to express $x_0$ in terms of $x_t$ and the noise:
 
 $$x_0 = \frac{1}{\sqrt{\bar\alpha_t}}\left(x_t - \sqrt{1-\bar\alpha_t}\,\epsilon\right)$$
 
@@ -142,7 +149,7 @@ predict noise.
 
 ## 4. The loss: from full ELBO to three lines of code
 
-📐 **The variational bound** (same structure as the VAE's, extended over $T$ latents):
+**The variational bound** (same structure as the VAE's, extended over $T$ latents):
 
 $$\mathbb{E}[-\log p_\theta(x_0)] \le \mathbb{E}_q\left[\underbrace{D_{\mathrm{KL}}(q(x_T|x_0)\|p(x_T))}_{L_T: \text{ no parameters}} + \sum_{t=2}^{T}\underbrace{D_{\mathrm{KL}}(q(x_{t-1}|x_t,x_0)\|p_\theta(x_{t-1}|x_t))}_{L_{t-1}} \underbrace{- \log p_\theta(x_0|x_1)}_{L_0}\right]$$
 
@@ -156,19 +163,20 @@ Substituting both $\mu$ expressions, the $x_t$ terms cancel:
 
 $$L_{t-1} = \mathbb{E}_{x_0,\epsilon}\left[\frac{\beta_t^2}{2\sigma_t^2\alpha_t(1-\bar\alpha_t)}\big\|\epsilon - \epsilon_\theta(x_t, t)\big\|^2\right]$$
 
-🧠 **Ho et al.'s empirical finding: drop the weighting factor.** It reduces to
+> [!TIP]
+> **Ho et al.'s empirical finding: drop the weighting factor.** It reduces to
 
 $$\boxed{\;\mathcal{L}_{\text{simple}} = \mathbb{E}_{t\sim\mathcal{U}[1,T],\ x_0,\ \epsilon\sim\mathcal{N}(0,I)}\Big[\big\|\epsilon - \epsilon_\theta\big(\sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon,\ t\big)\big\|^2\Big]\;}$$
 
 **A mean-squared error on the added noise.** That's the whole training objective.
 
-📊 Dropping the weighting *improved* sample quality. The theoretical weighting emphasizes small $t$
+Dropping the weighting *improved* sample quality. The theoretical weighting emphasizes small $t$
 (nearly-clean images, where the task is trivial); uniform weighting shifts effort to the
 intermediate noise levels that actually determine perceptual structure. The ELBO optimizes
 likelihood; the simple loss optimizes what humans see. They are not the same objective, and for
 image generation the latter wins.
 
-💻 **Training, in full:**
+**Training, in full:**
 
 ```python
 def train_step(model, x0, T=1000):
@@ -205,10 +213,11 @@ def sample(model, shape, T=1000):
     return x
 ```
 
-⚠️ **1000 forward passes per image.** At 0.05 s each on a modest GPU, that is 50 seconds for one
-image. This cost is the central engineering problem of diffusion, and → [Score-based models
-§6](02-score-based-models.md) covers the solvers that reduce it to 20–50 steps, while
-→ [Flow matching](04-flow-matching.md) covers the reformulation that gets to 1–4.
+> [!WARNING]
+> **1000 forward passes per image.** At 0.05 s each on a modest GPU, that is 50 seconds for one
+> image. This cost is the central engineering problem of diffusion, and → [Score-based models
+> §6](02-score-based-models.md) covers the solvers that reduce it to 20–50 steps, while
+> → [Flow matching](04-flow-matching.md) covers the reformulation that gets to 1–4.
 
 ---
 
@@ -223,14 +232,16 @@ practice:
 | $x_0$ (clean image) | $x_0 = \frac{x_t - \sqrt{1-\bar\alpha_t}\epsilon}{\sqrt{\bar\alpha_t}}$ | ⚠️ unstable at large $t$ (dividing by a tiny $\sqrt{\bar\alpha_t}$) |
 | **$v$** (velocity) | $v = \sqrt{\bar\alpha_t}\epsilon - \sqrt{1-\bar\alpha_t}x_0$ | ✅ best-behaved across the whole schedule; used for distillation and high-res |
 
-🧠 **Why $\epsilon$-prediction became standard**: the target is always $\mathcal{N}(0,I)$ regardless
-of $t$, so the network's output scale is constant. Predicting $x_0$ requires wildly different
-output scales at different noise levels.
+> [!TIP]
+> **Why $\epsilon$-prediction became standard**: the target is always $\mathcal{N}(0,I)$ regardless
+> of $t$, so the network's output scale is constant. Predicting $x_0$ requires wildly different
+> output scales at different noise levels.
 
-🧠 **Why $v$-prediction is better at the extremes**: at $t \to T$, $\epsilon$-prediction is trivial
-(the input *is* mostly noise, so copying it nearly works) and provides little learning signal.
-$v$-prediction interpolates between the two targets and stays informative throughout. It is
-essential for high-resolution models and for progressive distillation.
+> [!TIP]
+> **Why $v$-prediction is better at the extremes**: at $t \to T$, $\epsilon$-prediction is trivial
+> (the input *is* mostly noise, so copying it nearly works) and provides little learning signal.
+> $v$-prediction interpolates between the two targets and stays informative throughout. It is
+> essential for high-resolution models and for progressive distillation.
 
 ---
 
@@ -265,16 +276,17 @@ essential for high-resolution models and for progressive distillation.
 | **Self-attention** | global coherence (both eyes the same colour) |
 | **Cross-attention** | text conditioning → [Latent diffusion](03-latent-diffusion.md) |
 
-📊 **DiT (Diffusion Transformer)** replaces the U-Net with a plain Transformer over image patches,
+**DiT (Diffusion Transformer)** replaces the U-Net with a plain Transformer over image patches,
 conditioning via **adaLN-Zero** (the timestep and class modulate each block's LayerNorm scale and
 shift, with the residual branch initialized to zero).
 
-🧠 **Why DiT matters**: it scales like a Transformer — same predictable power law, same
-well-understood parallelism, same kernels. Peebles & Xie showed FID improves smoothly with DiT
-Gflops. Most models since SD3 use a Transformer backbone (often MMDiT, which gives text and image
-tokens separate weights in a joint attention operation).
+> [!TIP]
+> **Why DiT matters**: it scales like a Transformer — same predictable power law, same
+> well-understood parallelism, same kernels. Peebles & Xie showed FID improves smoothly with DiT
+> Gflops. Most models since SD3 use a Transformer backbone (often MMDiT, which gives text and image
+> tokens separate weights in a joint attention operation).
 
-💻 **Timestep embedding** — the standard implementation, identical in form to positional encoding:
+**Timestep embedding** — the standard implementation, identical in form to positional encoding:
 
 ```python
 def timestep_embedding(t, dim, max_period=10000):
@@ -299,8 +311,9 @@ def timestep_embedding(t, dim, max_period=10000):
 | Controllability | limited | ✅ guidance, inpainting, ControlNet, editing |
 | Sampling speed | ★★★ one step | ★ many steps |
 
-🧠 **The underrated advantage is controllability.** Because sampling is an iterative process with a
-meaningful intermediate state, you can *intervene* at each step:
+> [!TIP]
+> **The underrated advantage is controllability.** Because sampling is an iterative process with a
+> meaningful intermediate state, you can *intervene* at each step:
 
 - **Inpainting**: at every step, replace the known region with a correctly-noised version of the
   original. No retraining, no special architecture.

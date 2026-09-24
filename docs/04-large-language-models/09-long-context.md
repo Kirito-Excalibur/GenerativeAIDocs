@@ -26,14 +26,15 @@
   SSMs                         scaling, YaRN               curriculum
 ```
 
-⚠️ These are genuinely independent. Solving only the compute problem gives you a model that *can*
-process 128k tokens and produces garbage. Most "long context" failures in practice are problem 3.
+> [!WARNING]
+> These are genuinely independent. Solving only the compute problem gives you a model that *can*
+> process 128k tokens and produces garbage. Most "long context" failures in practice are problem 3.
 
 ---
 
 ## 2. The cost, concretely
 
-🔢 Attention FLOPs vs MLP FLOPs per layer (from → [Transformer §4](../03-sequence-models/04-transformer.md#4-flop-counting)):
+Attention FLOPs vs MLP FLOPs per layer (from → [Transformer §4](../03-sequence-models/04-transformer.md#4-flop-counting)):
 $4Td$ vs $24d^2$, with $d = 4096$:
 
 | Context $T$ | Attention share of compute | KV cache (70B, GQA-8, BF16) |
@@ -44,12 +45,13 @@ $4Td$ vs $24d^2$, with $d = 4096$:
 | 128 K | 84.2% | 42.9 GB |
 | 1 M | 98% | 335 GB |
 
-🧠 **Two different walls.** At 32k, compute becomes the problem. At 128k+, the **KV cache** becomes
-the problem — you cannot fit many concurrent requests. Long context is expensive not because any
-single request is slow, but because each request monopolizes memory that would otherwise serve
-dozens of short ones.
+> [!TIP]
+> **Two different walls.** At 32k, compute becomes the problem. At 128k+, the **KV cache** becomes
+> the problem — you cannot fit many concurrent requests. Long context is expensive not because any
+> single request is slow, but because each request monopolizes memory that would otherwise serve
+> dozens of short ones.
 
-📊 This is why long-context API pricing is often superlinear, and why providers offer prompt
+This is why long-context API pricing is often superlinear, and why providers offer prompt
 caching: if the same 100k-token document is reused, cache its KV states and skip prefill entirely.
 
 ---
@@ -108,17 +110,19 @@ Each token attends only to the previous $w$ tokens.
   O(T²)                   O(T·w), cache capped at w
 ```
 
-🧠 **The receptive field argument**: with $L$ layers and window $w$, information can propagate
-$L\times w$ tokens. Mistral 7B: $32 \times 4096 = 131{,}072$ tokens of theoretical reach with a
-4096-token cache. **Information flows indirectly, layer by layer** — like a CNN's receptive field.
+> [!TIP]
+> **The receptive field argument**: with $L$ layers and window $w$, information can propagate
+> $L\times w$ tokens. Mistral 7B: $32 \times 4096 = 131{,}072$ tokens of theoretical reach with a
+> 4096-token cache. **Information flows indirectly, layer by layer** — like a CNN's receptive field.
 
-⚠️ But indirect propagation is lossy. Exact retrieval of a specific string from 100k tokens back
-requires it to survive 25 hops of re-encoding. Sliding window is good for *fluency* over long text,
-poor for *lookup*.
+> [!WARNING]
+> But indirect propagation is lossy. Exact retrieval of a specific string from 100k tokens back
+> requires it to survive 25 hops of re-encoding. Sliding window is good for *fluency* over long text,
+> poor for *lookup*.
 
 ### Linear attention
 
-📐 The trick: attention is $\operatorname{softmax}(QK^\top)V$. If you replace softmax with a kernel
+The trick: attention is $\operatorname{softmax}(QK^\top)V$. If you replace softmax with a kernel
 feature map $\phi$, associativity lets you reorder:
 
 $$\phi(Q)\big(\phi(K)^\top V\big) \quad\text{instead of}\quad \big(\phi(Q)\phi(K)^\top\big)V$$
@@ -128,9 +132,10 @@ $$\underbrace{(T\times d)(d\times T)(T\times d)}_{O(T^2d)} \;\longrightarrow\; \
 The bracketed term $\phi(K)^\top V$ is a $d\times d$ matrix — a **fixed-size state**, independent of
 $T$. Linear in sequence length, and it gives you an RNN at inference.
 
-⚠️ **Why it hasn't won**: the $d\times d$ state is a fixed-capacity summary. Softmax attention can
-sharply select one token out of a million; linear attention blends into a bounded state. The
-quality gap on retrieval-heavy tasks is real and persistent.
+> [!WARNING]
+> **Why it hasn't won**: the $d\times d$ state is a fixed-capacity summary. Softmax attention can
+> sharply select one token out of a million; linear attention blends into a bounded state. The
+> quality gap on retrieval-heavy tasks is real and persistent.
 
 ---
 
@@ -145,7 +150,7 @@ Linear recurrence → parallelizable by prefix scan during training, $O(1)$ stat
 choose what to remember and what to forget — recovering content-based behaviour that a fixed
 linear recurrence lacks.
 
-📊 **The hybrid finding, which is the practically important one**: pure SSMs underperform on
+**The hybrid finding, which is the practically important one**: pure SSMs underperform on
 retrieval and in-context learning. Interleaving a small number of full-attention layers — roughly
 1 in 6 — recovers nearly all of it while keeping most of the efficiency.
 
@@ -155,10 +160,11 @@ retrieval and in-context learning. Interleaving a small number of full-attention
 | Griffin / RecurrentGemma | gated linear recurrence + local attention |
 | Zamba, Samba | SSM backbone + periodic attention |
 
-🧠 **The principle**: recurrence is efficient for *aggregating* information; attention is necessary
-for *retrieving* it. Most tokens need aggregation; a few need retrieval. A hybrid spends the
-expensive mechanism only where it's needed. This is a general architectural insight, not just an
-SSM one.
+> [!TIP]
+> **The principle**: recurrence is efficient for *aggregating* information; attention is necessary
+> for *retrieving* it. Most tokens need aggregation; a few need retrieval. A hybrid spends the
+> expensive mechanism only where it's needed. This is a general architectural insight, not just an
+> SSM one.
 
 ---
 
@@ -173,11 +179,11 @@ Most long-context models are *short-context models that were extended*.
 2. **Continue pretraining on long documents**, staged: 8k → 32k → 128k.
 3. **Fine-tune on long-context tasks**: multi-document QA, long summarization, repository-level code.
 
-📊 **Data is the binding constraint.** Genuinely long, *coherent* documents are rare — most web
+**Data is the binding constraint.** Genuinely long, *coherent* documents are rare — most web
 pages are short. Common sources: books, legal filings, entire code repositories, and
 *synthetically constructed* long contexts (concatenated related documents, generated multi-hop QA).
 
-🔢 **Cost**: LLaMA-3.1's extension to 128k used roughly 800 B tokens — about 5% of the total
+**Cost**: LLaMA-3.1's extension to 128k used roughly 800 B tokens — about 5% of the total
 pretraining budget. Not cheap, but far cheaper than pretraining at 128k from scratch (which would
 be ~16× the attention cost throughout).
 
@@ -200,7 +206,7 @@ Hide a specific fact in a long document; ask for it.
          4k    32k   128k   1M   context length
 ```
 
-📊 Modern frontier models pass simple single-needle tests at very long context. **But simple NIAH
+Modern frontier models pass simple single-needle tests at very long context. **But simple NIAH
 is a weak test** — it measures verbatim lookup of a distinctive string, which is close to the
 easiest possible long-context task. Harder variants (multiple needles, needles requiring
 inference, distractors that look like needles, needles that must be *aggregated*) show much
@@ -208,7 +214,7 @@ steeper degradation.
 
 ### Lost in the middle
 
-📊 Liu et al. (2023): a strong U-shaped curve. Information at the **beginning** and **end** of the
+Liu et al. (2023): a strong U-shaped curve. Information at the **beginning** and **end** of the
 context is used well; information in the **middle** is often effectively ignored.
 
 ```
@@ -222,13 +228,15 @@ context is used well; information in the **middle** is often effectively ignored
           start      position in context      end
 ```
 
-🧠 **Why**: (1) attention sinks put weight on early tokens; (2) recency bias from causal
-language modelling and RoPE's distance decay favours the end; (3) training documents rarely require
-using the exact middle.
+> [!TIP]
+> **Why**: (1) attention sinks put weight on early tokens; (2) recency bias from causal
+> language modelling and RoPE's distance decay favours the end; (3) training documents rarely require
+> using the exact middle.
 
-⚠️ **Actionable consequence**: put the most important content at the **start** or **end** of your
-prompt. If you have 20 retrieved documents, the ones ranked 8–14 may as well not be there.
-→ [RAG](../06-applications/03-rag.md)
+> [!WARNING]
+> **Actionable consequence**: put the most important content at the **start** or **end** of your
+> prompt. If you have 20 retrieved documents, the ones ranked 8–14 may as well not be there.
+> → [RAG](../06-applications/03-rag.md)
 
 ### The benchmarks worth using
 
@@ -240,7 +248,7 @@ prompt. If you have 20 retrieved documents, the ones ranked 8–14 may as well n
 | ∞Bench | 100k+ tasks including code and math |
 | BABILong | reasoning over facts scattered in long distractor text |
 
-📊 **The RULER finding is the one to internalize**: of the models tested, all claimed context sizes
+**The RULER finding is the one to internalize**: of the models tested, all claimed context sizes
 of 32k tokens or more, yet **only half maintained satisfactory performance at 32k**, and almost all
 degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.06654)).
 "Supported context" and "useful context" are different numbers, and vendors quote the former.
@@ -260,12 +268,13 @@ degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.
 | Retrieval precision | ⚠️ "lost in the middle" | ✅ explicit ranking |
 | Attribution/citations | harder | ✅ natural |
 
-🧠 **They are complementary, and the right architecture usually uses both**: retrieve *generously*
-(50 chunks instead of 5, because the window can hold them), then let the long context do the
-reasoning. This is more robust than RAG with $k=5$ — retrieval recall failures are the dominant
-RAG error mode, and a big window lets you trade precision for recall.
+> [!TIP]
+> **They are complementary, and the right architecture usually uses both**: retrieve *generously*
+> (50 chunks instead of 5, because the window can hold them), then let the long context do the
+> reasoning. This is more robust than RAG with $k=5$ — retrieval recall failures are the dominant
+> RAG error mode, and a big window lets you trade precision for recall.
 
-📊 **Decision rule**:
+**Decision rule**:
 
 | Corpus size | Approach |
 |---|---|
@@ -287,9 +296,10 @@ RAG error mode, and a big window lets you trade precision for recall.
 | **Chunked prefill** | interleave prefill chunks with decode steps so long prompts don't stall other requests |
 | **Hierarchical summarization** | summarize sections, then summarize the summaries — handles unbounded input |
 
-🧠 **Prompt caching is the highest-value, least-glamorous item on this list.** If your application
-sends the same 50k-token system prompt or document on every call, caching it eliminates the
-dominant cost. Most major APIs now support it explicitly.
+> [!TIP]
+> **Prompt caching is the highest-value, least-glamorous item on this list.** If your application
+> sends the same 50k-token system prompt or document on every call, caching it eliminates the
+> dominant cost. Most major APIs now support it explicitly.
 
 ---
 

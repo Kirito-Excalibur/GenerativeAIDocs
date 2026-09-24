@@ -38,8 +38,9 @@ query and every key, and return a weighted blend of all values.
 
 $$\text{Attention}(q, K, V) = \sum_{i} \underbrace{\frac{\exp(q\cdot k_i/\sqrt{d_k})}{\sum_j \exp(q\cdot k_j/\sqrt{d_k})}}_{\text{attention weight } \alpha_i} v_i$$
 
-🧠 **The essential move**: `softmax` turns similarities into a probability distribution, and the
-output is an expectation. Everything is differentiable, so the model *learns what to look up*.
+> [!TIP]
+> **The essential move**: `softmax` turns similarities into a probability distribution, and the
+> output is an expectation. Everything is differentiable, so the model *learns what to look up*.
 
 **In matrix form**, for all queries at once:
 
@@ -53,17 +54,18 @@ $$\boxed{\;\text{Attention}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^\top
 | $QK^\top$ | $(T, T)$ | all pairwise similarities |
 | output | $(T, d_v)$ | one blended vector per position |
 
-🧠 **Why three separate projections?** Because the role a token plays when *searching* differs from
-the role it plays when *being found*, which differs again from what it *contributes*. The word
-"bank" asking about its own meaning (query) needs to match against "river" advertising itself as a
-disambiguator (key), and then receive "water-related context" (value). Using one shared vector for
-all three collapses these roles and measurably hurts.
+> [!TIP]
+> **Why three separate projections?** Because the role a token plays when *searching* differs from
+> the role it plays when *being found*, which differs again from what it *contributes*. The word
+> "bank" asking about its own meaning (query) needs to match against "river" advertising itself as a
+> disambiguator (key), and then receive "water-related context" (value). Using one shared vector for
+> all three collapses these roles and measurably hurts.
 
 ---
 
 ## 2. A complete numeric trace
 
-🔢 Let's compute self-attention on a 3-token sequence with $d_{\text{model}} = 4$, $d_k = 2$.
+Let's compute self-attention on a 3-token sequence with $d_{\text{model}} = 4$, $d_k = 2$.
 
 **Input embeddings** (rows = tokens: "the", "cat", "sat"):
 
@@ -117,16 +119,17 @@ Row 3: $\frac13[(2,1)+(1,2)+(1,2)] = (1.333, 1.667)$
 
 $$\text{Output} = \begin{pmatrix}1.045 & 1.955\\ 1.768 & 1.232\\ 1.333 & 1.667\end{pmatrix}$$
 
-🧠 **Read the attention matrix $A$.** Token 1 put 77% of its weight on token 2; token 2 put 77% on
-token 1. They have "found" each other because their query/key projections align. Token 3's query
-is equidistant from all keys, so it averages everything — the *uninformative* case. In a trained
-model, most rows look like row 1 (peaked) and few look like row 3.
+> [!TIP]
+> **Read the attention matrix $A$.** Token 1 put 77% of its weight on token 2; token 2 put 77% on
+> token 1. They have "found" each other because their query/key projections align. Token 3's query
+> is equidistant from all keys, so it averages everything — the *uninformative* case. In a trained
+> model, most rows look like row 1 (peaked) and few look like row 3.
 
 ---
 
-## 3. Why divide by $\sqrt{d_k}$?
+## 3. Why scale the scores? (the √d factor)
 
-📐 **The variance argument.** Let $q, k \in \mathbb{R}^{d_k}$ have independent components with mean
+**The variance argument.** Let $q, k \in \mathbb{R}^{d_k}$ have independent components with mean
 0 and variance 1. Then
 
 $$q\cdot k = \sum_{i=1}^{d_k} q_i k_i$$
@@ -136,16 +139,17 @@ $$\mathbb{E}[q\cdot k] = 0, \qquad \operatorname{Var}(q\cdot k) = \sum_{i=1}^{d_
 So the dot product has standard deviation $\sqrt{d_k}$. **Dividing by $\sqrt{d_k}$ restores unit
 variance**, independent of head dimension.
 
-⚠️ **Why it matters so much.** Softmax saturates. With $d_k = 64$, unscaled scores have
-$\sigma = 8$, so typical score *gaps* between the largest and second-largest are ~10–15. Then:
+> [!WARNING]
+> **Why it matters so much.** Softmax saturates. With $d_k = 64$, unscaled scores have
+> $\sigma = 8$, so typical score *gaps* between the largest and second-largest are ~10–15. Then:
 
-🔢 $\operatorname{softmax}(15, 0, 0) = (0.99999969,\ 1.5\times10^{-7},\ 1.5\times10^{-7})$
+$\operatorname{softmax}(15, 0, 0) = (0.99999969,\ 1.5\times10^{-7},\ 1.5\times10^{-7})$
 
 The distribution is effectively one-hot. And the gradient of softmax is
 $\partial p_i/\partial s_j = p_i(\delta_{ij}-p_j)$, so with $p_i \approx 1$ or $\approx 0$ the
 gradient is $\approx 0$ **everywhere**. Training stalls at initialization.
 
-🔢 **Side-by-side, $d_k = 64$, scores drawn from $\mathcal{N}(0, d_k)$:**
+**Side-by-side, $d_k = 64$, scores drawn from $\mathcal{N}(0, d_k)$:**
 
 | | max prob | entropy (nats) | max gradient |
 |---|---|---|---|
@@ -155,7 +159,7 @@ gradient is $\approx 0$ **everywhere**. Training stalls at initialization.
 Three orders of magnitude difference in gradient signal. The $\sqrt{d_k}$ is not a cosmetic
 detail — without it, deep Transformers do not train.
 
-📊 **Modern addendum**: even with scaling, attention logits can grow during long training runs as
+**Modern addendum**: even with scaling, attention logits can grow during long training runs as
 $\|q\|$ and $\|k\|$ drift upward, causing instability. The fix now standard in large models is
 **QK-norm** — apply RMSNorm to $Q$ and $K$ before the dot product, bounding the logits by
 construction. → [Optimization §7](../01-foundations/05-optimization.md#7-loss-spikes-the-debugging-playbook)
@@ -190,13 +194,14 @@ with $d_h = d_{\text{model}}/H$ so total compute matches single-head attention a
               output (T, 512)
 ```
 
-🧠 **Why splitting helps rather than hurts.** A single 512-dim attention computes *one* softmax
-distribution per query. Eight 64-dim heads compute *eight independent* distributions. The model
-gets 8 different "views" of the sequence for the same FLOPs. Lower per-head dimension is a real
-cost (each head's similarity is lower-rank), but the diversity wins — up to a point. Empirically
-$d_h = 64$ or $128$ is the sweet spot; heads much narrower than 64 degrade.
+> [!TIP]
+> **Why splitting helps rather than hurts.** A single 512-dim attention computes *one* softmax
+> distribution per query. Eight 64-dim heads compute *eight independent* distributions. The model
+> gets 8 different "views" of the sequence for the same FLOPs. Lower per-head dimension is a real
+> cost (each head's similarity is lower-rank), but the diversity wins — up to a point. Empirically
+> $d_h = 64$ or $128$ is the sweet spot; heads much narrower than 64 degrade.
 
-📊 **Interpretability finding** — heads specialize in identifiable ways:
+**Interpretability finding** — heads specialize in identifiable ways:
 
 | Head type | What it does |
 |---|---|
@@ -206,19 +211,21 @@ $d_h = 64$ or $128$ is the sweet spot; heads much narrower than 64 degrade.
 | Coreference | pronoun → antecedent |
 | Delimiter / "attention sink" | dumps weight on token 0 or a period — a **no-op** |
 
-🧠 **Induction heads deserve special mention.** They implement the pattern "…[A][B]… [A] → [B]": if
-the current token appeared earlier, copy whatever followed it last time. Olsson et al. (2022)
-showed these heads form abruptly during training, and their formation coincides with a visible
-bump in the loss curve and with the emergence of **in-context learning**. This is the best-understood
-mechanistic story linking a circuit to a capability.
+> [!TIP]
+> **Induction heads deserve special mention.** They implement the pattern "…[A][B]… [A] → [B]": if
+> the current token appeared earlier, copy whatever followed it last time. Olsson et al. (2022)
+> showed these heads form abruptly during training, and their formation coincides with a visible
+> bump in the loss curve and with the emergence of **in-context learning**. This is the best-understood
+> mechanistic story linking a circuit to a capability.
 
-⚠️ **Attention sinks** — trained models put large weight on the first token even when it is
-semantically irrelevant. The reason: softmax *must* sum to 1, so when a head has nothing to
-attend to, it needs somewhere to dump the probability mass. Token 0 is visible to every position
-(under causal masking) and becomes the default dump. Practical consequence: **if you evict token 0
-from the KV cache during streaming, quality collapses.** StreamingLLM's fix is to always keep the
-first few tokens. An alternative architectural fix is to add a learnable "no-op" slot to the
-softmax denominator.
+> [!WARNING]
+> **Attention sinks** — trained models put large weight on the first token even when it is
+> semantically irrelevant. The reason: softmax *must* sum to 1, so when a head has nothing to
+> attend to, it needs somewhere to dump the probability mass. Token 0 is visible to every position
+> (under causal masking) and becomes the default dump. Practical consequence: **if you evict token 0
+> from the KV cache during streaming, quality collapses.** StreamingLLM's fix is to always keep the
+> first few tokens. An alternative architectural fix is to add a learnable "no-op" slot to the
+> softmax denominator.
 
 ---
 
@@ -232,11 +239,11 @@ softmax denominator.
 | $AV$ | $O(T^2 d)$ | $O(Td)$ |
 | **Total** | $O(T^2 d + Td^2)$ | $O(T^2 + Td)$ |
 
-🔢 **The crossover point.** $T^2d$ vs $Td^2$: attention dominates when $T > d$. For $d = 4096$,
+**The crossover point.** $T^2d$ vs $Td^2$: attention dominates when $T > d$. For $d = 4096$,
 that's sequences beyond 4096 tokens. Below that, the MLP and projections dominate — which
 surprises people who assume attention is always the bottleneck.
 
-🔢 **The memory wall**: $B=8$, $H=32$, $T=8192$, BF16:
+**The memory wall**: $B=8$, $H=32$, $T=8192$, BF16:
 
 $$8 \times 32 \times 8192^2 \times 2\text{ bytes} = 34.4\text{ GB}$$
 
@@ -247,9 +254,10 @@ FlashAttention solves.
 
 ## 6. FlashAttention: never materialize the matrix
 
-🧠 **The key realization**: attention is **memory-bandwidth bound**, not compute bound. The GPU
-spends its time moving the $T\times T$ matrix between fast SRAM (~20 MB, ~19 TB/s) and slow HBM
-(80 GB, ~2 TB/s) — not doing arithmetic.
+> [!TIP]
+> **The key realization**: attention is **memory-bandwidth bound**, not compute bound. The GPU
+> spends its time moving the $T\times T$ matrix between fast SRAM (~20 MB, ~19 TB/s) and slow HBM
+> (80 GB, ~2 TB/s) — not doing arithmetic.
 
 **FlashAttention** (Dao et al., 2022) tiles the computation so the full matrix is never written to
 HBM:
@@ -267,7 +275,7 @@ HBM:
                                         (M = SRAM size)
 ```
 
-📐 **Online softmax** — the trick that makes tiling possible. Softmax needs a global maximum and a
+**Online softmax** — the trick that makes tiling possible. Softmax needs a global maximum and a
 global sum, which seems to require seeing everything. But both can be updated incrementally:
 
 $$m^{(new)} = \max(m^{(old)}, m^{(block)}), \qquad
@@ -276,11 +284,11 @@ $$m^{(new)} = \max(m^{(old)}, m^{(block)}), \qquad
 Rescale the accumulated output by the same correction factor and you get the exact same answer as
 full softmax, block by block.
 
-📊 **Results**: 2–4× wall-clock speedup, and memory drops from $O(T^2)$ to $O(T)$ — which is what
+**Results**: 2–4× wall-clock speedup, and memory drops from $O(T^2)$ to $O(T)$ — which is what
 made 100k+ token contexts feasible at all. **FlashAttention is exact**, not an approximation. This
 is a pure systems win with zero quality cost.
 
-💻 You get it for free:
+You get it for free:
 
 ```python
 # PyTorch dispatches to FlashAttention automatically when shapes/dtypes allow
@@ -308,7 +316,7 @@ $$\text{KV cache bytes} = 2 \times L \times H_{kv} \times d_h \times T \times B 
                               ~no quality loss            measurable quality loss
 ```
 
-🔢 **70B model, 8192 tokens, BF16** ($L = 80$, $d_h = 128$):
+**70B model, 8192 tokens, BF16** ($L = 80$, $d_h = 128$):
 
 | Scheme | $H_{kv}$ | KV cache / sequence |
 |---|---|---|
@@ -316,11 +324,11 @@ $$\text{KV cache bytes} = 2 \times L \times H_{kv} \times d_h \times T \times B 
 | GQA | 8 | **2.7 GB** |
 | MQA | 1 | **0.34 GB** |
 
-📊 **Why GQA won**: MQA saves the most memory but degrades quality noticeably. GQA (Ainslie et al.,
+**Why GQA won**: MQA saves the most memory but degrades quality noticeably. GQA (Ainslie et al.,
 2023) with 8 KV heads recovers essentially all MHA quality at 8× less cache. Every major model
 since LLaMA-2-70B uses GQA.
 
-📊 **MLA (multi-head latent attention)**, introduced by DeepSeek, goes further: compress K and V
+**MLA (multi-head latent attention)**, introduced by DeepSeek, goes further: compress K and V
 into a shared low-rank latent, cache only that, and reconstruct per-head keys and values on the
 fly. Reported cache reduction is larger than GQA's with quality equal to or better than MHA.
 
@@ -346,17 +354,18 @@ fly. Reported cache reduction is larger than GQA's with quality equal to or bett
    to each other?"                   should this image region use?"
 ```
 
-🧠 **Cross-attention is *the* conditioning mechanism in generative AI.** In Stable Diffusion, the
-text prompt is encoded once by CLIP, and every U-Net block cross-attends to it — that is precisely
-how the prompt steers the image. In a VLM, text tokens cross-attend to image patch embeddings. In
-translation, target tokens cross-attend to source tokens.
-→ [Latent diffusion](../05-diffusion-and-vision/03-latent-diffusion.md)
+> [!TIP]
+> **Cross-attention is *the* conditioning mechanism in generative AI.** In Stable Diffusion, the
+> text prompt is encoded once by CLIP, and every U-Net block cross-attends to it — that is precisely
+> how the prompt steers the image. In a VLM, text tokens cross-attend to image patch embeddings. In
+> translation, target tokens cross-attend to source tokens.
+> → [Latent diffusion](../05-diffusion-and-vision/03-latent-diffusion.md)
 
 ---
 
 ## 9. Implementation
 
-💻 Multi-head attention written out, then the fast version:
+Multi-head attention written out, then the fast version:
 
 ```python
 import torch, torch.nn as nn, torch.nn.functional as F, math
@@ -399,9 +408,10 @@ class MultiHeadAttention(nn.Module):
         return self.o_proj(y)
 ```
 
-⚠️ Note `is_causal=self.causal and kv_cache is None`: during incremental decoding you feed exactly
-one query token that legitimately attends to *all* cached keys, so the causal mask must be off.
-Leaving it on is a classic bug that produces subtly wrong generations.
+> [!WARNING]
+> Note `is_causal=self.causal and kv_cache is None`: during incremental decoding you feed exactly
+> one query token that legitimately attends to *all* cached keys, so the causal mask must be off.
+> Leaving it on is a classic bug that produces subtly wrong generations.
 
 ---
 

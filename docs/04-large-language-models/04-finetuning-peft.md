@@ -1,4 +1,4 @@
-# Fine-tuning & Parameter-Efficient Fine-Tuning
+# Fine-tuning and Parameter-Efficient Fine-Tuning
 
 > **Summary** — Adapting a pretrained model to your task. Full fine-tuning updates every parameter
 > and needs ~16 bytes/parameter of optimizer memory; PEFT methods update <1% of parameters and fit
@@ -35,11 +35,12 @@
               or RL on verifiable rewards (hard, expensive).
 ```
 
-🧠 **The single most useful heuristic**: *fine-tuning changes behaviour; retrieval changes
-knowledge.* Trying to inject facts by fine-tuning gives you a model that has learned the *style* of
-your documents and hallucinates content in that style — the worst of both worlds.
+> [!TIP]
+> **The single most useful heuristic**: *fine-tuning changes behaviour; retrieval changes
+> knowledge.* Trying to inject facts by fine-tuning gives you a model that has learned the *style* of
+> your documents and hallucinates content in that style — the worst of both worlds.
 
-📊 **Order of things to try, cheapest first**:
+**Order of things to try, cheapest first**:
 1. Better prompt (minutes, free)
 2. Few-shot examples (minutes, costs context)
 3. RAG (days, needs infrastructure)
@@ -53,7 +54,7 @@ your documents and hallucinates content in that style — the worst of both worl
 
 Same as pretraining, just fewer steps on different data.
 
-🔢 **Memory for a 7B model with AdamW**:
+**Memory for a 7B model with AdamW**:
 
 | Component | Bytes/param | 7B total |
 |---|---|---|
@@ -68,8 +69,9 @@ Same as pretraining, just fewer steps on different data.
 
 **Does not fit on an 80 GB GPU.** That single fact is the entire motivation for PEFT.
 
-⚠️ **Catastrophic forgetting** — full fine-tuning on a narrow dataset degrades general capability.
-A model fine-tuned hard on medical QA gets worse at arithmetic, coding and instruction-following.
+> [!WARNING]
+> **Catastrophic forgetting** — full fine-tuning on a narrow dataset degrades general capability.
+> A model fine-tuned hard on medical QA gets worse at arithmetic, coding and instruction-following.
 
 | Mitigation | How |
 |---|---|
@@ -83,7 +85,7 @@ A model fine-tuned hard on medical QA gets worse at arithmetic, coding and instr
 
 ## 3. LoRA
 
-📐 **The hypothesis.** The *update* learned during fine-tuning has low intrinsic rank. So
+**The hypothesis.** The *update* learned during fine-tuning has low intrinsic rank. So
 parameterize it directly as a low-rank product:
 
 $$W' = W_0 + \Delta W = W_0 + \frac{\alpha}{r}BA, \qquad B\in\mathbb{R}^{d\times r},\ A\in\mathbb{R}^{r\times k},\ r \ll \min(d,k)$$
@@ -107,12 +109,13 @@ $$W' = W_0 + \Delta W = W_0 + \frac{\alpha}{r}BA, \qquad B\in\mathbb{R}^{d\times
        ▼  h = W₀x + (α/r)·BAx
 ```
 
-🧠 **Why $B$ is initialized to zero.** At step 0, $BA = 0$, so $W' = W_0$ exactly — **the fine-tuned
-model starts identical to the base model.** No random perturbation, no initial quality drop. $A$ is
-random (Kaiming) so gradients can flow; if both were zero the product would have zero gradient
-forever.
+> [!TIP]
+> **Why $B$ is initialized to zero.** At step 0, $BA = 0$, so $W' = W_0$ exactly — **the fine-tuned
+> model starts identical to the base model.** No random perturbation, no initial quality drop. $A$ is
+> random (Kaiming) so gradients can flow; if both were zero the product would have zero gradient
+> forever.
 
-🔢 **Parameter count.** For a $4096\times4096$ projection with $r = 8$:
+**Parameter count.** For a $4096\times4096$ projection with $r = 8$:
 
 | | Parameters |
 |---|---|
@@ -120,29 +123,31 @@ forever.
 | LoRA ($A$ + $B$) | $2\times4096\times8 = 65{,}536$ |
 | **Fraction** | **0.39%** |
 
-🔢 **Full model** — LLaMA-2 7B, LoRA on Q and V projections only, $r=8$:
+**Full model** — LLaMA-2 7B, LoRA on Q and V projections only, $r=8$:
 $32\text{ layers}\times2\text{ modules}\times65{,}536 = 4.2$ M trainable parameters = **0.06%** of
 6.7 B.
 
-### The $\alpha/r$ scaling factor
+### The alpha/r scaling factor
 
 $$\Delta W = \frac{\alpha}{r}BA$$
 
-🧠 **Purpose**: decouple the *learning rate* from the *rank*. Without it, doubling $r$ doubles the
-magnitude of the update at initialization-scale, forcing you to retune the LR every time you change
-rank. With the scaling, $\alpha$ controls the effective update strength independently.
+> [!TIP]
+> **Purpose**: decouple the *learning rate* from the *rank*. Without it, doubling $r$ doubles the
+> magnitude of the update at initialization-scale, forcing you to retune the LR every time you change
+> rank. With the scaling, $\alpha$ controls the effective update strength independently.
 
-📊 **Common settings**: $\alpha = 2r$ (so $\alpha/r = 2$) or $\alpha = r$ (so $\alpha/r = 1$).
+**Common settings**: $\alpha = 2r$ (so $\alpha/r = 2$) or $\alpha = r$ (so $\alpha/r = 1$).
 A widely-used default is $r = 16, \alpha = 32$.
 
-⚠️ **rsLoRA** — the theoretically better scaling is $\alpha/\sqrt{r}$, not $\alpha/r$. With the
-standard $\alpha/r$, high ranks are effectively down-scaled, which is why people often observe "high
-rank doesn't help." With $\sqrt{r}$ scaling, higher ranks do continue to help. Worth knowing if your
-rank ablation looks flat.
+> [!WARNING]
+> **rsLoRA** — the theoretically better scaling is $\alpha/\sqrt{r}$, not $\alpha/r$. With the
+> standard $\alpha/r$, high ranks are effectively down-scaled, which is why people often observe "high
+> rank doesn't help." With $\sqrt{r}$ scaling, higher ranks do continue to help. Worth knowing if your
+> rank ablation looks flat.
 
 ### Which modules to target
 
-📊 Empirical findings:
+Empirical findings:
 
 | Target | Trainable % | Quality |
 |---|---|---|
@@ -151,13 +156,14 @@ rank ablation looks flat.
 | **All linear layers** (+ gate/up/down) | 0.3% | **best** |
 | MLP only | 0.2% | surprisingly competitive |
 
-🧠 The QLoRA paper's finding — **apply LoRA to *all* linear layers** — matters because it closes
-most of the gap with full fine-tuning. Restricting to attention was an early convention, not a
-principled choice.
+> [!TIP]
+> The QLoRA paper's finding — **apply LoRA to *all* linear layers** — matters because it closes
+> most of the gap with full fine-tuning. Restricting to attention was an early convention, not a
+> principled choice.
 
 ### Rank selection
 
-📊 A rough guide:
+A rough guide:
 
 | $r$ | Use for |
 |---|---|
@@ -166,8 +172,9 @@ principled choice.
 | 64–128 | complex tasks, large datasets, domain shift |
 | 256+ | approaching full fine-tuning; consider whether LoRA is still the right tool |
 
-⚠️ Higher rank is not free: it increases memory, training time, and **overfitting risk on small
-datasets**. Sweep $r \in \{8, 16, 32, 64\}$ on a validation set rather than guessing.
+> [!WARNING]
+> Higher rank is not free: it increases memory, training time, and **overfitting risk on small
+> datasets**. Sweep $r \in \{8, 16, 32, 64\}$ on a validation set rather than guessing.
 
 ### Merging
 
@@ -190,10 +197,11 @@ Three techniques, each independently useful:
 
 ### (a) 4-bit NormalFloat (NF4)
 
-🧠 Neural network weights are approximately normally distributed. Standard INT4 quantization uses
-*uniformly* spaced levels, which wastes resolution in the tails where few weights live. **NF4**
-places its 16 levels at the quantiles of a standard normal — equal probability mass per bucket,
-which is information-theoretically optimal for normally distributed data.
+> [!TIP]
+> Neural network weights are approximately normally distributed. Standard INT4 quantization uses
+> *uniformly* spaced levels, which wastes resolution in the tails where few weights live. **NF4**
+> places its 16 levels at the quantiles of a standard normal — equal probability mass per bucket,
+> which is information-theoretically optimal for normally distributed data.
 
 ```
   INT4 (uniform levels)              NF4 (quantile levels)
@@ -206,7 +214,7 @@ which is information-theoretically optimal for normally distributed data.
   many levels wasted in the tails   levels concentrated where mass is
 ```
 
-📊 NF4 gives measurably lower quantization error than INT4 or FP4 at the same bit width.
+NF4 gives measurably lower quantization error than INT4 or FP4 at the same bit width.
 
 ### (b) Double quantization
 
@@ -219,7 +227,7 @@ reducing overhead to ~0.127 bits/weight. Saves ~0.37 bits/param — about 3 GB o
 Use NVIDIA unified memory so optimizer states spill to CPU RAM during transient memory spikes
 (e.g. a long sequence in the batch) instead of OOM-ing.
 
-🔢 **The combined result**:
+**The combined result**:
 
 | Method | 65B model memory | Fits on |
 |---|---|---|
@@ -228,11 +236,12 @@ Use NVIDIA unified memory so optimizer states spill to CPU RAM during transient 
 | **QLoRA (NF4 base)** | **~48 GB** | **1× A100 80GB** |
 | QLoRA, 7B model | ~6 GB | a laptop GPU |
 
-📊 QLoRA reported matching 16-bit full fine-tuning performance on their benchmarks. The forward
+QLoRA reported matching 16-bit full fine-tuning performance on their benchmarks. The forward
 pass dequantizes NF4 → BF16 on the fly, so compute is unchanged; only storage shrinks.
 
-⚠️ **The tradeoff to know**: QLoRA is noticeably *slower* than LoRA because of dequantization
-overhead. It trades speed for memory. If the model fits in BF16, use plain LoRA.
+> [!WARNING]
+> **The tradeoff to know**: QLoRA is noticeably *slower* than LoRA because of dequantization
+> overhead. It trades speed for memory. If the model fits in BF16, use plain LoRA.
 
 ---
 
@@ -249,20 +258,22 @@ overhead. It trades speed for memory. If the model fits in BF16, use plain LoRA.
 | $(IA)^3$ | ~0.01% | none | learned per-channel rescaling of K, V, MLP |
 | BitFit | ~0.1% | none | train only the bias terms |
 
-🧠 **DoRA is the notable recent improvement.** Decompose $W = m\frac{V}{\|V\|}$ into a magnitude
-vector $m$ and a direction $V$; train $m$ fully and apply LoRA to $V$. The observation motivating it:
-full fine-tuning changes magnitude and direction in a pattern LoRA cannot reproduce. DoRA closes
-much of the remaining LoRA–full-FT gap, especially at low rank, for ~no extra inference cost.
+> [!TIP]
+> **DoRA is the notable recent improvement.** Decompose $W = m\frac{V}{\|V\|}$ into a magnitude
+> vector $m$ and a direction $V$; train $m$ fully and apply LoRA to $V$. The observation motivating it:
+> full fine-tuning changes magnitude and direction in a pattern LoRA cannot reproduce. DoRA closes
+> much of the remaining LoRA–full-FT gap, especially at low rank, for ~no extra inference cost.
 
-🧠 **Prompt/prefix tuning lost** for a simple practical reason: they consume context window, are
-harder to tune, and don't merge. LoRA's mergeability is worth more than the extra parameter
-savings.
+> [!TIP]
+> **Prompt/prefix tuning lost** for a simple practical reason: they consume context window, are
+> harder to tune, and don't merge. LoRA's mergeability is worth more than the extra parameter
+> savings.
 
 ---
 
 ## 6. The data is what actually matters
 
-📊 **Quality beats quantity, decisively.**
+**Quality beats quantity, decisively.**
 
 | Dataset | Size | Result |
 |---|---|---|
@@ -270,10 +281,11 @@ savings.
 | Alpaca | 52,000 GPT-generated | decent, noisy |
 | AlpaGasus | **9,000** (filtered from Alpaca by an LLM judge) | **better** than the full 52k |
 
-🧠 **The AlpaGasus result is the one to remember**: they removed 83% of Alpaca's data and the model
-got *better*. Bad examples don't just fail to help — they actively teach bad behaviour.
+> [!TIP]
+> **The AlpaGasus result is the one to remember**: they removed 83% of Alpaca's data and the model
+> got *better*. Bad examples don't just fail to help — they actively teach bad behaviour.
 
-📊 **Practical dataset guidance:**
+**Practical dataset guidance:**
 
 | Goal | Examples needed |
 |---|---|
@@ -291,15 +303,16 @@ got *better*. Bad examples don't just fail to help — they actively teach bad b
 - [ ] Includes refusals/edge cases if you want the model to handle them
 - [ ] Loss masked on the prompt — **train only on the completion tokens**
 
-⚠️ **That last item is the most common bug in fine-tuning code.** If you compute loss over the
-prompt too, the model spends capacity learning to generate *questions* instead of *answers*. Set
-prompt token labels to `-100` (PyTorch's cross-entropy ignore index).
+> [!WARNING]
+> **That last item is the most common bug in fine-tuning code.** If you compute loss over the
+> prompt too, the model spends capacity learning to generate *questions* instead of *answers*. Set
+> prompt token labels to `-100` (PyTorch's cross-entropy ignore index).
 
 ---
 
 ## 7. Implementation
 
-💻 A complete, realistic QLoRA setup:
+A complete, realistic QLoRA setup:
 
 ```python
 import torch
@@ -364,7 +377,7 @@ merged = PeftModel.from_pretrained(base, "out").merge_and_unload()
 merged.save_pretrained("merged-model")
 ```
 
-📊 **Hyperparameters that matter, ranked:**
+**Hyperparameters that matter, ranked:**
 
 | Rank | Hyperparameter | Typical | Note |
 |---|---|---|---|
@@ -380,7 +393,8 @@ merged.save_pretrained("merged-model")
 
 ## 8. Evaluating a fine-tune
 
-⚠️ Training loss going down tells you almost nothing. Check all of:
+> [!WARNING]
+> Training loss going down tells you almost nothing. Check all of:
 
 1. **Held-out loss** on data from the same distribution — is it overfitting?
 2. **Task metric** — accuracy, exact match, or an LLM judge on your actual task.
@@ -389,7 +403,7 @@ merged.save_pretrained("merged-model")
 4. **Qualitative sampling** — read 50 outputs. Nothing substitutes for this.
 5. **Format compliance rate** — if you fine-tuned for JSON output, what % parses?
 
-📊 **The overfitting signature in LoRA**: training loss keeps dropping while held-out loss turns up
+**The overfitting signature in LoRA**: training loss keeps dropping while held-out loss turns up
 after 2–3 epochs, and outputs become repetitive or start reproducing training examples verbatim.
 Lower $r$, add dropout, get more data, or stop earlier.
 

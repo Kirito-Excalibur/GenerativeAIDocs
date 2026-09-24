@@ -1,4 +1,4 @@
-# Latent Diffusion & Conditioning
+# Latent Diffusion and Conditioning
 
 > **Summary** — Diffusing directly in pixel space is wasteful: most pixels are perceptually
 > redundant. Latent diffusion compresses images 8× per side with a VAE (64× fewer spatial
@@ -12,7 +12,7 @@
 
 ## 1. The compression argument
 
-🔢 A $512\times512\times3$ image has 786,432 dimensions. Running 50 denoising steps of a U-Net over
+A $512\times512\times3$ image has 786,432 dimensions. Running 50 denoising steps of a U-Net over
 that is enormously expensive — and most of the work is spent on imperceptible high-frequency
 detail.
 
@@ -41,37 +41,39 @@ detail.
                                          image
 ```
 
-🔢 **The saving**: $786{,}432 / 16{,}384 = 48\times$ fewer dimensions. Attention cost, which is
+**The saving**: $786{,}432 / 16{,}384 = 48\times$ fewer dimensions. Attention cost, which is
 quadratic in the number of spatial positions, drops even more: $(64\times64)^2$ vs
 $(512\times512)^2$ is a factor of 4096.
 
-📊 This is why Stable Diffusion runs on a consumer GPU while pixel-space models of comparable
+This is why Stable Diffusion runs on a consumer GPU while pixel-space models of comparable
 quality needed a datacenter.
 
 ### Why this doesn't destroy quality
 
-🧠 **The perceptual compression / semantic compression split.** Rombach et al.'s framing: image
-information divides into
-1. **perceptual detail** — high-frequency texture, sensor noise, exact pixel values. High entropy,
-   low semantic content. A VAE learns this cheaply and reconstructs it convincingly.
-2. **semantic content** — what objects are present, their layout, style. Low-dimensional, and this
-   is the hard part.
+> [!TIP]
+> **The perceptual compression / semantic compression split.** Rombach et al.'s framing: image
+> information divides into
+> 1. **perceptual detail** — high-frequency texture, sensor noise, exact pixel values. High entropy,
+>    low semantic content. A VAE learns this cheaply and reconstructs it convincingly.
+> 2. **semantic content** — what objects are present, their layout, style. Low-dimensional, and this
+>    is the hard part.
 
 Let the VAE handle (1) and the diffusion model spend all its capacity on (2). It is a division of
 labour matched to the structure of the problem.
 
-📊 **The VAE is not a plain VAE.** The latent-diffusion autoencoder is trained with:
+**The VAE is not a plain VAE.** The latent-diffusion autoencoder is trained with:
 - an L1/L2 reconstruction loss,
 - a **perceptual (LPIPS)** loss,
 - a **patch-based adversarial** loss,
 - a *very* small KL weight (or vector quantization).
 
-⚠️ The tiny KL weight is deliberate: the goal is a good *compressor*, not a samplable prior — a
-diffusion model will learn the latent distribution anyway. This is precisely the fix for the
-VAE's prior/aggregate-posterior gap discussed in
-→ [VAE §5](../02-classical-models/02-vae.md#5-the-two-classic-failure-modes).
+> [!WARNING]
+> The tiny KL weight is deliberate: the goal is a good *compressor*, not a samplable prior — a
+> diffusion model will learn the latent distribution anyway. This is precisely the fix for the
+> VAE's prior/aggregate-posterior gap discussed in
+> → [VAE §5](../02-classical-models/02-vae.md#5-the-two-classic-failure-modes).
 
-🔢 **Downsampling factor** is the key hyperparameter:
+**Downsampling factor** is the key hyperparameter:
 
 | $f$ | Latent size (from 512²) | Trade-off |
 |---|---|---|
@@ -80,10 +82,11 @@ VAE's prior/aggregate-posterior gap discussed in
 | 16 | 32×32 | fast, visible reconstruction artifacts |
 | 32 | 16×16 | too lossy |
 
-⚠️ **The VAE is a hard ceiling on quality.** Whatever the autoencoder cannot reconstruct, the
-diffusion model can never produce. SD 1.x's 4-channel VAE notoriously struggled with small faces
-and legible text; SDXL improved the VAE, and SD3/Flux moved to 16 channels — a direct quality
-improvement with no change to the diffusion model at all.
+> [!WARNING]
+> **The VAE is a hard ceiling on quality.** Whatever the autoencoder cannot reconstruct, the
+> diffusion model can never produce. SD 1.x's 4-channel VAE notoriously struggled with small faces
+> and legible text; SDXL improved the VAE, and SD3/Flux moved to 16 channels — a direct quality
+> improvement with no change to the diffusion model at all.
 
 ---
 
@@ -110,7 +113,7 @@ improvement with no change to the diffusion model at all.
    "which words should this image region attend to?"
 ```
 
-📊 **The text encoder choice matters enormously:**
+**The text encoder choice matters enormously:**
 
 | Model | Text encoder | Effect |
 |---|---|---|
@@ -119,25 +122,26 @@ improvement with no change to the diffusion model at all.
 | Imagen | **T5-XXL** (4.6 B) | much better prompt adherence |
 | SD3 / Flux | CLIP ×2 **+ T5-XXL** | best; handles text rendering and complex prompts |
 
-🧠 **Why T5 beats CLIP for conditioning.** CLIP's text encoder was trained to match images at the
-*whole-caption* level, with a contrastive objective. It learns "which bag of concepts is in this
-image" and is famously weak at compositional structure — "a red cube on a blue sphere" and "a blue
-cube on a red sphere" get nearly identical CLIP embeddings. T5 was trained on language modelling,
-so it actually represents syntax and binding. Imagen's central finding was that **scaling the text
-encoder helps more than scaling the diffusion model.**
+> [!TIP]
+> **Why T5 beats CLIP for conditioning.** CLIP's text encoder was trained to match images at the
+> *whole-caption* level, with a contrastive objective. It learns "which bag of concepts is in this
+> image" and is famously weak at compositional structure — "a red cube on a blue sphere" and "a blue
+> cube on a red sphere" get nearly identical CLIP embeddings. T5 was trained on language modelling,
+> so it actually represents syntax and binding. Imagen's central finding was that **scaling the text
+> encoder helps more than scaling the diffusion model.**
 
 ---
 
 ## 3. Classifier-free guidance
 
-📐 **Start from Bayes.** To sample from $p(x\mid c)$ instead of $p(x)$:
+**Start from Bayes.** To sample from $p(x\mid c)$ instead of $p(x)$:
 
 $$\nabla_x\log p(x\mid c) = \nabla_x\log p(x) + \nabla_x\log p(c\mid x)$$
 
 **Classifier guidance** (Dhariwal & Nichol) trains a separate classifier on noisy images and uses
 its gradient. It works, but requires training and maintaining a noise-aware classifier.
 
-📐 **Classifier-free guidance** (Ho & Salimans) eliminates the classifier. Rearranging Bayes:
+**Classifier-free guidance** (Ho & Salimans) eliminates the classifier. Rearranging Bayes:
 
 $$\nabla_x\log p(c\mid x) = \nabla_x\log p(x\mid c) - \nabla_x\log p(x)$$
 
@@ -160,11 +164,12 @@ $$\boxed{\;\tilde\epsilon_\theta(x_t, c) = \epsilon_\theta(x_t,\varnothing) + w\
                                     ────►  exaggeratedly prompt-matching
 ```
 
-🧠 **Guidance is extrapolation, not interpolation.** With $w > 1$ you push *beyond* the conditional
-prediction, amplifying whatever makes the conditional differ from the unconditional. This
-sharpens prompt adherence and increases saturation and contrast.
+> [!TIP]
+> **Guidance is extrapolation, not interpolation.** With $w > 1$ you push *beyond* the conditional
+> prediction, amplifying whatever makes the conditional differ from the unconditional. This
+> sharpens prompt adherence and increases saturation and contrast.
 
-📊 **Guidance scale effects:**
+**Guidance scale effects:**
 
 | $w$ | Behaviour |
 |---|---|
@@ -174,17 +179,19 @@ sharpens prompt adherence and increases saturation and contrast.
 | 12–20 | strong adherence, oversaturated, loses diversity |
 | >20 | artifacts, blown-out colours |
 
-⚠️ **CFG doubles inference cost** — every step requires two forward passes (conditional and
-unconditional). Implementations batch them together. Distilled models (LCM, Flux-schnell) bake the
-guidance in and skip this.
+> [!WARNING]
+> **CFG doubles inference cost** — every step requires two forward passes (conditional and
+> unconditional). Implementations batch them together. Distilled models (LCM, Flux-schnell) bake the
+> guidance in and skip this.
 
-⚠️ **CFG trades diversity for fidelity.** High $w$ collapses the output distribution toward the
-"most prototypical" image for the prompt. This is a real, measurable mode-seeking effect — the same
-phenomenon as reverse-KL collapse in
-→ [alignment](../04-large-language-models/05-alignment.md). If your outputs all look the same,
-lower the guidance.
+> [!WARNING]
+> **CFG trades diversity for fidelity.** High $w$ collapses the output distribution toward the
+> "most prototypical" image for the prompt. This is a real, measurable mode-seeking effect — the same
+> phenomenon as reverse-KL collapse in
+> → [alignment](../04-large-language-models/05-alignment.md). If your outputs all look the same,
+> lower the guidance.
 
-📊 **Refinements**: *dynamic thresholding* (Imagen) rescales the prediction to prevent saturation at
+**Refinements**: *dynamic thresholding* (Imagen) rescales the prediction to prevent saturation at
 high $w$; *guidance intervals* apply CFG only in the middle timesteps, where it helps most;
 *CFG-Zero / rescaling* corrects the variance inflation that CFG introduces.
 
@@ -210,7 +217,8 @@ Text says *what*. ControlNet says *where*.
                          Canny edges, segmentation)
 ```
 
-🧠 **The two design choices that make ControlNet work:**
+> [!TIP]
+> **The two design choices that make ControlNet work:**
 
 1. **The base model is frozen.** You cannot damage it. The ControlNet is a pure addition.
 2. **Zero-initialized convolutions.** At step 0 the ControlNet contributes exactly nothing, so
@@ -218,7 +226,7 @@ Text says *what*. ControlNet says *where*.
    gradually. Without this, the random initial output would destroy the base model's predictions
    before it could learn anything useful.
 
-📊 The ControlNet paper reports that training is robust with small datasets (under 50k pairs) as
+The ControlNet paper reports that training is robust with small datasets (under 50k pairs) as
 well as large ones, and feasible on a single consumer GPU — remarkably cheap for the capability it
 adds ([Zhang et al. 2023](https://arxiv.org/abs/2302.05543)).
 
@@ -240,8 +248,9 @@ image's style or subject* via an image encoder + decoupled cross-attention).
 
 ### Inpainting: the no-training approach
 
-🧠 At every denoising step, replace the *known* region with a correctly-noised version of the
-original image, and let the model fill in the rest:
+> [!TIP]
+> At every denoising step, replace the *known* region with a correctly-noised version of the
+> original image, and let the model fill in the rest:
 
 ```python
 for t in reversed(range(T)):
@@ -251,12 +260,12 @@ for t in reversed(range(T)):
     x = mask * x + (1 - mask) * x_known         # mask = 1 where we're generating
 ```
 
-✅ **Works with any pretrained diffusion model.** No retraining.
-⚠️ Boundaries can be inconsistent, because the generated region sees the known region only through
-the network's receptive field at each step. Dedicated inpainting models (trained with masked
-inputs as an extra conditioning channel) do better.
+- ✅ **Works with any pretrained diffusion model.** No retraining.
+- ⚠️ Boundaries can be inconsistent, because the generated region sees the known region only through
+  the network's receptive field at each step. Dedicated inpainting models (trained with masked
+  inputs as an extra conditioning channel) do better.
 
-### SDEdit / img2img
+### SDEdit (img2img)
 
 Add noise to an existing image up to timestep $t_0 < T$, then denoise from there.
 
@@ -269,9 +278,10 @@ Add noise to an existing image up to timestep $t_0 < T$, then denoise from there
    1.0 │  ignores the input entirely
 ```
 
-🧠 The intuition is clean: partial noising destroys high-frequency detail first and global
-structure last, so the "strength" parameter literally selects *which scale of information* to
-preserve.
+> [!TIP]
+> The intuition is clean: partial noising destroys high-frequency detail first and global
+> structure last, so the "strength" parameter literally selects *which scale of information* to
+> preserve.
 
 ### Other editing methods
 
@@ -283,9 +293,10 @@ preserve.
 | **Null-text inversion** | optimize the unconditional embedding so that inversion is exact under CFG |
 | **LoRA / DreamBooth** | fine-tune on a few images of a subject to inject a new concept |
 
-🧠 **DDIM inversion is only possible because of the probability-flow ODE** — a deterministic,
-invertible map from noise to image. Stochastic samplers cannot be inverted.
-→ [Score-based models §5](02-score-based-models.md#5-the-continuous-time-sde-view)
+> [!TIP]
+> **DDIM inversion is only possible because of the probability-flow ODE** — a deterministic,
+> invertible map from noise to image. Stochastic samplers cannot be inverted.
+> → [Score-based models §5](02-score-based-models.md#5-the-continuous-time-sde-view)
 
 ---
 
@@ -298,12 +309,13 @@ invertible map from noise to image. Stochastic samplers cannot be inverted.
 | **LoRA** | low-rank updates to attention | 10–50 images | 10–200 MB |
 | **IP-Adapter** | a decoupled image cross-attention module | 0 (zero-shot at inference) | ~50 MB, reusable |
 
-⚠️ **DreamBooth's language drift problem**: fine-tuning on 5 photos of your dog with the prompt "a
-photo of [V] dog" causes the model to associate *all* dogs with your dog. The fix is the
-**prior-preservation loss** — simultaneously train on model-generated images of generic dogs to
-anchor the original concept.
+> [!WARNING]
+> **DreamBooth's language drift problem**: fine-tuning on 5 photos of your dog with the prompt "a
+> photo of [V] dog" causes the model to associate *all* dogs with your dog. The fix is the
+> **prior-preservation loss** — simultaneously train on model-generated images of generic dogs to
+> anchor the original concept.
 
-📊 **LoRA is the practical default**: small files, composable (stack a style LoRA with a character
+**LoRA is the practical default**: small files, composable (stack a style LoRA with a character
 LoRA), and fast to train. The image-generation community's adapter ecosystem is built on it.
 → [Fine-tuning & PEFT](../04-large-language-models/04-finetuning-peft.md)
 
@@ -311,7 +323,7 @@ LoRA), and fast to train. The image-generation community's adapter ecosystem is 
 
 ## 7. Implementation
 
-💻 A complete text-to-image loop, showing every piece:
+A complete text-to-image loop, showing every piece:
 
 ```python
 import torch
@@ -351,14 +363,16 @@ def txt2img(unet, vae, text_encoder, tokenizer, scheduler, prompt,
     return ((image / 2 + 0.5).clamp(0, 1) * 255).byte()
 ```
 
-⚠️ **The `scaling_factor` (0.18215 for SD 1.x)** is easy to forget and produces washed-out or
-blown-out images when wrong. It normalizes the VAE latents to roughly unit variance, which the
-diffusion model expects. Every latent-diffusion model has its own value.
+> [!WARNING]
+> **The `scaling_factor` (0.18215 for SD 1.x)** is easy to forget and produces washed-out or
+> blown-out images when wrong. It normalizes the VAE latents to roughly unit variance, which the
+> diffusion model expects. Every latent-diffusion model has its own value.
 
-🧠 **Negative prompts are free** — you were computing the unconditional branch anyway, so replacing
-$\varnothing$ with "blurry, low quality, watermark" costs nothing and steers *away* from those
-concepts. This is a nice example of a capability that falls out of the CFG mechanism rather than
-being designed in.
+> [!TIP]
+> **Negative prompts are free** — you were computing the unconditional branch anyway, so replacing
+> $\varnothing$ with "blurry, low quality, watermark" costs nothing and steers *away* from those
+> concepts. This is a nice example of a capability that falls out of the CFG mechanism rather than
+> being designed in.
 
 ---
 

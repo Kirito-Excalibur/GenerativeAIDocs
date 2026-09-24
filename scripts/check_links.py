@@ -38,7 +38,15 @@ def slug_github(text: str) -> str:
 
 
 def slug_pymd(text: str) -> str:
-    return re.sub(r"\s+", "-", _clean(text)).strip("-")
+    """MkDocs: python-markdown's own slugifier (drops non-ASCII, collapses runs)."""
+    try:
+        from markdown.extensions.toc import slugify
+    except ImportError:                      # markdown not installed: close approximation
+        import unicodedata
+        t = unicodedata.normalize("NFKD", _clean(text)).encode("ascii", "ignore").decode()
+        return re.sub(r"\s+", "-", t).strip("-")
+    plain = re.sub(r"`|\*\*|__|\*|_(?=\w)|(?<=\w)_", "", text)
+    return slugify(plain, "-")
 
 
 def main() -> int:
@@ -47,9 +55,11 @@ def main() -> int:
         if not any(part in SKIP_DIRS for part in p.parts)
     )
 
-    anchors: dict[Path, set[str]] = {}
+    # anchors[file] = (github slugs, mkdocs slugs); a link must hit BOTH sets
+    anchors: dict[Path, tuple[set[str], set[str]]] = {}
+    bad_heading: list[tuple[str, str]] = []
     for f in files:
-        found: set[str] = set()
+        gh: set[str] = set(); md: set[str] = set()
         in_code = False
         for line in f.read_text(encoding="utf-8").splitlines():
             if line.lstrip().startswith("```"):
@@ -59,9 +69,11 @@ def main() -> int:
                 continue
             m = HEADING.match(line)
             if m:
-                found.add(slug_github(m.group(2)))
-                found.add(slug_pymd(m.group(2)))
-        anchors[f.resolve()] = found
+                if "$" in m.group(2):   # math in headings breaks the TOC and MkDocs anchors
+                    bad_heading.append((str(f.relative_to(ROOT)), m.group(2)))
+                gh.add(slug_github(m.group(2)))
+                md.add(slug_pymd(m.group(2)))
+        anchors[f.resolve()] = (gh, md)
 
     bad_file: list[tuple[str, str]] = []
     bad_anchor: list[tuple[str, str]] = []
@@ -74,7 +86,8 @@ def main() -> int:
 
             if target.startswith("#"):                 # same-page anchor
                 checked += 1
-                if target[1:] not in anchors[f.resolve()]:
+                gh, md = anchors[f.resolve()]
+                if target[1:] not in gh or target[1:] not in md:
                     bad_anchor.append((str(f.relative_to(ROOT)), target))
                 continue
 
@@ -86,7 +99,7 @@ def main() -> int:
             resolved = (f.parent / urllib.parse.unquote(path_part)).resolve()
             if not resolved.exists():
                 bad_file.append((str(f.relative_to(ROOT)), target))
-            elif anchor and anchor not in anchors.get(resolved, set()):
+            elif anchor and not all(anchor in s for s in anchors.get(resolved, (set(), set()))):
                 bad_anchor.append((str(f.relative_to(ROOT)), target))
 
     print(f"{len(files)} files, {checked} internal links checked")
@@ -95,7 +108,10 @@ def main() -> int:
     for where, target in bad_anchor:
         print(f"  BROKEN ANCHOR  {where} -> {target}")
 
-    if bad_file or bad_anchor:
+    for where, heading in bad_heading:
+        print(f"  MATH IN HEADING {where} -> {heading}")
+
+    if bad_file or bad_anchor or bad_heading:
         print(f"\nFAILED: {len(bad_file)} missing files, {len(bad_anchor)} broken anchors")
         return 1
     print("all links OK (valid under both GitHub and MkDocs slug rules)")

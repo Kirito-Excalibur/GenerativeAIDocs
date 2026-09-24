@@ -56,7 +56,7 @@
 
 ---
 
-## Attention & Transformer
+## Attention and Transformer
 
 | Quantity | Formula |
 |---|---|
@@ -82,7 +82,7 @@
 
 ---
 
-## Diffusion & flow
+## Diffusion and flow
 
 | Quantity | Formula |
 |---|---|
@@ -107,7 +107,7 @@
 
 ---
 
-## Training & scaling
+## Training and scaling
 
 | Quantity | Formula |
 |---|---|
@@ -151,7 +151,7 @@
 
 ---
 
-## Retrieval & evaluation
+## Retrieval and evaluation
 
 | Quantity | Formula |
 |---|---|

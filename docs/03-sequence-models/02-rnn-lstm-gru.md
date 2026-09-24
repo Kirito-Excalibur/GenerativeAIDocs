@@ -1,4 +1,4 @@
-# RNNs, LSTMs & GRUs
+# RNNs, LSTMs and GRUs
 
 > **Summary** — Recurrent networks process sequences one step at a time, carrying a hidden state.
 > They dominated NLP from 2013 to 2017 and then lost decisively to the Transformer. Understanding
@@ -30,9 +30,10 @@ h₀─│  │─────►│  │─────►│  │────�
    SAME weights W at every step (parameter sharing across time)
 ```
 
-🧠 **Intuition** — a fixed-size "memory" vector $h_t$ summarizes everything seen so far. The same
-transition function applies at every step, which is what lets the network handle arbitrary-length
-sequences with a fixed parameter count.
+> [!TIP]
+> **Intuition** — a fixed-size "memory" vector $h_t$ summarizes everything seen so far. The same
+> transition function applies at every step, which is what lets the network handle arbitrary-length
+> sequences with a fixed parameter count.
 
 **The two structural problems**, both fatal at scale:
 
@@ -46,7 +47,7 @@ sequences with a fixed parameter count.
 
 ## 2. Backpropagation through time, and the vanishing gradient
 
-📐 The gradient of the loss at step $T$ with respect to the state at step $k$:
+The gradient of the loss at step $T$ with respect to the state at step $k$:
 
 $$\frac{\partial \mathcal{L}_T}{\partial h_k} = \frac{\partial \mathcal{L}_T}{\partial h_T}\prod_{t=k+1}^{T}\frac{\partial h_t}{\partial h_{t-1}}
 = \frac{\partial \mathcal{L}_T}{\partial h_T}\prod_{t=k+1}^{T}W_{hh}^\top \operatorname{diag}\!\big(\tanh'(\cdot)\big)$$
@@ -58,7 +59,7 @@ $$\left\|\frac{\partial h_t}{\partial h_{t-1}}\right\| \le \|W_{hh}\| \cdot \max
 Let $\lambda$ be the largest singular value of $W_{hh}$. Then the gradient magnitude scales roughly
 as $\lambda^{T-k}$:
 
-🔢 **The numbers, over 100 time steps:**
+**The numbers, over 100 time steps:**
 
 | $\lambda$ | $\lambda^{100}$ | Outcome |
 |---|---|---|
@@ -72,9 +73,10 @@ as $\lambda^{T-k}$:
 
 *λᵏ for k up to 100. At λ = 0.9 the gradient from 100 steps back is 2.7×10⁻⁵ of its size; at λ = 1.1 it is 1.4×10⁴ times larger. Only λ extremely close to 1 is stable.*
 
-⚠️ **There is essentially no safe value.** Anything below 1 vanishes exponentially; anything above 1
-explodes exponentially. Plus $\tanh' \le 1$ (and $\tanh' \ll 1$ once the unit saturates), which
-*always* shrinks the product further.
+> [!WARNING]
+> **There is essentially no safe value.** Anything below 1 vanishes exponentially; anything above 1
+> explodes exponentially. Plus $\tanh' \le 1$ (and $\tanh' \ll 1$ once the unit saturates), which
+> *always* shrinks the product further.
 
 **The two problems have very different difficulty:**
 
@@ -83,8 +85,9 @@ explodes exponentially. Plus $\tanh' \le 1$ (and $\tanh' \ll 1$ once the unit sa
 | **Exploding** | NaN loss, wild jumps | ✅ **Easy** — gradient clipping |
 | **Vanishing** | training "works" but long-range dependencies are never learned | ❌ **Hard** — needs an architectural change |
 
-🧠 Vanishing is the insidious one: nothing crashes, the loss goes down, and you simply never learn
-that the subject 40 words back determines the verb agreement here.
+> [!TIP]
+> Vanishing is the insidious one: nothing crashes, the loss goes down, and you simply never learn
+> that the subject 40 words back determines the verb agreement here.
 
 ---
 
@@ -121,7 +124,7 @@ $$
               [h_{t-1}, x_t]                        └────► h_t
 ```
 
-📐 **Why the additive path fixes vanishing.** The gradient along the cell state:
+**Why the additive path fixes vanishing.** The gradient along the cell state:
 
 $$\frac{\partial c_t}{\partial c_{t-1}} = f_t$$
 
@@ -133,13 +136,14 @@ If the forget gate stays open ($f_t \approx 1$), the product stays $\approx 1$ o
 steps. **The network can learn to keep a gradient highway open exactly where it needs long-range
 memory** — and close it where it doesn't.
 
-⚠️ **The critical implementation detail**: initialize the forget gate bias $b_f$ to **+1 or +2**.
-With $b_f = 0$, $f_t \approx \sigma(0) = 0.5$, so the gradient decays as $0.5^T$ — you've
-reintroduced vanishing at initialization. With $b_f = 2$, $f_t \approx 0.88$ and the highway starts
-open. Jozefowicz et al. (2015) found this single change to be one of the highest-impact LSTM
-tweaks.
+> [!WARNING]
+> **The critical implementation detail**: initialize the forget gate bias $b_f$ to **+1 or +2**.
+> With $b_f = 0$, $f_t \approx \sigma(0) = 0.5$, so the gradient decays as $0.5^T$ — you've
+> reintroduced vanishing at initialization. With $b_f = 2$, $f_t \approx 0.88$ and the highway starts
+> open. Jozefowicz et al. (2015) found this single change to be one of the highest-impact LSTM
+> tweaks.
 
-🔢 **Parameter count**: 4 gates × $(d_h \times (d_h + d_x) + d_h)$. For $d_h = d_x = 512$:
+**Parameter count**: 4 gates × $(d_h \times (d_h + d_x) + d_h)$. For $d_h = d_x = 512$:
 $4 \times (512\times1024 + 512) = 2{,}099{,}200$ ≈ **2.1M parameters per layer** — 4× a vanilla RNN.
 
 ---
@@ -163,11 +167,12 @@ $$
 | Memory exposure | gated by $o_t$ | full state always exposed |
 | Empirically | better on very long dependencies | better on small data, faster |
 
-🧠 **The key structural difference**: GRU *couples* forget and input into a single interpolation —
-$h_t = (1-z)h_{t-1} + z\tilde h_t$ — so it cannot simultaneously keep old memory *and* add new
-information to the same unit. LSTM can. In practice the gap is small; Greff et al. (2017)
-benchmarked thousands of variants and found **no variant consistently beats the standard LSTM**,
-and that the forget gate and output activation are the components that actually matter.
+> [!TIP]
+> **The key structural difference**: GRU *couples* forget and input into a single interpolation —
+> $h_t = (1-z)h_{t-1} + z\tilde h_t$ — so it cannot simultaneously keep old memory *and* add new
+> information to the same unit. LSTM can. In practice the gap is small; Greff et al. (2017)
+> benchmarked thousands of variants and found **no variant consistently beats the standard LSTM**,
+> and that the forget gate and output activation are the components that actually matter.
 
 ---
 
@@ -190,19 +195,20 @@ The 2014 machine-translation architecture:
                     must fit through here.
 ```
 
-📊 **The measured symptom** (Cho et al., 2014): BLEU score degrades sharply as source sentence
+**The measured symptom** (Cho et al., 2014): BLEU score degrades sharply as source sentence
 length grows past ~20 words. A 512-dimensional vector cannot hold a 50-word sentence.
 
-🧠 **This bottleneck is precisely what attention was invented to remove.** Bahdanau et al. (2015)
-proposed: instead of compressing everything into $c$, keep *all* the encoder hidden states and let
-the decoder **look up** the relevant ones at each output step. The flat-BLEU-vs-length curve in
-that paper is one of the most consequential plots in the field.
+> [!TIP]
+> **This bottleneck is precisely what attention was invented to remove.** Bahdanau et al. (2015)
+> proposed: instead of compressing everything into $c$, keep *all* the encoder hidden states and let
+> the decoder **look up** the relevant ones at each output step. The flat-BLEU-vs-length curve in
+> that paper is one of the most consequential plots in the field.
 
 → [Attention](03-attention.md) picks up exactly here.
 
 ---
 
-## 6. Why RNNs lost — the decisive table
+## 6. Why RNNs lost: the decisive table
 
 | Property | RNN/LSTM | Transformer |
 |---|---|---|
@@ -214,24 +220,26 @@ that paper is one of the most consequential plots in the field.
 | Scaling behaviour | plateaus | predictable power law |
 | Inference per token | $O(d^2)$, $O(d)$ state | $O(Td)$, $O(Td)$ KV cache |
 
-🧠 **The single sentence that explains it all**: *the Transformer trades asymptotic compute
-($O(T^2)$ vs $O(T)$) for parallelism.* On hardware where a $4096\times4096$ matmul and a
-$512\times512$ matmul take nearly the same wall-clock time — because both are latency-bound, not
-FLOP-bound — the "worse" algorithm trains 10–100× faster in practice. RNNs lost to **hardware
-economics**, not to accuracy.
+> [!TIP]
+> **The single sentence that explains it all**: *the Transformer trades asymptotic compute
+> ($O(T^2)$ vs $O(T)$) for parallelism.* On hardware where a $4096\times4096$ matmul and a
+> $512\times512$ matmul take nearly the same wall-clock time — because both are latency-bound, not
+> FLOP-bound — the "worse" algorithm trains 10–100× faster in practice. RNNs lost to **hardware
+> economics**, not to accuracy.
 
-📊 The empirical consequence: by 2018 a Transformer could be trained on 100× more data than an LSTM
+The empirical consequence: by 2018 a Transformer could be trained on 100× more data than an LSTM
 in the same wall-clock time. That ended the debate.
 
-⚠️ Note the last row, though: at **inference** time RNNs have the better asymptotics. Constant
-state size, $O(1)$ per token, no growing KV cache. That advantage is exactly what has brought
-recurrence back.
+> [!WARNING]
+> Note the last row, though: at **inference** time RNNs have the better asymptotics. Constant
+> state size, $O(1)$ per token, no growing KV cache. That advantage is exactly what has brought
+> recurrence back.
 
 ---
 
 ## 7. The return of recurrence: state-space models
 
-📊 Since 2022, modernized recurrent architectures have become competitive again.
+Since 2022, modernized recurrent architectures have become competitive again.
 
 **The core trick — a linear recurrence can be parallelized.** If
 
@@ -251,13 +259,14 @@ $O(T\log T)$. You get parallel training *and* $O(1)$ recurrent inference.
 | RWKV | 2023 | linear-attention recurrence, Transformer-quality with RNN inference |
 | Mamba-2, Griffin, Jamba | 2024 | hybrids: mostly SSM layers plus a few full-attention layers |
 
-🧠 **Why hybrids specifically.** A fixed-size state cannot do exact retrieval — "what was the phone
-number mentioned 5000 tokens ago?" requires looking it up, and a compressed state has thrown the
-digits away. Attention does exact lookup natively. Empirically, interleaving a small number of
-full-attention layers (1 in 6 or so) into an SSM stack recovers retrieval ability while keeping
-most of the efficiency. → [Long context](../04-large-language-models/09-long-context.md)
+> [!TIP]
+> **Why hybrids specifically.** A fixed-size state cannot do exact retrieval — "what was the phone
+> number mentioned 5000 tokens ago?" requires looking it up, and a compressed state has thrown the
+> digits away. Attention does exact lookup natively. Empirically, interleaving a small number of
+> full-attention layers (1 in 6 or so) into an SSM stack recovers retrieval ability while keeping
+> most of the efficiency. → [Long context](../04-large-language-models/09-long-context.md)
 
-📊 Mamba-class models match Transformers of the same size on language modelling perplexity, with
+Mamba-class models match Transformers of the same size on language modelling perplexity, with
 linear-time training and constant-memory inference — a genuine advance, though Transformers retain
 the ecosystem advantage.
 
@@ -265,7 +274,7 @@ the ecosystem advantage.
 
 ## 8. Minimal implementation
 
-💻 An LSTM cell written out explicitly (use `nn.LSTM` in practice — it calls fused cuDNN kernels
+An LSTM cell written out explicitly (use `nn.LSTM` in practice — it calls fused cuDNN kernels
 that are ~10× faster):
 
 ```python
@@ -292,7 +301,8 @@ class LSTMCell(nn.Module):
         return h, (h, c)
 ```
 
-⚠️ **Gradient clipping is mandatory** for RNNs, not optional:
+> [!WARNING]
+> **Gradient clipping is mandatory** for RNNs, not optional:
 
 ```python
 loss.backward()
@@ -300,8 +310,9 @@ torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)   # 5.0 typical
 optimizer.step()
 ```
 
-⚠️ **Truncated BPTT** — backpropagating through 10,000 steps is infeasible. Cut the graph every
-$k$ steps (typically 32–256), carrying the hidden state forward but detaching it:
+> [!WARNING]
+> **Truncated BPTT** — backpropagating through 10,000 steps is infeasible. Cut the graph every
+> $k$ steps (typically 32–256), carrying the hidden state forward but detaching it:
 
 ```python
 h = h.detach()   # forward the value, cut the gradient

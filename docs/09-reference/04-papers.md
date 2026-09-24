@@ -46,7 +46,7 @@
 | Nalisnick et al., *Do Deep Generative Models Know What They Don't Know?* | 2018 | high likelihood ≠ in-distribution |
 | Bond-Taylor et al., *Deep Generative Modelling: A Comparative Review* | 2021 | the best cross-family survey |
 
-## Sequence models & the Transformer
+## Sequence models and the Transformer
 
 | Paper | Year | Take-away |
 |---|---|---|
@@ -95,7 +95,7 @@
 | Hinton et al., *Distilling the Knowledge in a Neural Network* | 2015 | dark knowledge |
 | Sun et al., *Wanda* | 2023 | pruning by $\|W\|\cdot\|X\|$; simple and effective |
 
-## Fine-tuning, alignment & reasoning
+## Fine-tuning, alignment and reasoning
 
 | Paper | Year | Take-away |
 |---|---|---|
@@ -120,7 +120,7 @@
 | Merrill & Sabharwal, *The Expressive Power of Transformers with CoT* ⭐ | 2024 | the complexity-theoretic justification for CoT |
 | Turpin et al., *Language Models Don't Always Say What They Think* ⭐ | 2023 | CoT is often unfaithful |
 
-## Inference & serving
+## Inference and serving
 
 | Paper | Year | Take-away |
 |---|---|---|
@@ -133,7 +133,7 @@
 | Chen et al., *Extending Context Window via Position Interpolation* | 2023 | PI |
 | Peng et al., *YaRN* | 2023 | the best context-extension method |
 
-## Diffusion & vision
+## Diffusion and vision
 
 | Paper | Year | Take-away |
 |---|---|---|
@@ -162,7 +162,7 @@
 | Alayrac et al., *Flamingo* | 2022 | gated cross-attention VLMs |
 | Défossez et al., *EnCodec* | 2022 | residual VQ audio tokens |
 
-## Retrieval & agents
+## Retrieval and agents
 
 | Paper | Year | Take-away |
 |---|---|---|
@@ -181,7 +181,7 @@
 | Shinn et al., *Reflexion* | 2023 | verbal self-critique |
 | Jimenez et al., *SWE-bench* ⭐ | 2023 | realistic agentic evaluation |
 
-## Evaluation, safety & security
+## Evaluation, safety and security
 
 | Paper | Year | Take-away |
 |---|---|---|
@@ -231,9 +231,10 @@ If you read **ten papers**, read these, in this order:
 - *Image/video* → EDM, Flow Matching, SD3, DiT, ControlNet
 - *Research* → Transformer Circuits, Superposition, Induction Heads, Scaling Monosemanticity
 
-🧠 **How to read an ML paper efficiently**: abstract → figures → the main equation → the ablation
-table → related work. Read the method section in full only if you intend to implement it. Most
-papers have one idea; find it and move on.
+> [!TIP]
+> **How to read an ML paper efficiently**: abstract → figures → the main equation → the ablation
+> table → related work. Read the method section in full only if you intend to implement it. Most
+> papers have one idea; find it and move on.
 
 ---
 

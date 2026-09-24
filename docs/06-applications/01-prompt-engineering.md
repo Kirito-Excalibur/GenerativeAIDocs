@@ -20,8 +20,9 @@ variable. Every prompting technique works by one of exactly three mechanisms:
 | **2. Computation allocation** | give the model more serial compute | chain-of-thought, scratchpads, "think first" |
 | **3. Information provision** | supply facts the model lacks | RAG, context, tool outputs, definitions |
 
-🧠 **The diagnostic question**: when a prompt improves output, ask *which of the three* it used.
-This tells you whether the improvement will generalize, and what to try when it stops working.
+> [!TIP]
+> **The diagnostic question**: when a prompt improves output, ask *which of the three* it used.
+> This tells you whether the improvement will generalize, and what to try when it stops working.
 
 ```
    The model's full output distribution
@@ -39,9 +40,10 @@ This tells you whether the improvement will generalize, and what to try when it 
    You can only select where in the distribution to sample from.
 ```
 
-⚠️ **The hard limit**: prompting cannot add knowledge the model lacks, and it cannot exceed the
-model's ceiling on a task. If the model genuinely cannot do something, no prompt fixes it — you
-need a better model, retrieval, tools, or fine-tuning.
+> [!WARNING]
+> **The hard limit**: prompting cannot add knowledge the model lacks, and it cannot exceed the
+> model's ceiling on a task. If the model genuinely cannot do something, no prompt fixes it — you
+> need a better model, retrieval, tools, or fine-tuning.
 
 ---
 
@@ -55,8 +57,9 @@ need a better model, retrieval, tools, or fine-tuning.
       focusing on financial implications. Use plain language."
 ```
 
-🧠 **Mechanism 1.** "Summarize this" is consistent with thousands of valid response styles, so you
-get the distributional average. Constraints collapse the space to what you actually want.
+> [!TIP]
+> **Mechanism 1.** "Summarize this" is consistent with thousands of valid response styles, so you
+> get the distributional average. Constraints collapse the space to what you actually want.
 
 ### Provide examples (few-shot)
 
@@ -70,10 +73,11 @@ get the distributional average. Constraints collapse the space to what you actua
   Review: "Shipping was slow but the product is great."  Sentiment:
 ```
 
-🧠 **Mechanism 1, powerfully.** Examples convey the label set, the output format, the decision
-boundary for edge cases, and the tone — all at once, and more precisely than any description.
+> [!TIP]
+> **Mechanism 1, powerfully.** Examples convey the label set, the output format, the decision
+> boundary for edge cases, and the tone — all at once, and more precisely than any description.
 
-📊 **Findings that shape how you should write them:**
+**Findings that shape how you should write them:**
 - **Format matters more than correctness.** Min et al. (2022) showed that randomizing the *labels*
   in few-shot examples barely hurts performance, while changing the *format* hurts a lot. The
   examples are mostly teaching the model "what shape of answer goes here."
@@ -89,14 +93,16 @@ boundary for edge cases, and the tone — all at once, and more precisely than a
   ✅ "Think through this step by step, then give your answer."
 ```
 
-🧠 **Mechanism 2**, and the ordering is not stylistic. Because generation is autoregressive, the
-answer token is conditioned on everything before it. If the answer comes first, the "explanation"
-is a post-hoc rationalization that cannot influence it. Reasoning must come **before** the answer
-to do any computational work.
+> [!TIP]
+> **Mechanism 2**, and the ordering is not stylistic. Because generation is autoregressive, the
+> answer token is conditioned on everything before it. If the answer comes first, the "explanation"
+> is a post-hoc rationalization that cannot influence it. Reasoning must come **before** the answer
+> to do any computational work.
 
-⚠️ **For reasoning-trained models this is often unnecessary or counterproductive** — they already
-produce internal reasoning, and explicit instructions can interfere with their trained format.
-Check your model class before adding it.
+> [!WARNING]
+> **For reasoning-trained models this is often unnecessary or counterproductive** — they already
+> produce internal reasoning, and explicit instructions can interfere with their trained format.
+> Check your model class before adding it.
 
 ### Give the model an out
 
@@ -105,9 +111,10 @@ Check your model class before adding it.
    Do not guess."
 ```
 
-🧠 **Mechanism 1**, addressing a specific failure. RLHF trains models to be helpful; refusing to
-answer scores as unhelpful. Explicitly authorizing "I don't know" makes it a *correct* response
-rather than a failure, which measurably reduces hallucination.
+> [!TIP]
+> **Mechanism 1**, addressing a specific failure. RLHF trains models to be helpful; refusing to
+> answer scores as unhelpful. Explicitly authorizing "I don't know" makes it a *correct* response
+> rather than a failure, which measurably reduces hallucination.
 
 ### Structure long prompts with delimiters
 
@@ -121,16 +128,17 @@ rather than a failure, which measurably reduces hallucination.
   </question>
 ```
 
-🧠 **Mechanism 1.** Delimiters mark boundaries unambiguously, so instructions can't be confused
-with content — and they make prompt injection harder (though not impossible).
-→ [Security](../08-safety-and-ethics/02-security.md)
+> [!TIP]
+> **Mechanism 1.** Delimiters mark boundaries unambiguously, so instructions can't be confused
+> with content — and they make prompt injection harder (though not impossible).
+> → [Security](../08-safety-and-ethics/02-security.md)
 
-📊 XML-style tags work particularly well for models trained with them. Markdown headings work too.
+XML-style tags work particularly well for models trained with them. Markdown headings work too.
 The key is consistency.
 
 ### Put critical content at the start or end
 
-📊 Directly from the **lost-in-the-middle** result
+Directly from the **lost-in-the-middle** result
 (→ [Long context §6](../04-large-language-models/09-long-context.md#6-what-long-context-actually-delivers)).
 With 20 retrieved documents, the ones in positions 8–14 contribute little. Put the most relevant
 material first, and repeat the question at the end.
@@ -142,15 +150,17 @@ material first, and repeat the question at the end.
   Assistant: {"benefits": ["
 ```
 
-🧠 **Mechanism 1, at its most direct.** You've conditioned on tokens that make any non-JSON
-continuation extremely unlikely. This is the cheapest possible format enforcement, and it works on
-any API that lets you prefill the assistant turn.
+> [!TIP]
+> **Mechanism 1, at its most direct.** You've conditioned on tokens that make any non-JSON
+> continuation extremely unlikely. This is the cheapest possible format enforcement, and it works on
+> any API that lets you prefill the assistant turn.
 
 ---
 
 ## 3. What doesn't work (or stopped working)
 
-⚠️ Honest assessment of popular advice:
+> [!WARNING]
+> Honest assessment of popular advice:
 
 | Technique | Verdict |
 |---|---|
@@ -164,14 +174,16 @@ any API that lets you prefill the assistant turn.
 | Repeating instructions | ✅ Genuinely helps for long contexts — restate the task at the end. |
 | Negative instructions ("don't be verbose") | ⚠️ Weaker than positive ones ("respond in under 50 words"). |
 
-🧠 **Why persona prompts faded.** Pre-RLHF base models genuinely needed distribution selection —
-"you are an expert" moved them from Reddit-comment-space to textbook-space. Post-RLHF models are
-*already* conditioned to respond as a knowledgeable assistant, so the persona adds little. The
-technique didn't stop working; the models changed such that it was already applied.
+> [!TIP]
+> **Why persona prompts faded.** Pre-RLHF base models genuinely needed distribution selection —
+> "you are an expert" moved them from Reddit-comment-space to textbook-space. Post-RLHF models are
+> *already* conditioned to respond as a knowledgeable assistant, so the persona adds little. The
+> technique didn't stop working; the models changed such that it was already applied.
 
-🧠 **Why negative instructions are weak.** "Don't mention X" requires the model to represent X in
-order to avoid it, and the attention mechanism has no clean "suppress" operation. State the
-positive target instead.
+> [!TIP]
+> **Why negative instructions are weak.** "Don't mention X" requires the model to represent X in
+> order to avoid it, and the attention mechanism has no clean "suppress" operation. State the
+> positive target instead.
 
 ---
 
@@ -218,7 +230,7 @@ positive target instead.
   └───────────────────────────────────────────────────────────┘
 ```
 
-📊 **The ordering is deliberate**: task before input (so the model reads the document knowing what
+**The ordering is deliberate**: task before input (so the model reads the document knowing what
 to look for), constraints and format last (so they're closest to the generation point and least
 likely to be lost).
 
@@ -226,11 +238,12 @@ likely to be lost).
 
 ## 6. Evaluating prompts
 
-⚠️ **The most common mistake in prompt engineering is testing on three examples and declaring
-victory.** Prompt changes have high variance; you cannot distinguish improvement from noise
-without a proper set.
+> [!WARNING]
+> **The most common mistake in prompt engineering is testing on three examples and declaring
+> victory.** Prompt changes have high variance; you cannot distinguish improvement from noise
+> without a proper set.
 
-💻 A minimal but real prompt evaluation harness:
+A minimal but real prompt evaluation harness:
 
 ```python
 import json, statistics
@@ -263,7 +276,7 @@ print(f"delta = {delta:+.3f} ± {margin:.3f} -> "
       f"{'significant' if abs(delta) > margin else 'NOT significant'}")
 ```
 
-📊 **Rules of thumb:**
+**Rules of thumb:**
 - **50+ test cases minimum**; 200+ if differences are small.
 - **Repeat each case** — the same prompt gives different outputs.
 - **Always look at the worst failures.** Aggregate scores hide the failure modes that matter.
@@ -273,7 +286,7 @@ print(f"delta = {delta:+.3f} ± {margin:.3f} -> "
 
 ## 7. Automatic prompt optimization
 
-📊 Since prompts are just text, they can be optimized:
+Since prompts are just text, they can be optimized:
 
 | Method | Idea |
 |---|---|
@@ -283,14 +296,16 @@ print(f"delta = {delta:+.3f} ± {margin:.3f} -> "
 | **TextGrad** | "backpropagate" natural-language critiques through a pipeline |
 | Evolutionary | mutate and recombine prompts |
 
-🧠 **DSPy is the most useful framing for practitioners**: separate *what* you want (a signature like
-`question -> answer`) from *how* to prompt for it. The optimizer then selects demonstrations and
-instruction wording against your metric. It converts prompt engineering from craft into a
-compilation step — which is the right direction, since hand-tuned prompts don't transfer across
-models and break on every model update.
+> [!TIP]
+> **DSPy is the most useful framing for practitioners**: separate *what* you want (a signature like
+> `question -> answer`) from *how* to prompt for it. The optimizer then selects demonstrations and
+> instruction wording against your metric. It converts prompt engineering from craft into a
+> compilation step — which is the right direction, since hand-tuned prompts don't transfer across
+> models and break on every model update.
 
-⚠️ Automatically found prompts are often strange and model-specific ("take a deep breath" came from
-exactly this process). They do not transfer. Re-optimize per model.
+> [!WARNING]
+> Automatically found prompts are often strange and model-specific ("take a deep breath" came from
+> exactly this process). They do not transfer. Re-optimize per model.
 
 ---
 
