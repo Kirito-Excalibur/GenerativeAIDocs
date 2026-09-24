@@ -49,6 +49,8 @@ you actually spend.
 
 ## 2. The block, in detail
 
+Decoder-only won the architecture-family debate. What's actually inside one of its blocks — the specific sequence of attention, MLP, residuals and normalization — is the next layer of detail.
+
 **Pre-norm** (every modern model):
 
 $$
@@ -104,6 +106,8 @@ $$
 ---
 
 ## 3. Parameter counting, exactly
+
+Every block reads from and writes to that shared stream, and every one of those reads/writes is a matrix multiply with a specific shape. Adding them all up gives you the number practitioners actually care about first: how many parameters the model has.
 
 Per layer, with $d$ = model dimension, $d_{\text{ff}}$ = MLP hidden dimension:
 
@@ -164,6 +168,8 @@ Real models keep $d/L \approx 100$–$130$:
 
 ## 4. FLOP counting
 
+Parameter count tells you how much the model has to store. It doesn't tell you how much compute one training step costs — and for a fixed budget, that's the number that actually decides how big a model you can afford to train.
+
 A matrix multiply $(m\times k)\times(k\times n)$ costs $2mkn$ FLOPs (one multiply + one add per
 element pair).
 
@@ -218,6 +224,8 @@ communication bottleneck, small batch, poor kernel coverage).
 
 ## 5. A tensor's journey, with shapes
 
+FLOP counts and MFU are aggregate numbers, summed over the whole model. Walking a single tensor through the stack step by step — with its actual shape and parameter count at each stop — makes those aggregates concrete.
+
 $B=2$, $T=1024$, $d=4096$, $L=32$, $H=32$, $H_{kv}=8$, $V=32000$:
 
 | Step | Operation | Output shape | Params used |
@@ -253,6 +261,8 @@ $B=2$, $T=1024$, $d=4096$, $L=32$, $H=32$, $H_{kv}=8$, $V=32000$:
 
 ## 6. Design decisions: 2017 vs today
 
+That tensor's journey used one specific set of design choices — pre-norm, RMSNorm, SwiGLU, RoPE. The 2017 paper made different choices at nearly every one of those points, and it's worth seeing exactly what changed and why.
+
 | Component | Original (2017) | Modern (2024–26) | Why it changed |
 |---|---|---|---|
 | Norm placement | post-norm | **pre-norm** | trains at depth without fragile warmup |
@@ -276,6 +286,8 @@ $B=2$, $T=1024$, $d=4096$, $L=32$, $H=32$, $H_{kv}=8$, $V=32000$:
 ---
 
 ## 7. The full modern block
+
+Every change in that table is a small, independently-motivated swap. Put them all together and you get the block that actually ships in a modern open model — worth seeing as one complete, working piece of code rather than a list of diffs.
 
 A complete LLaMA-style Transformer block:
 
@@ -338,6 +350,8 @@ cores want dimensions that are multiples of 128 or 256.
 
 ## 8. Model configurations reference
 
+That's one specific config, LLaMA-2 7B's. Seeing how $d$, $L$, $H$ and $d_{ff}$ actually vary across real shipped models — and how they've shifted over just a couple of years — grounds the formulas in §3 and §4 in numbers you'd recognize.
+
 Read this table alongside $N \approx 12Ld^2$:
 
 | Model | $N$ | $L$ | $d$ | $H$ | $H_{kv}$ | $d_{ff}$ | Context | Vocab |
@@ -361,6 +375,8 @@ Read this table alongside $N \approx 12Ld^2$:
 ---
 
 ## 9. What the Transformer cannot do
+
+Nearly every change across these two tables is an efficiency or stability fix, not a change to what the architecture is fundamentally capable of. That's worth confronting directly: what can't a Transformer do, no matter how it's tuned?
 
 > [!WARNING]
 > Worth being precise about, because it clarifies what architectures come next.

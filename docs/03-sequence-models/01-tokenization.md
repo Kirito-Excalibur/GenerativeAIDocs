@@ -49,6 +49,8 @@ token** for a 50k-vocabulary BPE tokenizer. Code averages ~3.5. Non-Latin script
 
 ## 2. Byte-Pair Encoding, worked completely by hand
 
+That compression ratio is a property of one specific algorithm: byte-pair encoding. Rather than take it on faith, it's worth running BPE by hand on a small corpus and watching the vocabulary build up merge by merge.
+
 BPE starts from characters and **greedily merges the most frequent adjacent pair**, repeatedly.
 
 **Training corpus** (with word frequencies):
@@ -205,6 +207,8 @@ def encode(word, merges):
 
 ## 3. The three algorithms
 
+That worked example used BPE's own merge rule, but it isn't the only way to build a subword vocabulary — the two main alternatives make a different call about what "best segmentation" even means.
+
 | | **BPE** | **WordPiece** | **Unigram LM** |
 |---|---|---|---|
 | Direction | bottom-up (merge) | bottom-up (merge) | top-down (prune) |
@@ -241,6 +245,8 @@ text.
 ---
 
 ## 4. Byte-level BPE: the trick that removes the last OOV
+
+Whichever algorithm builds the vocabulary, there's still a gap at the very bottom: some input byte sequences are so rare — an emoji, a typo, raw binary — that no learned merge covers them. Byte-level BPE closes that gap completely, at a cost.
 
 > [!WARNING]
 > Character-level BPE has an unsolved edge case: what about a character that never appeared in
@@ -289,6 +295,8 @@ mechanism behind the common advice "don't end your prompt with a space."
 
 ## 5. Special tokens
 
+Digit-splitting and leading-space quirks are both about how ordinary text gets carved into pieces. A separate category of token doesn't come from text at all — special tokens the model itself relies on for structure — and they bring their own, sharper failure mode.
+
 | Token | Purpose |
 |---|---|
 | `<|endoftext|>` / `</s>` | document separator; also the stop signal at generation time |
@@ -313,6 +321,8 @@ tokenizer.encode(user_text, allowed_special=set())   # tiktoken: raises on speci
 ---
 
 ## 6. The multilingual tax
+
+Special-token injection is one specific way the tokenizer can hurt you. A more pervasive, structural cost shows up for anyone not writing in English, baked into which languages the merge rules were learned from.
 
 Tokens required for the same semantic content (approximate, GPT-4-class tokenizer):
 
@@ -342,6 +352,8 @@ Tokens required for the same semantic content (approximate, GPT-4-class tokenize
 ---
 
 ## 7. Failure modes caused by tokenization
+
+The multilingual tax is really just one instance of a broader pattern: whatever the tokenizer didn't see enough of during its own training becomes a blind spot for the model built on top of it. Cataloguing where that blind spot actually shows up is the point of this section.
 
 ### (a) Character-level tasks
 
@@ -389,6 +401,8 @@ a natural token boundary — `"The answer is"` — and let the model emit the sp
 ---
 
 ## 8. Practical numbers
+
+All of the failure modes above are qualitative warnings. Turning "tokenization matters" into an actual planning number — how many tokens will this cost, how much context does that leave — is what the rest of this page is for.
 
 **Vocabulary sizes**:
 

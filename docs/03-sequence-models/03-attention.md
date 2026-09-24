@@ -65,6 +65,8 @@ $$\boxed{\;\text{Attention}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^\top
 
 ## 2. A complete numeric trace
 
+Those three projections and their roles are easiest to trust once you've seen them act on actual numbers — Q, K and V computed, dot products taken, softmax applied, output produced, start to finish.
+
 Let's compute self-attention on a 3-token sequence with $d_{\text{model}} = 4$, $d_k = 2$.
 
 **Input embeddings** (rows = tokens: "the", "cat", "sat"):
@@ -129,6 +131,8 @@ $$\text{Output} = \begin{pmatrix}1.045 & 1.955\\ 1.768 & 1.232\\ 1.333 & 1.667\e
 
 ## 3. Why scale the scores? (the √d factor)
 
+That trace used small, well-behaved numbers on purpose. At the dimensions Transformers actually use, the raw dot products $QK^\top$ grow large enough to break the softmax — which is exactly why a scaling factor sits in the attention formula.
+
 **The variance argument.** Let $q, k \in \mathbb{R}^{d_k}$ have independent components with mean
 0 and variance 1. Then
 
@@ -167,6 +171,8 @@ construction. → [Optimization §7](../01-foundations/05-optimization.md#7-loss
 ---
 
 ## 4. Multi-head attention
+
+Scaling fixes the softmax for one query-key comparison at a time. A single set of Q/K/V projections still only lets each position look for *one* kind of relationship at once — multiple heads is how attention looks for several at the same time, in parallel.
 
 One attention operation produces one weighted average — one "relationship" per position. Language
 needs many simultaneously: syntactic dependency, coreference, and topical relevance are different
@@ -231,6 +237,8 @@ with $d_h = d_{\text{model}}/H$ so total compute matches single-head attention a
 
 ## 5. Complexity, and the memory wall
 
+Multiple heads multiply how much attention costs, not just how well it works. That cost is worth making precise, because it's what eventually breaks — and where.
+
 | | Time | Memory |
 |---|---|---|
 | Compute $Q,K,V$ | $O(Td^2)$ | $O(Td)$ |
@@ -253,6 +261,8 @@ FlashAttention solves.
 ---
 
 ## 6. FlashAttention: never materialize the matrix
+
+34.4 GB for one layer's attention matrix isn't a fundamental limit of the *computation* — it's a limit of naively writing that matrix to memory. Avoiding the write, without changing what gets computed, is FlashAttention's entire trick.
 
 > [!TIP]
 > **The key realization**: attention is **memory-bandwidth bound**, not compute bound. The GPU
@@ -299,6 +309,8 @@ y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
 
 ## 7. MQA and GQA: shrinking the KV cache
 
+FlashAttention makes the attention *matrix* cheap to compute during training. At inference, a different piece of memory dominates — the cached keys and values from every previous token — and that one takes a different fix.
+
 At inference, every generated token must attend to all previous keys and values, so they are
 cached. The cache grows linearly with sequence length **and with the number of heads**.
 
@@ -336,6 +348,8 @@ fly. Reported cache reduction is larger than GQA's with quality equal to or bett
 
 ## 8. Cross-attention vs self-attention
 
+Every optimization so far — heads, FlashAttention, GQA — assumed queries, keys and values all come from the same sequence. That's a design choice, not a requirement, and dropping it is what lets attention condition on something else entirely.
+
 | | Self-attention | Cross-attention |
 |---|---|---|
 | $Q$ from | the sequence itself | the *decoder* / target stream |
@@ -364,6 +378,8 @@ fly. Reported cache reduction is larger than GQA's with quality equal to or bett
 ---
 
 ## 9. Implementation
+
+That's every variant of attention this page covers, in words and diagrams. Putting the core mechanism — queries, keys, values, softmax — into a working few lines of code ties it back to the numeric trace in §2.
 
 Multi-head attention written out, then the fast version:
 

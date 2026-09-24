@@ -47,6 +47,8 @@ h₀─│  │─────►│  │─────►│  │────�
 
 ## 2. Backpropagation through time, and the vanishing gradient
 
+The sequential-compute problem is architectural and has no fix within the RNN framework. The other structural problem — training signal decaying over long sequences — comes from how gradients actually propagate backward through the recurrence, and it does have a fix.
+
 The gradient of the loss at step $T$ with respect to the state at step $k$:
 
 $$\frac{\partial \mathcal{L}_T}{\partial h_k} = \frac{\partial \mathcal{L}_T}{\partial h_T}\prod_{t=k+1}^{T}\frac{\partial h_t}{\partial h_{t-1}}
@@ -92,6 +94,8 @@ as $\lambda^{T-k}$:
 ---
 
 ## 3. LSTM: an additive memory path
+
+Vanishing gradients come from repeatedly multiplying by the same recurrent weight matrix. The fix is to stop multiplying: give the gradient a path that mostly *adds* instead, which is exactly what the LSTM's cell state provides.
 
 Hochreiter & Schmidhuber's insight (1997): create a path through time where information flows by
 **addition** rather than repeated matrix multiplication.
@@ -150,6 +154,8 @@ $4 \times (512\times1024 + 512) = 2{,}099{,}200$ ≈ **2.1M parameters per layer
 
 ## 4. GRU: the same idea, cheaper
 
+That 2.1M-parameter, four-gate design works, but it's more machinery than turns out to be strictly necessary. The GRU keeps the additive-highway idea while merging two of the four gates into one.
+
 $$
 \begin{aligned}
 z_t &= \sigma(W_z[h_{t-1},x_t]) && \text{update gate}\\
@@ -177,6 +183,8 @@ $$
 ---
 
 ## 5. Seq2seq and the bottleneck that created attention
+
+Gating fixed the vanishing-gradient problem inside a single recurrent stream. It did nothing about the other structural problem from §1 — a fixed-size hidden state still has to compress an entire input sequence into one vector, and that limit shows up starkly once RNNs are chained into encoder-decoder systems.
 
 The 2014 machine-translation architecture:
 
@@ -210,6 +218,8 @@ length grows past ~20 words. A 512-dimensional vector cannot hold a 50-word sent
 
 ## 6. Why RNNs lost: the decisive table
 
+Attention removed the bottleneck. It didn't, by itself, kill recurrence — that took a second, unrelated argument about what actually runs fast on GPUs.
+
 | Property | RNN/LSTM | Transformer |
 |---|---|---|
 | **Training parallelism over time** | ❌ $O(T)$ sequential steps | ✅ $O(1)$ — all positions at once |
@@ -238,6 +248,8 @@ in the same wall-clock time. That ended the debate.
 ---
 
 ## 7. The return of recurrence: state-space models
+
+That inference-time advantage — constant state, no growing cache — never went away. It's the reason recurrence, in a modernized form, is back.
 
 Since 2022, modernized recurrent architectures have become competitive again.
 
@@ -273,6 +285,8 @@ the ecosystem advantage.
 ---
 
 ## 8. Minimal implementation
+
+Reading about gates and vanishing gradients only goes so far. Implementing the plain RNN recurrence from §1 directly, forward and backward, makes it obvious exactly where the vanishing-gradient problem in §2 comes from.
 
 An LSTM cell written out explicitly (use `nn.LSTM` in practice — it calls fused cuDNN kernels
 that are ~10× faster):

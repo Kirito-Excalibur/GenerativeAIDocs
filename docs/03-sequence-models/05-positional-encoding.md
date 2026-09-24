@@ -38,6 +38,8 @@ enters the computation**.
 
 ## 2. The design space
 
+Knowing position must enter attention still leaves open *how*: added to the input embeddings, baked into the attention score, absolute, or relative. The field has tried nearly every point in that space, and it's worth mapping before going through them one by one.
+
 | Method | Injected | Type | Extrapolates? | Params | Used by |
 |---|---|---|---|---|---|
 | Sinusoidal | added to embeddings | absolute | ⚠️ poorly | 0 | original Transformer |
@@ -60,6 +62,8 @@ enters the computation**.
 ---
 
 ## 3. Sinusoidal encoding
+
+NoPE aside, the first real attempt at injecting position was to hand-design a fixed pattern with useful mathematical properties, added directly to the token embeddings.
 
 $$PE_{(pos, 2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right), \qquad
 PE_{(pos,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)$$
@@ -100,6 +104,8 @@ can learn relative attention from absolute encodings.
 
 ## 4. Learned absolute encoding
 
+Hand-designed sinusoids extrapolate badly in practice even though the math says they shouldn't. The obvious alternative is to stop hand-designing anything and just let the model learn its own position vectors from data.
+
 $$x_{\text{in}} = E[\text{token}] + P[\text{pos}], \qquad P \in \mathbb{R}^{T_{\max}\times d}$$
 
 Just an embedding table for positions. Used by BERT and GPT-2/3.
@@ -116,6 +122,8 @@ degraded quality, a **crash**. This hard limit is why learned absolute encodings
 ---
 
 ## 5. ALiBi: a linear bias, no embeddings at all
+
+A learned table crashes past $T_{\max}$ because it has nothing to output for positions it never saw. The fix both later methods converge on is to stop encoding position as a *value* at all, and instead bias attention directly by how far apart two tokens are.
 
 $$\text{scores}_{ij} = \frac{q_i\cdot k_j}{\sqrt{d_k}} - m_h\cdot|i - j|$$
 
@@ -152,6 +160,8 @@ holds.
 ---
 
 ## 6. RoPE: rotary position embedding
+
+ALiBi biases the attention score using distance alone — a fixed, hand-picked function. RoPE instead rotates the query and key vectors by an angle proportional to position, so relative position falls out of the dot product itself rather than being added on top.
 
 **The modern default.** Instead of *adding* position information, **rotate** the query and key
 vectors by an angle proportional to their position.
@@ -255,6 +265,8 @@ k = apply_rope(k, freqs_cis)
 
 ## 7. Extending the context window
 
+That extensibility isn't automatic — rescaling RoPE's base frequency after training is a real technique with its own tradeoffs, and getting it wrong is a common way long-context fine-tuning goes badly.
+
 A model trained at 4k tokens fails badly at 32k — perplexity explodes. The cause: RoPE angles
 $m\theta_i$ for $m > T_{\text{train}}$ land in regions of phase space the model never saw.
 
@@ -313,6 +325,8 @@ what "128k context" actually delivers in practice.
 ---
 
 ## 8. Multi-dimensional positions
+
+Every scheme so far assumed a 1-D sequence of tokens. Images, video and any other grid-structured input need position to encode more than one axis at once, which every 1-D scheme above has to be extended to handle.
 
 For images and video, position is not a scalar.
 
