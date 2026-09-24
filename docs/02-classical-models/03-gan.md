@@ -94,21 +94,9 @@ gradient. The generator is starved exactly when it most needs help.
 
 $$\max_G \; \mathbb{E}_z[\log D(G(z))] \quad\text{instead of}\quad \min_G\;\mathbb{E}_z[\log(1-D(G(z)))]$$
 
-```
-  gradient magnitude for G
-      │
-      │ ╲  minimax: log(1−D)          ╱  non-saturating: log D
-      │  ╲                          ╱
-      │   ╲___                    ╱
-      │       ╲──────         ___╱
-      └────────────────────────────────► D(G(z))
-      0       0.25    0.5   0.75      1
-      ▲                                ▲
-   G is bad here                    G is good here
-   minimax gives ~0 gradient        both give small gradient (fine)
-   ⇒ cannot escape                  non-saturating gives LARGE gradient
-                                       when G is bad ⇒ can escape
-```
+![Generator gradient magnitude versus D(G(z)): the minimax line rises from 0 to 1, the non-saturating line falls from 1 to 0](../assets/figures/gan-gradients.svg)
+
+*With D = σ(a), the gradient of each generator loss with respect to the discriminator's logit a is D for minimax (log(1 − D)) and 1 − D for non-saturating (−log D). When G is bad, D(G(z)) ≈ 0: the minimax gradient vanishes exactly when G needs it most, while the non-saturating one is largest. Same fixed point, very different learning signal.*
 
 Same fixed point, vastly better gradients. **Always use the non-saturating form.**
 

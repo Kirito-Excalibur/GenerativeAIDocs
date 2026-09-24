@@ -20,17 +20,9 @@ L(C) = \left(\frac{C_c}{C}\right)^{\alpha_C}$$
 
 with (Kaplan et al., 2020): $\alpha_N \approx 0.076$, $\alpha_D \approx 0.095$, $\alpha_C \approx 0.050$.
 
-```
-  loss (log)
-    │╲
-  4 │ ╲___
-    │     ╲───___
-  3 │            ╲─────___            a straight line on log-log axes
-    │                    ╲──────___   over 7+ orders of magnitude
-  2 │                             ╲──────
-    └────────────────────────────────────► compute (log)
-     1e17  1e19  1e21  1e23  1e25
-```
+![Five U-shaped curves of predicted loss versus model size, one per compute budget from 1e19 to 1e23 FLOPs, each with its minimum marked](../assets/figures/scaling-isoflops.svg)
+
+*IsoFLOP curves from the Chinchilla parametric fit L = E + A/N^α + B/D^β with the paper's published constants, where each curve holds C = 6ND fixed. For any budget there is a best model size: too small and it can't learn; too big and it sees too little data. Joining the minima traces out the power law. (See §2 for why the published constants disagree with the paper's 20-tokens-per-parameter rule.)*
 
 🧠 **Why this is remarkable.** Nothing in deep learning theory predicts a clean power law. It holds
 across seven orders of magnitude of compute, across architectures, across modalities (text, image,
@@ -95,9 +87,19 @@ and symmetrically $D_{\text{opt}} \propto C^{0.548}$.
 
 $$\boxed{\;N_{\text{opt}} \propto C^{0.45}, \qquad D_{\text{opt}} \propto C^{0.55}\;}$$
 
-These are close enough to $0.5$ that the practical rule is:
+These are close enough to $0.5$ that the practical rule is to **scale $N$ and $D$ in roughly
+equal proportion**. The paper's other two estimation methods (fitting the minima of many
+training runs directly) put the constant at about **20 tokens per parameter**:
 
 $$\boxed{\;\textbf{scale } N \textbf{ and } D \textbf{ equally: } D \approx 20N\;}$$
+
+⚠️ **A known inconsistency worth knowing about.** The exponents above follow from the paper's
+published fit, but its *constants* do not reproduce the 20:1 ratio: plugging $A$, $B$, $E$ into
+the optimization gives 30–80 tokens per parameter, rising with budget (see the IsoFLOP figure
+above). [Besiroglu et al. (2024)](https://arxiv.org/abs/2404.10102) re-fit the paper's data and
+found that the published parametric estimates are inconsistent with the other two methods and
+have implausibly narrow confidence intervals; their corrected fit agrees with the ~20:1 rule. Use
+20 tokens/param as the rule of thumb, and treat the published $A$, $B$, $E$ as illustrative.
 
 ### The Chinchilla demonstration
 

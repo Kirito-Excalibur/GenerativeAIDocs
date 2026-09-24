@@ -183,17 +183,9 @@ Then the speedup from batch size $B$ behaves like:
 
 $$\frac{\text{steps at batch }B}{\text{steps at batch }\infty} \approx 1 + \frac{B_{\text{crit}}}{B}$$
 
-```
- training       │
- steps needed   │╲
- (log)          │ ╲
-                │  ╲                 ← doubling B halves the steps
-                │   ╲___
-                │       ╲────────    ← past B_crit, doubling B buys
-                │                       almost nothing (pure waste)
-                └───────┬──────────► batch size (log)
-                     B_crit
-```
+![Log-log curve of relative training steps against batch size, falling steeply then flattening toward 1](../assets/figures/critical-batch-size.svg)
+
+*Steps to reach a target loss, relative to the infinite-batch minimum: 1 + B_crit/B (McCandlish et al. 2018), drawn for B_crit = 1,000. Below B_crit, doubling B nearly halves the steps; above it, doubling B mostly wastes compute.*
 
 **Practical consequences:**
 - Below $B_{\text{crit}}$: doubling batch size ≈ halves the number of steps. Perfect scaling.

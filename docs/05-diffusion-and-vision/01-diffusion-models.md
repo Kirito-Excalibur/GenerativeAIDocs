@@ -88,20 +88,9 @@ the corresponding noise, predict it. No sequential simulation anywhere in traini
 | 900 | 0.0180 | 0.0003 | 0.017 | 1.000 | 0.0003 |
 | 1000 | 0.0200 | 0.00004 | 0.006 | 1.000 | 0.00004 |
 
-```
-  1.0 │▔▔▔╲___              √ᾱ  (signal remaining)
-      │        ╲___
-  0.5 │            ╲___
-      │                ╲______
-  0.0 │                       ▔▔▔▔▔▔▔▔
-      └────────────────────────────────► t
-      0    200   400   600   800   1000
-  0.0 │________                 
-      │        ╱▔▔▔▔             √(1−ᾱ)  (noise level)
-  0.5 │    ╱▔▔
-      │ ╱▔
-  1.0 │╱▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
-```
+![Signal fraction versus timestep for the linear and cosine noise schedules: linear drops to near zero by step 700, cosine declines steadily until step 1000](../assets/figures/noise-schedules.svg)
+
+*Computed for T = 1000: linear β from 10⁻⁴ to 0.02 (Ho et al. 2020) vs the cosine schedule with s = 0.008 (Nichol & Dhariwal 2021). Under the linear schedule the image is essentially gone by t ≈ 700, so the last 30% of steps carry almost no information.*
 
 ⚠️ **The linear schedule is suboptimal** and it shows starkly in the table: by $t = 500$ the signal
 is down to $\sqrt{\bar\alpha} = 0.28$, and by $t = 700$ it is 0.083 — the image is already

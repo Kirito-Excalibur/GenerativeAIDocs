@@ -68,17 +68,9 @@ as $\lambda^{T-k}$:
 | 1.01 | $2.70$ | manageable |
 | 1.1 | $1.4\times10^{4}$ | **exploding** — NaN |
 
-```
-   gradient magnitude (log scale)
-        │
-   10⁴  │╲                       λ = 1.1  (explodes)
-        │ ╲___
-   10⁰  │──────────────────────  λ = 1.0  (the impossible knife edge)
-        │      ╲___
-  10⁻⁴  │           ╲______      λ = 0.9  (vanishes)
-        └──────────────────────► time steps back
-        0    25    50    75   100
-```
+![Gradient scale versus time steps back, log scale, for lambda 0.9, 0.99, 1.01 and 1.1: two lines decay, two grow](../assets/figures/rnn-vanishing-gradients.svg)
+
+*λᵏ for k up to 100. At λ = 0.9 the gradient from 100 steps back is 2.7×10⁻⁵ of its size; at λ = 1.1 it is 1.4×10⁴ times larger. Only λ extremely close to 1 is stable.*
 
 ⚠️ **There is essentially no safe value.** Anything below 1 vanishes exponentially; anything above 1
 explodes exponentially. Plus $\tanh' \le 1$ (and $\tanh' \ll 1$ once the unit saturates), which

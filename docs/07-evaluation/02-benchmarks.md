@@ -130,6 +130,10 @@ A 200-point gap means ~76%.
 | 200 | 76% |
 | 400 | 91% |
 
+![S-shaped curve of win probability against Elo rating gap, with points marked at +100, +200 and +400](../assets/figures/elo-win-probability.svg)
+
+*The logistic Elo curve. Gaps of 100, 200 and 400 points correspond to 64%, 76% and 91% win rates.*
+
 ✅ **Why arenas are valuable**: real human preferences, real prompts, hard to contaminate (prompts
 are user-generated and unbounded), and continuously updated.
 

@@ -192,16 +192,9 @@ Near $t=0$ the answer is nearly pure noise; near $t=1$ it is nearly the data.
 
 $$t = \sigma(u), \qquad u \sim \mathcal{N}(m, s^2), \quad m = 0,\ s = 1$$
 
-```
-   density of sampled t
-       │      ╱▔▔╲
-       │    ╱      ╲          logit-normal: concentrated at t≈0.5
-       │  ╱          ╲
-       │╱              ╲
-       ├────────────────┤
-   ────┼────────────────┼──── uniform: flat
-       0       0.5      1
-```
+![Sampling density over t from 0 to 1: flat for uniform, a hump peaking at 0.5 for logit-normal](../assets/figures/logit-normal-timesteps.svg)
+
+*Logit-normal(0, 1): t = σ(u), u ~ N(0, 1). It samples mid-range timesteps about 1.6× as often as uniform and almost never samples the near-trivial ends.*
 
 📊 **Resolution-dependent shifting** — higher resolutions need noise shifted toward larger $t$,
 because more pixels mean more redundancy and a given noise level destroys *relatively* less

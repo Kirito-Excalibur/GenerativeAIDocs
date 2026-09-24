@@ -129,17 +129,9 @@ If each step succeeds with probability $p$, a $k$-step task succeeds with probab
 | 0.99 | 95% | 90% | 82% | 61% |
 | 0.999 | 99.5% | 99% | 98% | 95% |
 
-```
-  success
-    1.0 │▔▔▔╲___                p = 0.99
-        │        ▔▔▔▔───____
-    0.5 │╲___                   p = 0.95
-        │    ╲──___
-        │╲___     ▔▔▔───___     p = 0.90
-    0.0 │    ▔▔▔───────____________
-        └──────────────────────────► steps
-        0    10    20   30   40   50
-```
+![Task success probability versus number of steps for per-step reliability 0.9, 0.95, 0.99 and 0.999](../assets/figures/agent-compounding.svg)
+
+*pᵏ: at 95% per step, a 20-step task succeeds 36% of the time; at 99%, 82%. Going from 95% to 99% per-step reliability matters more than any planning trick.*
 
 🧠 **The implication**: long-horizon agents require *per-step* reliability that is much higher than
 intuition suggests. Going from 95% to 99% per step takes a 20-step task from 36% to 82%. **Almost

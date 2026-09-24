@@ -96,18 +96,9 @@ may disrupt their trained format.
 📊 **The empirical law**: accuracy improves log-linearly in the amount of inference compute, across
 several distinct mechanisms.
 
-```
-  accuracy
-    │                                    ╱─────  with a verifier (best-of-n)
-    │                              ╱────
-    │                        ╱────
-    │                  ╱────                     with majority voting
-    │            ╱────
-    │      ╱────
-    │ ╱────
-    └────────────────────────────────────► inference compute (log)
-      1×    4×    16×   64×   256×
-```
+![pass@n versus number of samples on a log2 axis for per-sample success rates 0.01, 0.05 and 0.2](../assets/figures/best-of-n.svg)
+
+*1 − (1 − p)ⁿ for independent samples and a perfect verifier. Each curve crosses 50% at n ≈ 0.69/p. Real best-of-n rises more slowly: errors are correlated, and verifiers are imperfect.*
 
 | Method | Mechanism | Needs |
 |---|---|---|
