@@ -212,7 +212,71 @@ directions during training.
 
 ---
 
-## 7. Key takeaways
+## 7. Exercises
+
+**Problem 1 — the forward process, by hand.** A 10-token sequence is masked at $t=0.4$ (linear
+schedule, so $\alpha_t=1-t=0.6$). What's the expected number of masked tokens? What's the
+probability that *all 10* tokens happen to be masked in one particular sample (an unlucky but
+possible draw)?
+
+<details><summary>Solution</summary>
+
+Expected masked count $= t\times L = 0.4\times10=4.0$ tokens (each of the 10 positions is masked
+independently with probability $t$, per §3).
+
+$P(\text{all 10 masked}) = t^{10} = 0.4^{10} = 0.000105$ — about 1 in 9,540. Rare but nonzero:
+since masking is an independent coin flip per position (§3), there's no mechanism preventing an
+unusually heavy or light draw at any given $t$; the loss function (§4) handles this correctly
+because it's an *expectation* over $t$ and over the random masking pattern, not a per-sample
+guarantee.
+
+</details>
+
+**Problem 2 — the $1/t$ weight, a small-$t$ case.** Using §4's linear-schedule loss weight
+$1/t$, what does the weight become at $t=0.05$ (very light masking, few tokens to predict)? Given
+that few terms are being summed at small $t$ (only ~5% of tokens are masked), does a large weight
+here make intuitive sense, or does it seem like it's over-correcting?
+
+<details><summary>Solution</summary>
+
+Weight $=1/0.05=20$ — a large multiplier.
+
+This makes sense once you recall *why* the weight exists (§4's explanation): at small $t$, the
+inner sum has few terms (only ~5% of $L$ tokens are masked), so without reweighting, low-$t$
+noise levels would contribute far less to the total expected loss than high-$t$ levels simply by
+having fewer terms to sum — not because predicting them is easier or less important. The $1/t$
+weight is specifically designed to counteract this: it inflates each rare masked-token's
+contribution so that, in expectation over the random masking, every noise level $t$ contributes
+*as if it were a full sequence's worth of predictions* (exactly as §4 states). So a weight of 20
+at $t{=}0.05$ isn't over-correcting — it's precisely restoring the "one full sequence of signal
+per noise level" balance the bound requires; without it, the model would effectively never learn
+to predict well at low masking rates, exactly the regime closest to final, nearly-clean-text
+generation.
+
+</details>
+
+**Problem 3 — bidirectional attention, spot the bug.** A team fine-tunes an existing GPT-style
+(causal) checkpoint to do masked diffusion, reusing the model's existing attention layers
+unchanged, and are confused why training loss plateaus much higher than a diffusion model trained
+from scratch. Using §4's warning, diagnose the likely cause.
+
+<details><summary>Solution</summary>
+
+Per §4's explicit warning, masked diffusion needs **bidirectional** attention — every position,
+including masked ones, must be able to attend to *every other* position (past and future) to
+correctly predict what belongs at a masked slot using both left and right context. A GPT
+checkpoint's attention layers have a **causal mask baked in**: position $i$ can only attend to
+positions $\le i$. If the team reused the causal mask unchanged, every masked position can only
+be filled in using *earlier* context, silently discarding all information from later in the
+sequence — exactly the failure §4 warns about ("quietly throws away most of the context and
+trains a much weaker model"). The fix is to remove the causal mask entirely for this training
+regime (full bidirectional attention, as sketched in §4's code block), which also means the
+underlying pretrained weights, having been trained under a causal mask, may not transfer as
+cleanly as hoped — a mismatch worth checking for separately once the masking bug itself is fixed.
+
+</details>
+
+## 8. Key takeaways
 
 | # | Takeaway |
 |---|---|

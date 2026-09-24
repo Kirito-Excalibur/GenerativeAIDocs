@@ -409,7 +409,72 @@ Lower $r$, add dropout, get more data, or stop earlier.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — LoRA at a larger scale.** Compute the parameter count and reduction factor for
+LoRA at rank $r=64$ on an $8192\times8192$ weight matrix (a plausible attention projection size
+for a 70B-class model). How does the *reduction factor* compare with §3's $4096\times4096$,
+$r=8$ example (256×)?
+
+<details><summary>Solution</summary>
+
+Full: $8192^2=67{,}108{,}864$. LoRA: $2\times8192\times64=1{,}048{,}576$. Fraction: $1.56\%$,
+reduction $=64\times$ — **4× less** compression than §3's example (256×), even though this
+matrix is 2× bigger in each dimension (4× more total parameters). Using the general formula from
+→ [Math toolkit exercise](../01-foundations/03-math-toolkit.md) ($d/(2r)$): here
+$8192/(2\times64)=64$, matching exactly. §3's example was $4096/(2\times8)=256$. The rank grew
+8× (8→64) while $d$ only grew 2× (4096→8192), so the reduction factor *shrank* by a net factor of
+4 — a reminder that reduction depends on the *ratio* $d/r$, not on either quantity alone.
+
+</details>
+
+**Problem 2 — should you fine-tune? diagnosis.** A team wants their support-chatbot model to
+answer questions about a product catalog that changes weekly. They're considering full
+fine-tuning on the catalog text every week. Using §1's decision framework, what's wrong with this
+plan, and what should they do instead?
+
+<details><summary>Solution</summary>
+
+Per §1's core heuristic ("fine-tuning changes behaviour; retrieval changes knowledge"), a
+catalog is pure **knowledge** — facts about specific products, prices, availability — not a
+*style* or *skill* the model needs to learn. §1 explicitly flags this exact failure mode:
+"Trying to inject facts by fine-tuning gives you a model that has learned the *style* of your
+documents and hallucinates content in that style — the worst of both worlds." Weekly full
+fine-tuning is also absurdly expensive for this purpose (§2: ~112GB+ optimizer state for even a
+7B model) and the resulting model would still confidently hallucinate about products it saw
+imperfectly during a single week's training pass, or forget last week's catalog if not retrained
+carefully (catastrophic forgetting, §2).
+
+**Better**: RAG over the catalog (§1's decision tree routes "lacks knowledge" straight to RAG),
+updated by simply re-indexing the changed catalog entries — no retraining, no forgetting risk,
+and the model always answers from the current, correctly-retrieved text rather than a
+statistically-blended memory of several weeks of catalogs.
+
+</details>
+
+**Problem 3 — QLoRA memory, a bigger model.** Using §4's component breakdown (NF4 base + LoRA
+adapters + optimizer states for the adapters only), roughly estimate whether a 30B model would
+fit for QLoRA fine-tuning on a single 24GB consumer GPU. Use §4's ~48GB figure for a 65B model as
+your scaling reference (NF4 base dominates: roughly 0.5 bytes/param for the frozen base, plus a
+small, roughly-fixed overhead for LoRA adapter training state).
+
+<details><summary>Solution</summary>
+
+Scaling the 65B → ~48GB figure roughly linearly by NF4 base size (since the LoRA adapter and
+optimizer-state overhead is a much smaller, comparatively rank-invariant additive term across
+model sizes): $48\text{GB}\times(30/65) \approx 22.2$GB for the base alone, plus the LoRA/optimizer
+overhead (a few GB, similar in absolute terms across model sizes since it depends on rank $r$ and
+target-module count, not directly on $N$) — total likely in the **24–28GB range**, meaning a
+30B QLoRA fine-tune is **borderline-to-infeasible on a 24GB card**, plausible only with a small
+rank, short sequence length, and gradient checkpointing to trim the remaining activation memory.
+This matches the real-world experience that QLoRA reliably fits 7–13B models comfortably on
+24GB consumer GPUs (§4's own claim: "7B model ~6GB"), fits 65B only on an 80GB card, and 30B sits
+uncomfortably in between — exactly where you'd want to actually measure rather than trust a rough
+linear estimate.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

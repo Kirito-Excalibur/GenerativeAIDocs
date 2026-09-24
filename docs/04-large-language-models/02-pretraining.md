@@ -335,7 +335,77 @@ comparable to the original GPT-2 124M. Total electricity cost: a few dollars.
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — MFU sanity check.** A training run uses 512 H100 GPUs (each rated at 989 TFLOP/s
+BF16 peak) for 10 days to train a 7B model on 2T tokens. Using $C=6ND$ and the MFU formula from
+§4, compute the run's achieved MFU. Is it in the "good," "excellent," or "something's wrong"
+range per §4's table?
+
+<details><summary>Solution</summary>
+
+$C = 6\times7\times10^9\times2\times10^{12}=8.4\times10^{22}$ FLOPs.
+
+Wall-clock $t = 10\text{ days}=864{,}000$ s.
+
+$$\text{MFU} = \frac{C}{t\times F_{\text{peak}}\times n_{\text{GPU}}}
+= \frac{8.4\times10^{22}}{864000\times9.89\times10^{14}\times512} = \frac{8.4\times10^{22}}{4.379\times10^{23}}=0.192$$
+
+**19.2% MFU** — per §4's table, this is below 25%, meaning "something is badly wrong": likely a
+communication bottleneck (poor sharding, network contention), small effective batch size, or a
+slow data loader stalling the GPUs. This is a useful exercise in reverse-engineering suspicion
+from a wall-clock number alone, without seeing any logs.
+
+</details>
+
+**Problem 2 — checkpointing arithmetic, a different cluster.** Using §5's reasoning, a cluster of
+2000 GPUs has a mean time between failures of 6 hours (twice as reliable per-GPU as the 1000-GPU,
+4-hour example implied in §5's text — actually MTBF *scales down* with more GPUs, so let's set
+this up correctly). Suppose you're told the *aggregate* MTBF (time until *some* GPU fails
+somewhere in the cluster) is 3 hours for this 2000-GPU cluster. If checkpointing a 30B model
+(with optimizer state) takes 90 seconds at 10 GB/s, and you checkpoint every 20 minutes, what
+fraction of wall-clock time is spent on checkpoint writes, and how much progress (in minutes) do
+you expect to lose per failure on average?
+
+<details><summary>Solution</summary>
+
+Checkpoint overhead: 90 seconds every 1200 seconds (20 min) $= 90/1200=7.5\%$ of wall-clock time
+spent writing checkpoints.
+
+Progress lost per failure: on average, a failure occurs uniformly at a random point within a
+20-minute checkpoint interval, so expected lost progress $\approx$ half the interval $=10$
+minutes (plus the ~90s restart/checkpoint-load overhead, which is small by comparison). This is
+the same style of trade-off §5 describes (30 min interval → ~15 min average loss "plus checkpoint
+write time"), just recomputed for a tighter 20-minute interval and a bigger model — note the
+checkpoint-write fraction (7.5%) is noticeably *higher* here than in the smaller/looser example
+implied by §5, because a 30B model's optimizer state is larger (more seconds to write) relative
+to the shorter interval chosen — illustrating the actual trade-off: tighter intervals lose less
+progress per failure but burn more wall-clock on writes, and the optimal interval depends on both
+checkpoint size and the cluster's real MTBF.
+
+</details>
+
+**Problem 3 — pipeline bubble, a deeper pipeline.** Using §3's formula
+$\text{bubble} = (P-1)/(m+P-1)$, compute the bubble fraction for $P=8$ pipeline stages at
+$m=16$ and at $m=64$ micro-batches. At $m=16$, is this "acceptable" per §3's rule of thumb
+($m\gg P$)?
+
+<details><summary>Solution</summary>
+
+$P=8$, $m=16$: bubble $=7/(16+7)=7/23=30.4\%$ — this is **not** a case of $m\gg P$ ($m$ is only
+$2\times P$), and 30.4% wasted time is a substantial inefficiency, closer to §3's "unacceptable"
+$m{=}4,P{=}4$ example (43%) than its "acceptable" $m{=}32,P{=}4$ example (8.6%).
+
+$P=8$, $m=64$: bubble $=7/(64+7)=7/71=9.9\%$ — now $m$ is $8\times P$, and the bubble drops to
+under 10%, in the acceptable range.
+
+Takeaway: as pipeline depth $P$ grows, you need proportionally more micro-batches to keep the
+bubble small — the "$m\gg P$" rule in §3 isn't a fixed micro-batch count, it's a *ratio*
+requirement that gets harder to satisfy as you add more pipeline stages.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

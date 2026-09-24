@@ -362,7 +362,88 @@ def code_best_of_n(model, spec, tests, n=16):
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — pass@$k$, a different success rate.** Using the unbiased estimator from
+→ [Evaluation metrics §5](../07-evaluation/01-metrics.md#5-task-specific-metrics), compute
+pass@1 and pass@8 for $n{=}24$ samples with $c{=}6$ correct. Compare with §3's
+best-of-$n$ table (which used a *simplified* perfect-verifier formula
+$1-(1-p)^n$ at $p{=}0.25$) — do the two approaches roughly agree at $n{=}8$?
+
+<details><summary>Solution</summary>
+
+pass@1 $= c/n = 6/24 = 0.25$.
+
+pass@8 (unbiased estimator): $1-\binom{18}{8}/\binom{24}{8} = 0.9405$ — **94.1%**.
+
+§3's simplified formula at $p{=}0.2$, $n{=}4$ gave 59%; extrapolating its $p{=}0.2$ row isn't a
+direct match, but comparing the *mechanism*: at $p{=}0.25$ (matching this problem's empirical
+pass@1), the simplified independent-samples formula gives $1-(1-0.25)^8=1-0.75^8=1-0.100=0.900$
+— **90.0%**, close to but slightly below the unbiased estimator's 94.1%. The gap exists because
+the two formulas answer slightly different questions: $1-(1-p)^n$ assumes $p$ is a known,
+fixed, *continuous* success probability, while the unbiased pass@$k$ estimator works from
+actual discrete counts ($c$ successes out of $n$ *observed* samples) and correctly accounts for
+sampling without replacement when choosing which $k$ of the $n$ to imagine using — a subtlety
+that matters more at small $n$.
+
+</details>
+
+**Problem 2 — GRPO advantage, an unbalanced group.** A group of $G{=}8$ attempts at a coding
+problem gets rewards $(1,1,1,1,1,1,1,0)$ — 7 correct, 1 wrong (an easy problem). Using §5's GRPO
+formula, compute the advantage for a correct attempt and for the wrong attempt. Compare the
+*magnitude* of these advantages with §7's worked example (3 correct, 5 wrong out of 8) — which
+group gives a stronger training signal, and why does that make sense given how "surprising" each
+outcome is?
+
+<details><summary>Solution</summary>
+
+Mean $=7/8=0.875$; variance $=\frac18[7(1-0.875)^2+1(0-0.875)^2]=\frac18[7(0.0156)+0.7656]
+=\frac18[0.1094+0.7656]=0.1094$; std $=\sqrt{0.1094}=0.3307$.
+
+Correct: $A=(1-0.875)/0.3307=0.378$. Wrong: $A=(0-0.875)/0.3307=-2.646$.
+
+§4's own worked example (3/8 correct) gave $A_{\text{correct}}=+1.29$, $A_{\text{wrong}}=-0.77$
+— **much larger** advantage magnitude for correct answers there, and much *smaller* magnitude for
+wrong answers, than in this easy-problem case (0.378 vs 1.29 for correct; $-2.646$ vs $-0.77$ for
+wrong).
+
+This makes sense: on the easy problem (7/8 correct), being correct is the *unsurprising* outcome
+— it barely moves the mean, so it gets a small advantage — while the one wrong attempt is the
+*surprising*, informative outlier and gets amplified into a large negative advantage. On the hard
+problem (3/8 correct), the situation reverses: being correct is the surprising, valuable event
+(large positive advantage) while being wrong is unsurprising (only mildly negative). GRPO's
+normalization automatically concentrates the training signal on whichever outcome is rarer within
+the group, without needing to know in advance which problems are "easy" or "hard."
+
+</details>
+
+**Problem 3 — chain-of-thought as computational depth.** Using §1's formalization
+($\text{Transformer}+\text{CoT of length }k \approx \text{a circuit of depth }O(L\cdot k)$),
+suppose a 24-layer model needs an estimated depth of 600 to reliably solve some hard combinatorial
+puzzle in one shot. Roughly how many CoT tokens would be needed to reach that effective depth,
+and does this help explain why very long reasoning traces (thousands of tokens) are sometimes
+necessary for hard problems, rather than a slight prompting tweak?
+
+<details><summary>Solution</summary>
+
+$O(L\times k)\ge600$ with $L{=}24$ gives $k\ge600/24=25$ CoT tokens **at minimum**, by this
+rough asymptotic argument — though in practice the constant hidden in the $O(\cdot)$, and the
+fact that not every generated token performs "useful" additional computation (many are spent on
+formatting, restating, or exploring dead ends), typically pushes the *actual* number of tokens
+needed far higher than this idealized lower bound.
+
+This does help explain the qualitative phenomenon: per §1, a fixed-depth Transformer's *one-shot*
+computational depth is capped at $L$ (here 24) — nowhere near 600 — so no amount of clever
+one-shot prompting can substitute for the missing depth; only *additional serial passes* (more
+generated tokens, each a fresh forward pass with the previous output as new input) can supply it.
+This is precisely why reasoning models trained via RLVR (§5) discover, on their own, that
+generating substantially longer traces is necessary and rewarding for hard problems — they're
+converting the one dimension they *can* scale at inference (sequence length) into the one they
+structurally lack (circuit depth), exactly as §1's theorem predicts.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

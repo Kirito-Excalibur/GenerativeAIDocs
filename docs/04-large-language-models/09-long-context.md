@@ -303,7 +303,71 @@ degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — attention share and KV cache, 64K context.** Using §2's formulas, compute
+attention's share of FLOPs and the KV cache size (BF16, GQA-8, $L{=}80$, $d_h{=}128$, batch 1)
+at $T=64{,}000$ (between §2's table rows for 32K and 128K).
+
+<details><summary>Solution</summary>
+
+Share $= 4Td/(24d^2+4Td)$ with $d{=}4096$: $=4\times64000\times4096/(24\times4096^2+4\times64000\times4096)
+= 1.049\times10^9/(4.027\times10^8+1.049\times10^9) = 72.3\%$ — sitting between §2's 32K row
+(57.1%) and 128K row (84.2%), as expected for an intermediate length.
+
+KV cache: $2\times80\times8\times128\times64000\times1\times2\text{ bytes} = 2.097\times10^{10}$
+bytes $\approx 20.97$ GB — roughly double the 128K/2 value you'd naively interpolate, but that's
+expected since KV cache scales *linearly* in $T$ (unlike the attention-share formula, which is a
+nonlinear ratio): $20.97\text{GB} \approx 42.9\text{GB}\times(64/128)$ ✓ exactly half of §2's
+128K figure, confirming the linear scaling directly.
+
+</details>
+
+**Problem 2 — sliding window reach, a bigger window.** Using §3's formula ($L\times w$ indirect
+reach), compute the theoretical receptive field for a 48-layer model with sliding window
+$w{=}8192$. Per §3's caveat about *indirect* propagation being lossy, would you trust this model
+to reliably retrieve a specific fact from 200,000 tokens back if its theoretical reach exceeds
+that? Why or why not?
+
+<details><summary>Solution</summary>
+
+$L\times w = 48\times8192 = 393{,}216$ tokens — theoretically exceeds 200,000.
+
+But §3 is explicit that this is *indirect* propagation: information must travel through many hops
+of re-encoding (one hop per layer along the path), and "exact retrieval of a specific string from
+100k tokens back requires it to survive 25 hops of re-encoding" in a comparable example. Passing
+the theoretical-reach check is **necessary but nowhere near sufficient** for reliable retrieval —
+§3 explicitly separates "good for fluency over long text" from "poor for lookup." The practical
+answer is no, you would not trust this for reliable single-fact retrieval at that distance without
+testing it directly (e.g. with a RULER-style needle-in-haystack eval per §6) — sliding-window
+models are architected for smooth long-range context, not exact addressable memory.
+
+</details>
+
+**Problem 3 — long context vs RAG, a concrete decision.** A legal-tech company has a 2 million
+token corpus of case law that's queried thousands of times per day, with each query needing only
+a handful of relevant precedents. Using §7's decision rule, what should they build, and what's
+the mechanistic reason (not just "the table says so")?
+
+<details><summary>Solution</summary>
+
+Per §7's table, 2M tokens is well above the "100K–10M: RAG with generous $k$" range, and pushes
+toward the "$>10$M: RAG, necessarily" boundary from the lower end — either way, **RAG**, not
+long-context.
+
+Mechanistic reason (per §4's "per-query cost" and "corpus size limit" rows): the corpus (2M
+tokens) already exceeds most production context windows, so long-context isn't even an option
+without truncation. But the sharper reason is *repeated, high-volume querying* — §7 explicitly
+recommends "long context + prompt caching" as an alternative *only* when queries repeatedly hit
+the *same fixed prefix*; here, each of thousands of daily queries needs a different, small subset
+of the 2M-token corpus, so there's no shared prefix to cache, and re-processing (even just
+prefilling) 2M tokens per query would be prohibitively expensive at that volume regardless of
+whether it fit in the window. RAG's "low per-query cost" (§7's comparison table) — retrieving
+only the relevant handful of precedents per query — is the only economically viable design here.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

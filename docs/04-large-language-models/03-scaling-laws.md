@@ -285,7 +285,75 @@ $100M commitment defensible.
 
 ---
 
-## 7. Key takeaways
+## 7. Exercises
+
+**Problem 1 — compute-optimal allocation, a bigger budget.** Using §3's method
+($N=\sqrt{C/120}$, $D=20N$), compute the compute-optimal model size and token count for
+$C=5\times10^{22}$ FLOPs (roughly 1.5× the worked \$1M example in §3). Verify $6ND=C$.
+
+<details><summary>Solution</summary>
+
+$$N = \sqrt{5\times10^{22}/120} = \sqrt{4.167\times10^{20}} = 2.041\times10^{10} \approx 20.4\text{ B params}$$
+$$D = 20N = 4.082\times10^{11} \approx 0.41\text{ T tokens}$$
+
+Check: $6\times2.041\times10^{10}\times4.082\times10^{11} = 5.00\times10^{22}$ ✓ matches $C$
+exactly.
+
+Compare with §3's \$1M/$C{=}7.2\times10^{23}$ example ($N{\approx}77$B): this budget is about
+$14.4\times$ smaller in compute, and — since $N\propto\sqrt C$ — the compute-optimal model size
+should scale by $\sqrt{14.4}\approx3.8\times$ smaller, giving $77/3.8\approx20.3$B, matching the
+direct calculation to within rounding. This confirms the $N\propto\sqrt C$ (at fixed $D/N$ ratio)
+relationship holds as a quick sanity-check shortcut.
+
+</details>
+
+**Problem 2 — the IsoFLOP curve, reading it directly.** Using the isoFLOP figure in §2 (or the
+underlying Chinchilla fit), at $C=10^{21}$ FLOPs, roughly what parameter count minimizes
+predicted loss, and roughly what $D/N$ ratio does that correspond to? Does it land close to the
+"20 tokens/param" rule, or notably far from it — and if far, what does §2's boxed warning say
+about why?
+
+<details><summary>Solution</summary>
+
+Reading the isoFLOP curve at $C=10^{21}$: the minimum sits at $N^*\approx1.82\times10^9$ (1.82B
+params), with corresponding $D^*\approx9.17\times10^{10}$ (91.7B tokens) — giving
+$D/N\approx50.5$, **well above** the "20 tokens/param" rule of thumb (about 2.5× higher).
+
+This is not a contradiction — it's exactly §2's boxed warning: the isoFLOP curves are drawn from
+the paper's *published parametric constants* ($A,B,E,\alpha,\beta$), which the text explicitly
+flags as inconsistent with the paper's other two estimation methods and with the ~20:1 ratio that
+those other methods (and the Gopher/Chinchilla comparison) actually support. So this exercise is
+a demonstration of the warning, not a counter-example to it: trust the 20:1 rule of thumb over
+this particular curve's exact minimum, per the cited re-analysis (Besiroglu et al. 2024).
+
+</details>
+
+**Problem 3 — over-training for inference, a concrete decision.** You're choosing between two
+training plans for the same \$500K compute budget: (a) Chinchilla-optimal ($D{\approx}20N$), or
+(b) a smaller model trained on $200\times$ more tokens per parameter, as in §3's data-constrained
+discussion. If you expect to serve 50 billion tokens over the model's lifetime, use §3's
+Problem-2-style reasoning to say which plan is likely better **for total lifetime cost**
+(training + inference), and why.
+
+<details><summary>Solution</summary>
+
+Per §3, total cost $\approx 6ND_{\text{train}} + 2ND_{\text{inference}}$. With
+$D_{\text{inference}}=5\times10^{10}$ tokens fixed regardless of which plan you pick, inference
+cost is $2N\times5\times10^{10}=10^{11}N$ — **linear in $N$**, so a *smaller* $N$ directly and
+proportionally reduces the inference bill, for the same amount of serving.
+
+Training cost for a fixed compute budget $C$ is, by definition, the same \$500K either way (that
+was the constraint) — so training cost doesn't discriminate between the plans. But plan (b)'s
+smaller $N$ (having spent the same $C=6ND$ on more tokens instead of more parameters) means a
+**smaller model to serve**, hence lower inference cost for the same 50B tokens of lifetime
+serving. Per §3's table (100B tokens served → ~50:1 ratio recommended; 10B+ → 500–2000:1), 50B
+tokens of expected serving already pushes well past Chinchilla-optimal toward the
+over-trained-smaller-model regime — **plan (b) wins on total lifetime cost**, matching the
+general conclusion "if you will serve a lot of tokens, train far past Chinchilla."
+
+</details>
+
+## 8. Key takeaways
 
 | # | Takeaway |
 |---|---|

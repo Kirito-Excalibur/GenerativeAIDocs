@@ -317,7 +317,82 @@ Remove weights. Two kinds:
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — INT8 quantization, new weights.** Using §2's method, quantize
+$W=(0.05, -0.62, 0.91, -0.08, 0.33)$ to INT8, compute the dequantized values, and the maximum
+possible error. Which weight has the largest *relative* error, and why (hint: think about which
+weight is smallest in magnitude)?
+
+<details><summary>Solution</summary>
+
+$s = \max|W|/127 = 0.91/127 = 0.007165$.
+
+$W_q = \text{round}(W/s) = (7, -87, 127, -11, 46)$.
+
+Dequantized: $(0.0502, -0.6234, 0.91, -0.0788, 0.3296)$.
+
+Max error $=s/2=0.00358$ (absolute, same for every weight — this is §2's key point: the
+quantization grid is uniform, so absolute error is bounded the same way everywhere).
+
+**Relative** error is largest for the *smallest*-magnitude weight: $0.05\to0.0502$ has absolute
+error $0.0016$ but relative error $0.0016/0.05=3.2\%$; the max-magnitude weight $0.91\to0.91$
+(rounds exactly, since $127\times s=0.91$ by construction) has $0\%$ relative error. This is the
+mechanistic reason activation *outliers* are so damaging (§3): a single large-magnitude value
+sets the scale for everyone, and every smaller value — including ones that matter — inherits a
+worse relative error because the grid resolution is fixed by the outlier, not by the typical
+value.
+
+</details>
+
+**Problem 2 — distillation temperature, applied.** Teacher logits over 4 classes:
+$(4.0, 1.0, 0.5, -2.0)$. Compute the softened teacher distribution at $T{=}1$ (no softening) and
+$T{=}4$, per §5. How much "dark knowledge" (relative probability on the non-top classes) does
+$T{=}4$ reveal that $T{=}1$ essentially hides?
+
+<details><summary>Solution</summary>
+
+$T{=}1$: $(0.924, 0.046, 0.028, 0.002)$ — the top class dominates almost completely; classes 2
+and 3 (probabilities 0.046 and 0.028) are barely distinguishable from each other in relative
+terms once rounded, and class 4 is nearly invisible.
+
+$T{=}4$: $(0.473, 0.224, 0.197, 0.106)$ — all four classes now carry substantial, clearly
+*differentiated* probability mass. Notice classes 2 and 3, which were both "small and similar"
+under $T{=}1$ (0.046 vs 0.028, a ratio of 1.64), remain in a similar ratio under $T{=}4$ (0.224 vs
+0.197, ratio 1.14) but are now large enough in absolute terms for a student's cross-entropy
+gradient to actually pick up on the *relative* ordering between them — this is exactly the "dark
+knowledge" §5 describes: the teacher's belief that class 3 is more plausible than class 4 is
+present in both temperatures, but only *usable as a training signal* once softening makes it
+numerically significant.
+
+</details>
+
+**Problem 3 — the 4-bit cliff, reasoned.** §4's table shows perplexity increase roughly
+$<1\%$ at INT8, $1$–$3\%$ at INT4, and $5$–$15\%$ at 3-bit. Using §3's outlier discussion and
+§2's "8 bits is plenty" result, explain in mechanistic terms (not just "it's an empirical fact")
+why the degradation from 8→4 bits is so much milder than from 4→3 bits, referencing the number of
+representable levels at each bit-width.
+
+<details><summary>Solution</summary>
+
+Bit-width sets the number of representable levels: 8-bit → 256 levels, 4-bit → 16 levels, 3-bit →
+8 levels. Going 8→4 bits is a $16\times$ reduction in levels (256→16); going 4→3 bits is only a
+further $2\times$ reduction (16→8) — a much *smaller* relative step in levels, yet it produces a
+*larger* jump in perplexity degradation. The reason isn't the ratio of levels but where you land
+relative to the data's actual information content: §2 showed 8-bit error is already small
+relative to typical weight magnitudes ($s/2$ with $s=\max|W|/127$, giving sub-percent relative
+error for most weights). At 4 bits (16 levels), you're still resolving the *bulk* of the weight
+distribution reasonably, since most weights cluster near the mode and 16 levels can still capture
+that shape roughly. At 3 bits (8 levels), you cross a threshold where there simply aren't enough
+distinct values left to represent the weight distribution's shape at all — many *meaningfully
+different* weights collapse onto the *same* quantized value, which is a qualitatively different
+kind of error (information loss, not just rounding noise) — matching §4's framing of "a genuine
+information threshold around 4 bits" rather than a smooth continuation of the same rounding-error
+trend.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

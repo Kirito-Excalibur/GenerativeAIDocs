@@ -320,7 +320,74 @@ total_loss = ce_loss + sum(m.aux_loss for m in model.modules() if isinstance(m, 
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — total vs active, a 16-expert model.** Using §2's Mixtral-style method
+($d{=}4096$, $d_{ff}{=}14336$, $L{=}32$, shared params $\approx1.3$B), compute total and active
+parameters for $E{=}16$ experts, top-$k{=}4$. What's the total/active ratio, and how does it
+compare with $E/k$ (the naive ratio you'd expect if the shared components were negligible)?
+
+<details><summary>Solution</summary>
+
+Per-expert-per-layer MLP: $3\times4096\times14336=176.2$M (identical to §2's Mixtral figure,
+since $d,d_{ff}$ are unchanged — only $E,k$ differ here).
+
+Total: $1.3\text{B} + 32\times16\times176.2\text{M} = 1.3\text{B}+90.2\text{B}=91.5$B.
+
+Active: $1.3\text{B}+32\times4\times176.2\text{M}=1.3\text{B}+22.6\text{B}=23.8$B.
+
+Ratio: $91.5/23.8=3.84\times$. Naive $E/k=16/4=4.0\times$. The actual ratio ($3.84$) is *slightly
+below* the naive $E/k$ ratio because the shared components (1.3B, identical in both total and
+active) don't get multiplied by $E$ or $k$ — they dilute the ratio slightly toward 1. This
+matches §2's own Mixtral example: real ratio $46.7/12.9=3.62$ vs naive $E/k=8/2=4.0$ — same
+direction and similar-sized gap.
+
+</details>
+
+**Problem 2 — load balancing, a different capacity factor.** A batch has 8192 tokens routed
+through $E{=}8$ experts at top-$k{=}2$. Using §3's capacity formula, compute the per-expert
+capacity at CF$=1.5$, and say how many tokens per expert a *perfectly balanced* batch would send.
+How much headroom (in tokens) does CF$=1.5$ give over perfect balance?
+
+<details><summary>Solution</summary>
+
+Capacity $= \text{CF}\times\frac{\text{tokens}\times k}{E} = 1.5\times\frac{8192\times2}{8}
+= 1.5\times2048=3072$ tokens per expert.
+
+Perfectly balanced: $8192\times2/8=2048$ tokens per expert (exactly the un-scaled term).
+
+Headroom: $3072-2048=1024$ tokens, i.e. **50% above perfect balance** — matching CF's definition
+directly (CF$=1.5$ means "50% more capacity than the balanced case"). This is more generous than
+§3's own worked example (CF$=1.25$, giving 25% headroom), trading more wasted compute/memory
+(unused capacity slots) for a lower chance of token dropping under imbalanced routing.
+
+</details>
+
+**Problem 3 — MoE inference batching, reasoned.** Using §6's discussion of poor small-batch MoE
+efficiency, explain why a chatbot serving *one user at a time* would get worse GPU utilization
+from an MoE model than from a dense model of the same *active* parameter count, even though both
+require exactly the same FLOPs per token.
+
+<details><summary>Solution</summary>
+
+For a dense model, every token in a batch uses the *same* weights, so a batch of (say) 1 token
+still runs one clean, reasonably-shaped matmul against the full weight matrices — GPU utilization
+is limited mainly by the usual memory-bandwidth-bound decode problem (→ [LLM architecture
+§4](01-llm-architecture.md#4-request-lifecycle-prefill-and-decode)), not by anything MoE-specific.
+
+For an MoE model serving one user, each of the few tokens being decoded independently selects its
+own top-$k$ experts via the router — with only 1 (or a handful of) tokens in flight, the tokens
+routed to any *particular* expert form a batch of size 0 or 1 for that expert's matmul. Per §6,
+"each expert gets a small batch — worse GPU utilization" — you've lost the ability to batch many
+tokens against the same expert's weights, which is exactly the mechanism that makes matmuls
+efficient on GPU hardware. The FLOPs-per-token being identical to a dense model doesn't help,
+because the bottleneck here isn't FLOPs — it's how efficiently those FLOPs can be scheduled onto
+the hardware, and MoE's fragmentation across experts hurts that efficiency precisely when batch
+size is small, which is exactly the single-user chatbot case.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

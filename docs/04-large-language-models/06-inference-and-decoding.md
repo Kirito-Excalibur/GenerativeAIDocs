@@ -429,7 +429,70 @@ Good starting points by task:
 
 ---
 
-## 10. Key takeaways
+## 10. Exercises
+
+**Problem 1 — nucleus sampling, by hand.** A distribution has probabilities (sorted descending)
+$0.35, 0.25, 0.15, 0.12, 0.08, 0.05$ over 6 tokens. Using §3's top-$p$ procedure with $p=0.8$,
+which tokens are in the nucleus? What if $p=0.5$?
+
+<details><summary>Solution</summary>
+
+Cumulative: $0.35, 0.60, 0.75, 0.87, 0.95, 1.00$.
+
+At $p=0.8$: include tokens until cumulative **exceeds** 0.8 — that happens at the 4th token
+(cumulative $0.87>0.8$), so the nucleus is **tokens 1–4** (probabilities $0.35,0.25,0.15,0.12$,
+summing to $0.87$).
+
+At $p=0.5$: cumulative exceeds 0.5 at the 2nd token ($0.60>0.5$), so the nucleus is **tokens
+1–2** ($0.35,0.25$, summing to $0.60$). A smaller $p$ gives a smaller, more confident nucleus —
+exactly the adaptivity property §3 highlights: the cutoff size isn't fixed, it responds to how
+peaked or flat the underlying distribution is at each step.
+
+</details>
+
+**Problem 2 — speculative decoding, a lower acceptance rate.** Using §6's formula
+$\mathbb{E}[\text{tokens}]=(1-\alpha^{k+1})/(1-\alpha)$, compute the expected tokens per
+verification round for $\alpha=0.75$, $k=6$ (a harder-to-predict domain than the table's
+examples, with a longer draft). Compare against §6's $\alpha{=}0.8,k{=}4$ row (3.36) — did
+increasing $k$ compensate for the lower $\alpha$?
+
+<details><summary>Solution</summary>
+
+$$\mathbb{E}[\text{tokens}] = \frac{1-0.75^7}{1-0.75} = \frac{1-0.1335}{0.25} = \frac{0.8665}{0.25}=3.47$$
+
+**3.47**, very slightly *higher* than the $\alpha{=}0.8,k{=}4$ row's 3.36 — so yes, extending the
+draft length from 4 to 6 did more than compensate for the acceptance-rate drop from 0.8 to 0.75
+in this case, though only marginally. This illustrates §6's broader point: for a fixed acceptance
+rate, going to a longer draft always helps but with **diminishing returns** (the function
+saturates as $k\to\infty$ toward $1/(1-\alpha)$ — here that ceiling is $1/0.25=4.0$, so at
+$k{=}6$ we're already at $3.47/4.0=87\%$ of the way to the asymptotic maximum for this
+$\alpha$), so there's limited additional benefit to pushing $k$ much higher without also
+improving the draft model's acceptance rate.
+
+</details>
+
+**Problem 3 — PagedAttention waste, worked.** A request generates 320 tokens into a buffer
+originally sized for the model's 4096-token maximum context. Using §5's reasoning, compute the
+fraction wasted under naive contiguous allocation. If instead this request used 16-token blocks
+(PagedAttention-style), how many blocks would actually be allocated, and what's the maximum
+possible waste in the last (partially-filled) block?
+
+<details><summary>Solution</summary>
+
+Naive: $1 - 320/4096 = 92.2\%$ wasted — even worse than §5's own 97.5% example (100 tokens in a
+4096 buffer), just less extreme since more of the buffer got used.
+
+Paged, 16-token blocks: $\lceil320/16\rceil=20$ blocks allocated. The last block holds
+$320 - 19\times16 = 320-304=16$ tokens — it happens to divide evenly here, so there's **zero**
+waste in this particular case. In general, the maximum possible waste with 16-token blocks is
+bounded by one nearly-empty final block, i.e. at most $15/16=93.75\%$ of *one block's* capacity
+wasted, which as a fraction of the *whole* allocation ($20\times16=320$ tokens) is at most
+$15/320=4.7\%$ — vastly better than the naive 92.2%, and consistent with §5's "<4% waste" figure
+for realistic mixes of request lengths.
+
+</details>
+
+## 11. Key takeaways
 
 | # | Takeaway |
 |---|---|

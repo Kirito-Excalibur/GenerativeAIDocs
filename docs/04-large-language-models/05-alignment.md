@@ -372,7 +372,71 @@ scales predictably with reward model size — a scaling law for reward over-opti
 
 ---
 
-## 10. Key takeaways
+## 10. Exercises
+
+**Problem 1 — Bradley-Terry, by hand.** Using §4's formula, if the reward model scores a chosen
+response at $r_w=2.5$ and a rejected one at $r_l=1.0$, what's the predicted probability that a
+human prefers the chosen response? If instead $r_w=r_l+10$ (a huge gap), what does the formula
+predict, and does that match the intuition that a confident reward-model gap should mean near-
+certain preference?
+
+<details><summary>Solution</summary>
+
+$$P(y_w\succ y_l) = \sigma(r_w-r_l) = \sigma(1.5) = \frac{1}{1+e^{-1.5}} = 0.818$$
+
+With a 10-point gap: $\sigma(10) = 1/(1+e^{-10}) = 0.99995$ — essentially certain, matching the
+intuition. Note though that §4 explicitly warns raw reward *values* are uninterpretable in
+isolation (only *differences* are identified) — this exercise only makes sense because we're
+given a **difference** ($r_w-r_l$) to plug in, not because the individual values 2.5 and 1.0 mean
+anything on their own.
+
+</details>
+
+**Problem 2 — DPO loss, one training example.** For one preference pair, the policy gives summed
+log-probs $\log\pi_\theta(y_w|x)=-2.0$, $\log\pi_\theta(y_l|x)=-3.5$, while the frozen reference
+gives $\log\pi_{ref}(y_w|x)=-2.2$, $\log\pi_{ref}(y_l|x)=-3.0$. With $\beta=0.1$, compute the DPO
+loss for this example using §6's boxed formula. Is the policy currently "correct" (prefers $y_w$
+more than the reference does, relatively) or not?
+
+<details><summary>Solution</summary>
+
+$$\text{logits} = \beta\Big[(\log\pi_\theta(y_w)-\log\pi_{ref}(y_w)) - (\log\pi_\theta(y_l)-\log\pi_{ref}(y_l))\Big]
+= 0.1\big[(-2.0-(-2.2)) - (-3.5-(-3.0))\big] = 0.1[0.2-(-0.5)]=0.1(0.7)=0.07$$
+
+$$\mathcal{L} = -\log\sigma(0.07) = 0.659$$
+
+The logits are positive ($0.07>0$), meaning the policy has moved *slightly* in the right
+direction relative to the reference (it increased $y_w$'s relative log-prob more than $y_l$'s,
+compared to where the reference started) — but the loss ($0.659$, versus $-\log\sigma(0)=0.693$
+at logits$=0$) is only modestly below the "no progress" baseline, reflecting that $0.07$ is a
+small positive margin, not a confident one. Per §6's gradient analysis, this example would still
+contribute a meaningful (though not huge) gradient pushing $y_w$ up and $y_l$ down further.
+
+</details>
+
+**Problem 3 — reward over-optimization, applied.** Using §9's Goodhart's-law framing and the
+Gao et al. finding (true preference peaks then declines as proxy reward keeps climbing), suppose
+you're monitoring a PPO run and see proxy reward climbing steadily for 10,000 steps while a
+small held-out human-eval score peaks at step 4,000 and then declines. What should you do, and
+why is "just keep training since reward is still going up" the wrong read of this situation?
+
+<details><summary>Solution</summary>
+
+You should **stop training around step 4,000** (or roll back to a checkpoint near there) and
+treat the continued proxy-reward climb after that point as evidence of over-optimization, not
+progress. §9's Gao et al. citation is precise about this: "as KL divergence from the initial
+policy grows, true preference improves, peaks, then **declines** while the proxy reward keeps
+climbing" — which is exactly the pattern observed. "Reward still going up" is the wrong signal to
+trust here specifically *because* the reward model is a learned proxy, and by definition a proxy
+can be exploited in ways that increase its score while decreasing the thing it was built to
+measure (§9's Goodhart framing: "when a measure becomes a target, it ceases to be a good
+measure"). The held-out human eval, though smaller and noisier, is closer to ground truth and its
+peak-then-decline is the actionable signal — use it (or KL-from-reference as a proxy for how far
+you've drifted) to pick a stopping point, not the reward-model score alone.
+
+</details>
+
+## 11. Key takeaways
 
 | # | Takeaway |
 |---|---|

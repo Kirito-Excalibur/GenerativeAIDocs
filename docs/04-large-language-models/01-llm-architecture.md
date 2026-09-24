@@ -303,7 +303,75 @@ of pure compute (real runs take longer due to restarts, evals and data loading).
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — parameter count with aggressive GQA.** Using §3's method, estimate the parameter
+count of a LLaMA-3-8B-shaped model ($L{=}32$, $d{=}4096$, $H{=}32$, $d_{ff}{=}14336$,
+$V{=}128256$) but with $H_{kv}{=}4$ instead of the real model's $H_{kv}{=}8$. How much smaller is
+it than the real 8.03B, and does halving $H_{kv}$ roughly halve the *attention* portion of the
+per-layer parameters?
+
+<details><summary>Solution</summary>
+
+With $H_{kv}{=}4$: $W_K, W_V$ each shrink to $d\times(d\times4/32)=d\times(d/8)$. Per-layer
+attention $= d^2(\text{Wq}) + 2\times d^2/8(\text{Wk,Wv}) + d^2(\text{Wo}) = 2.25d^2 = 37.75$M
+(vs $2.5d^2=41.9$M at $H_{kv}{=}8$, from the page's own §3 table) — only a **10% drop** in the
+attention portion, *not* a halving, because $W_Q$ and $W_O$ (each a full $d^2$) don't shrink at
+all with $H_{kv}$; only $W_K,W_V$ do, and they were already a minority of the attention
+parameters. Total model: $\approx7.90$B vs the real $8.03$B — about **1.6% smaller overall**.
+
+The KV *cache*, by contrast, scales linearly and fully with $H_{kv}$: at $T{=}8192$,
+$H_{kv}{=}4$ gives $0.537$GB vs $H_{kv}{=}8$'s $1.07$GB (§3) — a clean **2× reduction**, exactly
+matching the ratio of $H_{kv}$ values. This is the asymmetry worth remembering: GQA barely moves
+the *parameter count*, but moves the *serving memory* proportionally.
+
+</details>
+
+**Problem 2 — training cost, a smaller run.** Using §3's cost formula, estimate the FLOPs,
+GPU-hours (at 400 TFLOP/s effective), and dollar cost (\$2/GPU-hour) to train a 3B model on 5T
+tokens.
+
+<details><summary>Solution</summary>
+
+$C = 6\times3\times10^9\times5\times10^{12} = 9\times10^{22}$ FLOPs.
+
+GPU-hours $= 9\times10^{22}/(400\times10^{12}\times3600) = 62{,}500$ GPU-hours.
+
+Cost $\approx 62{,}500\times\$2 = \$125{,}000$ — comparable order of magnitude to the page's own
+7B/2T-token example (\$117K), because this run trades a smaller model for proportionally more
+tokens ($3\text{B}\times5\text{T} \approx 7\text{B}\times2\text{T}$ isn't quite equal — $1.5{\times}10^{13}$
+vs $1.4{\times}10^{13}$ token-parameter product — close enough that the near-equal cost makes
+sense given $C\propto ND$).
+
+</details>
+
+**Problem 3 — prefill vs decode, applied.** A request has a 4,000-token prompt (RAG context) and
+asks for a 50-token answer. Using §4's arithmetic-intensity argument, which phase dominates
+*wall-clock* time for this request, and would the answer change if the prompt were 50 tokens and
+the answer 4,000 tokens (e.g. a long generated report)?
+
+<details><summary>Solution</summary>
+
+Case 1 (4000-token prompt, 50-token answer): prefill processes all 4000 prompt tokens in one
+compute-bound forward pass — potentially fast per-token since it's compute-bound and highly
+parallel, but there's a lot of tokens to process. Decode then does 50 sequential,
+memory-bandwidth-bound steps, each paying the "read all weights" cost regardless of how few
+tokens are being generated. For a 7B-class model, prefill of 4000 tokens might take well under a
+second on modern hardware, while 50 sequential memory-bound decode steps (per §4: dominated by
+weight-read time, roughly constant per token) could take a comparable or greater amount of
+wall-clock time — **the phases are roughly comparable here**, with decode's fixed per-token cost
+mattering more as the answer gets longer.
+
+Case 2 (50-token prompt, 4000-token answer): prefill is now tiny (50 tokens, fast). Decode must
+run 4000 sequential steps — **decode dominates overwhelmingly**. This is the everyday case for
+long-form generation (reports, long code files, chain-of-thought reasoning traces): per §4,
+"time-per-output-token is nearly constant," so total decode wall-clock scales almost linearly
+with output length, and a 4000-token answer takes roughly 80× longer to decode than a 50-token
+one, while prefill cost barely changes with such a short prompt.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|
