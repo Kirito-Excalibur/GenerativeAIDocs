@@ -282,7 +282,65 @@ gradient checkpointing, 8-bit optimizers and LoRA.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — change of variables.** Let $z \sim \mathcal{U}(0,1)$ and $x = f(z) = z^3$. Find
+$p_X(x)$ at $x = 0.125$ using the change-of-variables formula, and verify total mass is
+preserved by checking the formula is dimensionally sensible (does $p_X$ integrate to 1 over
+$[0,1]$? You don't need to do the full integral — just check the formula's shape makes it
+plausible).
+
+<details><summary>Solution</summary>
+
+$z = f^{-1}(x) = x^{1/3}$, so $\frac{dz}{dx} = \frac13 x^{-2/3}$. At $x=0.125$: $z = 0.5$, and
+$\frac{dz}{dx} = \frac13(0.125)^{-2/3} = \frac13 \times 4 = 1.333$.
+
+$$p_X(x) = p_Z(z)\left|\frac{dz}{dx}\right| = 1 \times 1.333 = 1.333$$
+
+(since $p_Z=1$ on $(0,1)$). Notice $p_X$ **grows** as $x\to0$ (where $|dz/dx| = \frac13x^{-2/3}
+\to\infty$) — this matches the picture in §3: $f(z)=z^3$ compresses the interval near $z=0$ much
+more than near $z=1$ (e.g. $f(0.1){=}0.001$ vs $f(0.9){=}0.729$, so equal $z$-intervals map to
+very unequal $x$-intervals), so probability mass must pile up correspondingly to conserve total
+mass. This is exactly the "stretching lowers density, compressing raises it" rule from the boxed
+formula.
+
+</details>
+
+**Problem 2 — thin shell, another dimension.** Using the χ-distribution facts from §4, estimate
+$\mathbb{E}[\|z\|]$ and its standard deviation for $z\sim\mathcal{N}(0,I_{64})$. If you have two
+independent samples from this distribution, what is the probability, roughly, that their norms
+differ by more than 2 (using the $\pm 1/\sqrt2$ std rule)?
+
+<details><summary>Solution</summary>
+
+$\mathbb{E}[\|z\|]\approx\sqrt{64}=8$, with std $\approx 1/\sqrt2\approx0.707$. Two independent
+samples $\|z_1\|,\|z_2\|$ each have std $0.707$, so their **difference** has std
+$\sqrt{0.707^2+0.707^2}=1$. A gap of 2 is 2 standard deviations of that difference — by the normal
+tail bound, $P(|{\cdot}|>2\sigma)\approx4.6\%$. So it's *unlikely* (roughly 1-in-20) but not
+negligible: the shell is tight, but not infinitely so at $d{=}64$. (At $d{=}512$ the same
+calculation would make a gap of 2 far more standard-deviations away, hence far rarer — the shell
+tightens as $d$ grows, since the std stays $\approx0.707$ while the radius $\sqrt d$ grows.)
+
+</details>
+
+**Problem 3 — LoRA arithmetic.** A $2048\times2048$ attention projection is fine-tuned with LoRA
+at rank $r=4$. Compute the parameter count and reduction factor, and compare with the $r=8$
+example worked in §5 (4096×4096, 256× reduction). Does doubling the matrix size and halving the
+rank move the reduction factor up or down, and by roughly what multiple?
+
+<details><summary>Solution</summary>
+
+Full: $2048^2 = 4{,}194{,}304$. LoRA: $2\times2048\times4 = 16{,}384$. Fraction: $0.39\%$,
+reduction factor $= 256\times$ — **identical** to the worked $4096\times4096$, $r=8$ example.
+
+This isn't a coincidence: reduction factor $= \frac{d^2}{2dr} = \frac{d}{2r}$. Halving $d$
+(4096→2048) and halving $r$ (8→4) leaves $d/(2r)$ **unchanged**. In general, the reduction scales
+linearly with $d$ and inversely with $r$ — so to keep the same compression ratio while going to a
+bigger model, you'd need to scale $r$ up proportionally with $d$, not hold it fixed.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

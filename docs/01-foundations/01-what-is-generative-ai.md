@@ -325,7 +325,98 @@ smoothly. Change the metric, and the cliff becomes a ramp.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — bin counting.** Redo the sparsity table in §2 for $d = 15$ and $d = 25$, still with
+60,000 samples. At what $d$ does the expected count per bin first drop below 1?
+
+<details><summary>Solution</summary>
+
+Bins $= 2^d$; samples/bin $= 60000/2^d$.
+
+| $d$ | bins | samples/bin |
+|---|---|---|
+| 15 | 32,768 | 1.83 |
+| 25 | 33,554,432 | 0.0018 |
+
+Setting $60000/2^d = 1$ gives $d = \log_2 60000 \approx 15.87$, so **$d = 16$** is the first
+integer dimension where the expected count per bin drops below 1 (at $d=16$, $60000/65536 = 0.916$).
+Any method relying on local neighbourhoods is already in trouble by $d \approx 16$ — far below a
+$196{,}608$-dimensional image.
+
+</details>
+
+**Problem 2 — forward vs reverse KL, by hand.** Let $p$ put mass $0.5$ at $x{=}0$ and $0.5$ at
+$x{=}10$ (two point masses), and let $q_1, q_2$ be candidate approximations: $q_1$ puts all its
+mass at $x{=}5$ (between the modes), $q_2$ puts all its mass at $x{=}0$ (on one mode). Using the
+informal "infinite penalty" rule from §6, which of $q_1, q_2$ would forward KL $D_{KL}(p\|q)$
+prefer, and which would reverse KL $D_{KL}(q\|p)$ prefer? Why can neither actually be evaluated
+if $q$ is a point mass?
+
+<details><summary>Solution</summary>
+
+Forward KL integrates $p(x)\log(p(x)/q(x))$: wherever $p(x)>0$ but $q(x)=0$, the term is
+$+\infty$. Since $p$ has mass at *both* 0 and 10, **any** $q$ that is zero at either point gives
+infinite forward KL — so *neither* $q_1$ nor $q_2$ is preferred by forward KL over the other; both
+are catastrophic, which is exactly the "must cover everything" property from §6. A $q$ that
+actually minimizes forward KL here must itself be spread across both modes (e.g. reproduce $p$
+exactly, or in the Gaussian-fit case in the linked info-theory page, straddle both).
+
+Reverse KL integrates $q(x)\log(q(x)/p(x))$: it is only evaluated where $q(x)>0$. For $q_1$
+(mass at 5), $p(5)=0$, so reverse KL is $+\infty$ too — $q_1$ puts mass where $p$ has *none*. For
+$q_2$ (mass at 0), $p(0)=0.5>0$, so reverse KL is finite ($=\log(1/0.5)=\log 2$). **Reverse KL
+strictly prefers $q_2$** — it "picks one mode" exactly as the mode-seeking behaviour predicts.
+
+The reason neither can be "actually evaluated" in the usual sense is that point masses have no
+density in the calculus sense (they're Diracs); the argument above is the discrete/informal
+version of the same infinite-penalty logic that applies to continuous densities in
+→ [Probability & information theory §4](02-probability-and-information-theory.md#4-kl-divergence-the-excess-cost-of-being-wrong).
+
+</details>
+
+**Problem 3 — the trilemma.** A colleague proposes a new "instant GAN" that samples in one
+forward pass, claims perfect mode coverage (no mode collapse, ever), and produces
+state-of-the-art FID. Using the trilemma from §4, what should you be suspicious of, and what's
+the first experiment you'd run?
+
+<details><summary>Solution</summary>
+
+The trilemma says quality, speed, and coverage cannot all be maximized simultaneously by any
+known method — every real model sits at a point on the triangle with at least one weaker leg. A
+claim of "fast + high quality + provably-always-covers-every-mode" is exactly the combination the
+trilemma says is unusual, so the reasonable prior is that at least one claim is measured
+narrowly, overstated, or holds only on an easy benchmark.
+
+The cheapest diagnostic: run it on a toy multi-modal distribution with **known, countable** modes
+(e.g. a mixture of 25 well-separated 2-D Gaussians, the standard GAN mode-collapse toy problem
+referenced in → [GAN §3](../02-classical-models/03-gan.md#3-why-gans-are-hard-the-four-structural-problems)).
+Count how many of the 25 modes actually receive samples. Real mode collapse is usually invisible
+on aggregate metrics like FID (which average over many samples) and only shows up when you check
+coverage directly.
+
+</details>
+
+**Problem 4 — conditional generation as Bayes.** A text-to-image model is guided at sample time
+(not trained-in) using $\nabla\log p(x\mid c) = \nabla\log p(x) + \nabla\log p(c\mid x)$ from §7.
+If you *double* the weight on the second term, informally what should happen to (a) how closely
+images match the prompt, and (b) sample diversity for a fixed prompt? Which page derives this
+precisely?
+
+<details><summary>Solution</summary>
+
+Doubling the $\nabla\log p(c\mid x)$ term pushes samples harder toward high-$p(c\mid x)$ regions
+of image space — i.e. (a) **prompt adherence increases**. But that same push shrinks the
+effective set of $x$ that the sampler explores for a fixed $c$, since it's discounting the
+unconditional prior more, so (b) **diversity across samples decreases** (you get more similar,
+more "prototypical" images for the same prompt).
+
+This is exactly classifier-free guidance, derived precisely — including the extrapolation
+argument and the $w\approx7$–8 empirical sweet spot — in
+→ [Latent diffusion §3](../05-diffusion-and-vision/03-latent-diffusion.md#3-classifier-free-guidance).
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

@@ -356,7 +356,75 @@ Sensible defaults for a decoder-only LM. Start here, then tune the LR.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — Adam, a second step.** Continuing the §1 worked example ($\eta=10^{-3}$,
+$\beta_1{=}0.9,\beta_2{=}0.999$), suppose $g_1=0.1$ (as before, giving step size $\approx\eta$)
+and then $g_2=0.08$. Compute $m_2, v_2, \hat m_2, \hat v_2$ and the resulting step. Is the step
+still exactly $\eta$? Why or why not?
+
+<details><summary>Solution</summary>
+
+$m_2 = 0.9(0.01) + 0.1(0.08) = 0.017$; $v_2 = 0.999(10^{-5}) + 0.001(0.08^2) = 1.639\times10^{-5}$.
+
+Bias-corrected: $\hat m_2 = 0.017/(1-0.9^2) = 0.0895$; $\hat v_2 = 1.639{\times}10^{-5}/(1-0.999^2)
+= 0.0082$.
+
+Step $= \eta \hat m_2/(\sqrt{\hat v_2}+\epsilon) = \eta \times 0.988$ — **no longer exactly
+$\eta$**, unlike the very first step. With only one observation, $\hat m_1/\sqrt{\hat v_1}=1$
+identically (shown in §1). Once a second, *different* gradient arrives, $m$ and $v$ start
+averaging over unequal values, and the ratio $\hat m/\sqrt{\hat v}$ is no longer forced to 1 — it
+now reflects the actual *consistency* of the two gradients (here $0.1$ and $0.08$ point the same
+way, so the step stays close to $\eta$; if they disagreed in sign, the step would shrink much more).
+
+</details>
+
+**Problem 2 — clip the right way.** A 2-parameter model has gradient $g=(3, 4)$ (norm 5), and you
+clip with `max_norm=1.0`. What is the clipped gradient, and what is its norm? Now suppose someone
+clips **each parameter independently** to $[-1,1]$ instead (a common mistake) — what would that
+give, and why does §5 say this is wrong?
+
+<details><summary>Solution</summary>
+
+Correct global-norm clip: scale $= \min(1, 1/5) = 0.2$, so
+$g_{clipped} = (0.6, 0.8)$, norm exactly $1.0$ — the *direction* $(3,4)/5=(0.6,0.8)$ is preserved.
+
+Per-parameter clip to $[-1,1]$: since $3>1$ and $4>1$, both get clamped to $(1, 1)$, norm
+$\sqrt2\approx1.41$. Notice the **direction changed**: $(1,1)$ normalized is $(0.707,0.707)$,
+not $(0.6,0.8)$. Per-parameter clipping silently rotates the update away from the true gradient
+direction — exactly the problem §5 warns about ("changes the direction of the overall update and
+degrades quality"). It also doesn't even enforce the stated norm bound consistently across
+different gradient shapes.
+
+</details>
+
+**Problem 3 — critical batch size.** With $B_{crit}=2000$, compute the relative training-steps
+multiplier ($1+B_{crit}/B$) at $B=500$, $B=2000$, and $B=8000$. At which of these are you
+"wasting" the most compute relative to the achievable minimum, and what's the practical
+implication for choosing a batch size if you have a fixed number of GPUs and want to minimize
+wall-clock time (not step count)?
+
+<details><summary>Solution</summary>
+
+| $B$ | relative steps ($1+B_{crit}/B$) |
+|---|---|
+| 500 | 5.00 |
+| 2000 | 2.00 |
+| 8000 | 1.25 |
+
+At $B=8000$ ($4\times B_{crit}$) you're closest to the 1× floor — in *step-count* terms this
+looks best. But §4 is explicit that past $B_{crit}$, doubling the batch buys diminishing returns
+in **compute efficiency**: going from $B{=}2000$ to $B{=}8000$ (4×) only cuts steps from 2.0× to
+1.25× — a 1.6× reduction in steps for a 4× increase in per-step compute, i.e. you're burning
+roughly 2.5× more total FLOPs for that 1.6× fewer wall-clock steps. If GPUs are the fixed
+resource, the wall-clock-optimal choice is usually near $B_{crit}$, not far above it — going to
+$B{=}500$ (below $B_{crit}$) is clearly worse (5× the minimum steps, and the per-step cost isn't
+even proportionally cheaper), so the sensible range is roughly $B_{crit}$ to a few×$B_{crit}$,
+not "as large as your cluster allows."
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

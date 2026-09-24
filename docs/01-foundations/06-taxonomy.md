@@ -248,7 +248,69 @@ START: what do you need?
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — classify by likelihood handling.** For each model below, say whether its likelihood
+is (a) exact, (b) a bound, or (c) not modeled at all, using the organizing question from §1: a
+normalizing flow used for anomaly detection; a GAN generating faces; a diffusion model trained
+with the simple $\epsilon$-prediction loss.
+
+<details><summary>Solution</summary>
+
+- **Normalizing flow**: exact. The whole point of the change-of-variables construction is that
+  $\log p(x)$ is computable exactly, which is exactly why it's the right tool for anomaly
+  detection (you need a real likelihood to threshold on).
+- **GAN**: not modeled at all — implicit density. There is no $p_\theta(x)$ anywhere in a GAN's
+  training or sampling; §1's decision tree correctly routes GANs to the right branch with no
+  likelihood claim.
+- **Diffusion (simple loss)**: a bound. The $\epsilon$-prediction MSE loss is a simplified,
+  reweighted version of the variational bound derived in
+  → [Diffusion models §4](../05-diffusion-and-vision/01-diffusion-models.md#4-the-loss-from-full-elbo-to-three-lines-of-code);
+  it optimizes an ELBO on $\log p(x)$, not $\log p(x)$ itself.
+
+</details>
+
+**Problem 2 — the five connections, applied.** Using the five connections in §4, explain in one
+sentence each why (a) you can compute an "exact likelihood" for a diffusion model using the
+probability-flow ODE, even though diffusion is normally listed as "approximate/bound" in the
+master table, and (b) why a score-based model never needs to know the normalizing constant $Z$ of
+the data distribution.
+
+<details><summary>Solution</summary>
+
+(a) The probability-flow ODE (connection 4 in §4) turns the *stochastic* diffusion process into
+a *deterministic, invertible* map with the same marginals — and any invertible map admits exact
+change-of-variables likelihood computation, the same trick normalizing flows use. So "diffusion"
+the *training objective* only gives a bound, but "diffusion" the *deterministic sampler* is
+secretly a flow with an exact likelihood — these are two different claims about the same model.
+
+(b) Connection 3 in §4: score $= -\nabla_x E(x)$, and $E(x) = -\log p(x) - \log Z$. Since $Z$
+doesn't depend on $x$, $\nabla_x(\log Z) = 0$, so the score is entirely $Z$-independent by
+construction — the intractable normalizing constant simply differentiates away.
+
+</details>
+
+**Problem 3 — decision guide, edge case.** You need to generate 3-D molecular conformations where
+(a) you don't need exact likelihoods, (b) sample quality matters more than speed, and (c) the
+data is continuous. Walk through §6's decision tree and say which branch you land on, then check
+your answer against §5's modality table.
+
+<details><summary>Solution</summary>
+
+Following §6's tree: "exact log p(x) required?" → No (ruled out by (a)). "Best possible sample
+quality, don't care about latency?" → Yes, and the data is continuous (not text/code) → routes to
+**"DIFFUSION or FLOW MATCHING."**
+
+Checking against §5's modality table: the "Molecules / proteins" row explicitly lists "Diffusion,
+flow matching" with the noted reason "3-D coordinates are continuous; equivariance constraints
+are easy to bake into a denoiser" — confirming the decision-tree answer and adding the specific
+reason (equivariance) that the tree itself doesn't mention but the modality table does. This is a
+good illustration of why §5 and §6 are complementary: the tree gives you the *family*, the
+modality table gives you the domain-specific *why*.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

@@ -313,7 +313,70 @@ for name, p in model.named_parameters():
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — backprop, new numbers.** Redo the §2 worked example with $x=1.5$, $w_1=0.8$,
+$w_2=-1.0$, target $y=0.5$. Compute the forward pass, the backward pass, and the loss after one
+gradient step with $\eta=0.1$.
+
+<details><summary>Solution</summary>
+
+Forward: $z_1 = 1.2$, $a_1=\tanh(1.2)=0.8337$, $\hat y = z_2 = -0.8337$,
+$L=\frac12(-1.3337)^2=0.8893$.
+
+Backward: $\delta_{z_2}=\hat y-y=-1.3337$; $\partial L/\partial w_2 = \delta_{z_2}a_1=-1.1118$;
+$\delta_{a_1}=\delta_{z_2}w_2=1.3337$; $\delta_{z_1}=\delta_{a_1}(1-a_1^2)=0.4068$;
+$\partial L/\partial w_1=\delta_{z_1}x=0.6102$.
+
+After the step ($\eta=0.1$): $w_1{=}0.8{-}0.1(0.6102){=}0.7390$,
+$w_2{=}{-}1.0{-}0.1({-}1.1118){=}{-}0.8888$. New forward pass gives $L=0.7371$ — down from
+$0.8893$, confirming the step reduced the loss, same pattern as the worked example in §2.
+
+</details>
+
+**Problem 2 — LayerNorm vs RMSNorm, by hand.** For $x=(3,-2,1,4)$ with $\gamma{=}1,\epsilon{=}0$,
+compute both LayerNorm and RMSNorm outputs. Confirm LayerNorm's output has mean 0, and note
+whether RMSNorm's does too.
+
+<details><summary>Solution</summary>
+
+$\mu = 1.5$, $\sigma^2 = 6.75$, $\sigma=2.598$.
+**LayerNorm**: $(0.655,\,-1.348,\,-0.192,\,0.962)$... recomputing precisely:
+$(x-\mu)/\sigma = (1.5/2.598,\,-3.5/2.598,\,-0.5/2.598,\,2.5/2.598) = (0.577,\,-1.347,\,-0.192,\,0.962)$.
+Mean of this output: $(0.577-1.347-0.192+0.962)/4 \approx 0$ ✓ (by construction — centering
+guarantees this).
+
+**RMSNorm**: RMS $=\sqrt{(9+4+1+16)/4}=\sqrt{7.5}=2.739$. Output: $x/\text{RMS} =
+(1.095,\,-0.730,\,0.365,\,1.461)$. Mean of this output: $(1.095-0.730+0.365+1.461)/4 = 0.548 \ne 0$
+— **RMSNorm's output is not zero-mean**, exactly as §4 states ("Mean is not 0 — that's the
+point"). RMSNorm only fixes the scale, not the location.
+
+</details>
+
+**Problem 3 — initialization, applied.** A network uses ReLU activations throughout. Using
+He/Kaiming initialization ($\sigma_w^2 = 2/n_{in}$), what standard deviation should you use to
+initialize a weight matrix with $n_{in}=512$? If you mistakenly used Xavier initialization
+($\sigma_w^2 = 2/(n_{in}+n_{out})$, $n_{out}=512$) instead, by what factor would your initial
+weight variance be too small, and what symptom would you expect during early training?
+
+<details><summary>Solution</summary>
+
+He: $\sigma_w^2 = 2/512 = 0.00391$, so $\sigma_w = 0.0625$.
+
+Xavier with $n_{in}=n_{out}=512$: $\sigma_w^2 = 2/1024 = 0.00195$ — exactly **half** the He
+variance ($\sigma_w = 0.0442$, a factor of $1/\sqrt2$ smaller in std).
+
+Symptom: He compensates for ReLU zeroing out ~half its inputs (the "2" in the numerator exists
+specifically for this — see §6's explanation). Using Xavier's smaller variance under ReLU means
+each layer's output variance roughly halves again beyond what He already corrects for, so
+activations shrink layer over layer — the classic symptom is **vanishing activations at
+initialization**: by a moderate depth, activations (and therefore gradients) become tiny, and
+early training is slow or appears stuck, easily misdiagnosed as a learning-rate problem when it's
+actually an init problem.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

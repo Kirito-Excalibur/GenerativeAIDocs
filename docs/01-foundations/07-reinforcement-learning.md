@@ -300,7 +300,73 @@ Set `baseline` to stay at 0 and compare: learning becomes much slower and less s
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — discounting.** Rewards $(1, 0, 0, 5)$ over four steps with $\gamma=0.8$. Compute
+$G_0$. If the reward of 5 arrived at step 1 instead of step 3 (rewards $(1,5,0,0)$), what would
+$G_0$ be, and by what factor did moving it earlier change its contribution?
+
+<details><summary>Solution</summary>
+
+$G_0 = 1 + 0.8(0) + 0.64(0) + 0.512(5) = 1 + 2.56 = 3.56$.
+
+If the 5 arrives at step 1 instead: contribution is $\gamma^1 \times 5 = 0.8\times5=4.0$ instead
+of $\gamma^3\times5=0.512\times5=2.56$ — a factor of $\gamma^{1-3}=\gamma^{-2}=1/0.64=1.5625$
+larger. Moving a reward two steps earlier multiplies its contribution to $G_0$ by
+$1/\gamma^2$ — the same geometric-discounting logic as §2's worked example, just with a
+different $\gamma$.
+
+</details>
+
+**Problem 2 — baseline variance, with real numbers.** A softmax policy with logits $z=(0,0)$ over
+two actions (so $\pi = (0.5, 0.5)$, matching §4's setup) is used on a bandit paying $(6, 14)$ for
+arms $(A,B)$ (mean $10$). Using the gradient-on-$z_B$ formula from §4
+($\nabla\log\pi(a) = \mathbb{1}[a{=}j]-\pi(j)$), compute the no-baseline gradient for each
+possible sample and their mean, then repeat with baseline $b=10$. What changed and what didn't?
+
+<details><summary>Solution</summary>
+
+No baseline: pulling A gives gradient $(0-0.5)\times6=-3.0$; pulling B gives
+$(1-0.5)\times14=7.0$. Mean over the two outcomes: $(-3.0+7.0)/2=2.0$.
+
+With baseline $b=10$: pulling A gives $(0-0.5)\times(6-10)=(-0.5)(-4)=2.0$; pulling B gives
+$(1-0.5)\times(14-10)=(0.5)(4)=2.0$. Mean: $2.0$.
+
+**Both give the same mean (2.0)** — confirming the unbiasedness proof in §4. What changed is the
+*spread*: no-baseline samples range over $\{-3.0, 7.0\}$ (spread 10), baseline samples are both
+exactly $2.0$ (spread 0). This is a more extreme version of the §4 table (there the payouts were
+closer together, 10 vs 11); with a bigger payout gap the variance reduction from baselining is
+even more dramatic.
+
+</details>
+
+**Problem 3 — PPO's asymmetric clip.** Advantage $A=3$ (positive — a good action). Compute the
+PPO objective for $\rho=1.3$ (ratio increased) and separately for $\rho=0.7$ (ratio *decreased*,
+even though the action was good), using $\epsilon=0.2$. Which one gets clipped, and does the
+result match your intuition that "PPO always limits how far the ratio can move"?
+
+<details><summary>Solution</summary>
+
+$\rho=1.3$ (outside $[0.8,1.2]$ on the *high* side): unclipped $=1.3\times3=3.9$;
+$\text{clip}(1.3)=1.2$, clipped $=1.2\times3=3.6$. Objective $=\min(3.9,3.6)=\mathbf{3.6}$ —
+**clipped**, removing the incentive to push $\rho$ past 1.2.
+
+$\rho=0.7$ (outside $[0.8,1.2]$ on the *low* side): unclipped $=0.7\times3=2.1$;
+$\text{clip}(0.7)=0.8$, clipped $=0.8\times3=2.4$. Objective $=\min(2.1,2.4)=\mathbf{2.1}$ —
+**not clipped**: the smaller (unclipped) value wins the $\min$, so the objective still reflects
+the true, low ratio.
+
+This is a genuinely subtle and important point: **the clip only bites in the direction that would
+let the update exploit the advantage too aggressively** — for a good action ($A>0$), that's
+pushing $\rho$ *up* past $1+\epsilon$. It does **not** protect against $\rho$ moving in the
+"wrong" direction (down, for a good action) — there the raw, unclipped, more-honest signal passes
+through. So the intuition "PPO always limits how far the ratio can move" is only half right: it
+limits how far the ratio can move **in the direction that would inflate credit for the current
+advantage sign**, not movement in general.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

@@ -402,7 +402,92 @@ discrete latents need special handling (→ Gumbel-softmax, straight-through, VQ
 
 ---
 
-## 11. Key takeaways
+## 11. Exercises
+
+**Problem 1 — entropy by hand.** A biased 4-sided die has $p = (0.4, 0.3, 0.2, 0.1)$. Compute
+$H(p)$ in bits, and say whether it is closer to the uniform-4 entropy (2 bits) or to a
+near-deterministic distribution (0 bits), and why that makes sense.
+
+<details><summary>Solution</summary>
+
+$$H = -(0.4\log_2 0.4 + 0.3\log_2 0.3 + 0.2\log_2 0.2 + 0.1\log_2 0.1) = 1.846\text{ bits}$$
+
+This sits closer to the uniform value (2 bits) than to 0, which makes sense: the distribution is
+skewed but not sharply — the most likely outcome (0.4) is still less than half the mass, so an
+optimal code still needs most of its 2-bit budget. Compare with the very-skewed row in §2's table
+$(0.97, 0.01, 0.01, 0.01)$, which gives only 0.242 bits — *that* distribution is close to
+deterministic and needs almost no bits.
+
+</details>
+
+**Problem 2 — Gaussian KL, general form.** Using the general diagonal-Gaussian KL formula from
+§8, compute $D_{KL}\big(\mathcal{N}(1, 2)\,\|\,\mathcal{N}(0, 1)\big)$ in nats (note: variance 2,
+not variance 1, for the first Gaussian). Then check your answer reduces correctly to the boxed
+special-case formula when $\mu_1{=}0,\sigma_1^2{=}1$.
+
+<details><summary>Solution</summary>
+
+General formula: $D_{KL} = \log\frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2+(\mu_1-\mu_2)^2}{2\sigma_2^2} - \frac12$.
+
+With $\mu_1{=}1,\sigma_1^2{=}2,\mu_2{=}0,\sigma_2^2{=}1$ (so $\sigma_1=\sqrt2,\sigma_2=1$):
+
+$$D_{KL} = \log\frac{1}{\sqrt2} + \frac{2 + 1}{2} - \frac12 = -0.3466 + 1.5 - 0.5 = 0.653\text{ nats}$$
+
+Sanity check against the special case: setting $\mu_1{=}0,\sigma_1^2{=}1$ (so $\sigma_1{=}1$)
+gives $\log 1 + \frac{1+\mu_2^2}{2} - \frac12$... wait, that's the formula in the *other*
+direction ($D_{KL}(\mathcal{N}(\mu,\sigma^2)\|\mathcal{N}(0,1))$, which **is** the boxed formula
+form up to relabelling): $\log\frac{1}{\sigma} + \frac{\sigma^2+\mu^2}{2} - \frac12$, and expanding
+gives $\frac12(\mu^2+\sigma^2-\log\sigma^2-1)$ once you use $\log(1/\sigma)=-\frac12\log\sigma^2$
+— matching the boxed sum-over-dimensions formula for $d{=}1$. ✓
+
+</details>
+
+**Problem 3 — cross-entropy loss, concretely.** True label distribution $p=(0.7,0.3)$ (a soft
+label). Your model predicts $q=(0.5,0.5)$. Compute $H(p,q)$, $H(p)$, and $D_{KL}(p\|q)$ in bits.
+If you then improve the model to predict $q'=(0.7,0.3)$ exactly, what does $D_{KL}(p\|q')$
+become, and why?
+
+<details><summary>Solution</summary>
+
+$$H(p,q) = -(0.7\log_2 0.5 + 0.3\log_2 0.5) = 1.000\text{ bit}$$
+$$H(p) = -(0.7\log_2 0.7 + 0.3\log_2 0.3) = 0.881\text{ bits}$$
+$$D_{KL}(p\|q) = H(p,q) - H(p) = 0.119\text{ bits}$$
+
+Every prediction pays the irreducible $H(p) = 0.881$ bits plus an "excess" of 0.119 bits for
+using the wrong $q$. If the model predicts $q' = p$ exactly, $D_{KL}(p\|q') = 0$ by the
+non-negativity property (§4): $D_{KL}=0 \iff p=q$ a.e. Cross-entropy loss then equals $H(p)$
+exactly — the *lowest possible* loss, since you cannot do better than the target's own entropy.
+This is the formal reason a perfectly-fit classifier's loss doesn't go to zero when labels are
+genuinely soft/noisy.
+
+</details>
+
+**Problem 4 — reparameterization, spot the bug.** A colleague implements a VAE encoder as:
+
+```python
+z = mu + logvar.exp() * torch.randn_like(mu)   # BUG
+```
+
+What's wrong, and what does it do to training?
+
+<details><summary>Solution</summary>
+
+The encoder outputs `logvar` $= \log\sigma^2$, so the standard deviation is
+$\sigma = \exp(\frac12\log\sigma^2)$ — the code is missing the $\times 0.5$ before the exponential.
+As written, it computes $\exp(\log\sigma^2) = \sigma^2$ (the *variance*, not the standard
+deviation) as the multiplier on the noise.
+
+Effect: whenever $\sigma^2 \ne \sigma$ — i.e. whenever $\sigma \ne 1$ — the sampled $z$ has the
+wrong spread. For $\sigma < 1$ (the common case once training pushes the KL term to shrink
+variance), $\sigma^2 < \sigma$, so the model *systematically under-samples* noise, making the
+latent code closer to deterministic than the model believes. The KL term in the loss (computed
+correctly from `logvar` elsewhere) then no longer matches what was actually sampled, producing a
+silent mismatch between the ELBO you're optimizing and the generative process you're running.
+Correct line: `z = mu + (0.5 * logvar).exp() * torch.randn_like(mu)`, matching the code block in §8.
+
+</details>
+
+## 12. Key takeaways
 
 | # | Takeaway |
 |---|---|
