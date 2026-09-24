@@ -38,6 +38,8 @@ raw-audio model, needed minutes to produce seconds of speech
 
 ## 2. Representations
 
+That "short, information-dense representation" isn't one fixed thing — audio can be represented as a raw waveform, a spectrogram, or a sequence of discrete codes, and each choice trades off differently.
+
 ```
   WAVEFORM (what you hear)          MEL SPECTROGRAM (what the model sees)
 
@@ -71,6 +73,8 @@ component. Phase matters for sound quality, and recovering it is exactly the job
 
 ## 3. Vocoders: from spectrogram back to sound
 
+Whatever intermediate representation a model generates, something has to turn it back into an actual waveform you can play. For spectrogram-based systems, reconstructing the phase that was thrown away is that final step, and it has its own history of solutions.
+
 A vocoder generates the waveform conditioned on a spectrogram.
 
 | Vocoder | Year | Approach | Speed |
@@ -90,6 +94,8 @@ A vocoder generates the waveform conditioned on a spectrogram.
 ---
 
 ## 4. Neural audio codecs: audio as tokens
+
+Vocoders convert a spectrogram, which already discarded phase, back to sound. Neural codecs take a different, more aggressive approach to the same "generate a short representation" idea from §1: compress the waveform itself into a small number of discrete tokens, phase and all.
 
 A neural codec is a VQ-VAE for sound: an encoder compresses the waveform into a short sequence of
 frames, each frame is quantized to discrete codes, and a decoder reconstructs the waveform.
@@ -133,6 +139,8 @@ a Transformer handles comfortably.
 
 ## 5. Text-to-speech architectures
 
+Once audio is a sequence of discrete tokens, generating it stops being an audio problem and becomes a language-modelling problem — which is exactly the architecture text-to-speech systems have converged on.
+
 ```mermaid
 graph LR
     A["Text"] --> B["Tacotron 2 / FastSpeech<br/>text → mel spectrogram"]
@@ -172,6 +180,8 @@ step per frame.
 
 ## 6. Music and general audio
 
+That codebook-delay trick, developed for speech, generalizes directly to any audio with the same token structure — including audio that isn't speech at all.
+
 | System | Idea |
 |---|---|
 | **AudioLM** (2022) | two token levels: *semantic* tokens from a self-supervised speech model for long-range structure, then *acoustic* codec tokens for detail |
@@ -187,6 +197,8 @@ solution across modalities.
 
 ## 7. The reverse direction: speech recognition
 
+Every system so far turns text or a prompt into audio. The same generative framing runs in reverse just as naturally: generate *text*, conditioned on audio, which is what speech recognition actually is.
+
 Automatic speech recognition (ASR) is generation too: generate text conditioned on audio.
 **Whisper** is an encoder-decoder Transformer: log-mel spectrogram in, text tokens out, trained on
 "680,000 hours of multilingual and multitask supervision" gathered from the web. Its value is
@@ -196,6 +208,8 @@ without fine-tuning.
 ---
 
 ## 8. Evaluation
+
+Whether a system is turning text into speech or speech into text, the same question follows: how do you actually measure whether the output is good? Audio's answer borrows heavily from image evaluation, with its own modality-specific gaps.
 
 | Metric | Measures | Notes |
 |---|---|---|
@@ -212,6 +226,8 @@ without fine-tuning.
 ---
 
 ## 9. Voice cloning and misuse
+
+Speaker-similarity scores are exactly what make voice cloning measurable — and exactly what makes it dangerous in the wrong hands. That dual-use tension is worth confronting directly rather than leaving implicit.
 
 Cloning a voice from seconds of audio creates direct risks: impersonation scams, fraudulent
 authorization of payments, and non-consensual use of someone's voice

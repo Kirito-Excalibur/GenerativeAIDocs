@@ -56,6 +56,8 @@
 
 ## 2. CLIP: a shared embedding space
 
+ViT turns an image into a sequence of patch tokens. That sequence is still just a bunch of numbers with no connection to language — building an actual bridge between images and text is a separate training problem.
+
 ```
    "a photo of a dog"                      🐕 image
           │                                    │
@@ -130,6 +132,8 @@ more efficiently. It is now a common CLIP replacement.
 
 ## 3. Vision-language models: the three patterns
 
+CLIP gives you an image encoder that lives in the same space as text embeddings. Turning that encoder into a model that can actually hold a conversation about an image — not just retrieve or classify — takes an architectural decision about how the vision encoder and a language model connect.
+
 ```mermaid
 graph TD
     A["How to get images into an LLM?"]
@@ -198,6 +202,8 @@ open-source because it is so cheap.
 
 ## 4. Video generation
 
+All three patterns above generate or understand static images. Extending the same machinery to a sequence of images that has to stay coherent frame to frame is its own, much harder problem.
+
 Video = images + time. The additional problems are **temporal consistency** and **cost**.
 
 5 seconds at 24 fps = 120 frames. At $512\times512$ that is $120 \times 262{,}144 = 31$ M pixels.
@@ -238,6 +244,8 @@ values — still a very large sequence.
 ---
 
 ## 5. Audio generation
+
+Video's core difficulty is coherence across frames. Audio's generation methods borrow the exact same two options seen throughout this wiki — tokenize and go autoregressive, or diffuse directly on a continuous representation — applied to waveforms instead of pixels.
 
 Two families, mirroring the discrete/continuous split from → [Taxonomy](../01-foundations/06-taxonomy.md):
 
@@ -283,6 +291,8 @@ misuse concern — → [Societal impact](../08-safety-and-ethics/03-societal-imp
 
 ## 6. What multimodal models still get wrong
 
+Every capability described above — VLMs, video, audio — also comes with a specific, well-documented failure mode. It's worth being explicit about where these systems still break, rather than only cataloguing what they can do.
+
 Persistent failure categories, with the mechanism:
 
 | Failure | Example | Likely cause |
@@ -309,6 +319,8 @@ describes.
 ---
 
 ## 7. Implementation
+
+Reading about patch embeddings, contrastive losses and cross-modal architectures only goes so far. Building a minimal CLIP-style model end to end — image encoder, text encoder, contrastive loss — makes §2's shared embedding space concrete.
 
 A minimal but complete LLaVA-style VLM:
 

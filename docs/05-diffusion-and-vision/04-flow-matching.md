@@ -41,6 +41,8 @@ straight.**
 
 ## 2. The construction
 
+Deciding paths should be straight is the goal. Turning that into an actual, trainable objective — one that produces a velocity field whose paths are provably straight lines between noise and data — is a specific, concrete construction.
+
 Define a **conditional probability path** interpolating between a noise sample $x_0\sim\mathcal{N}(0,I)$
 and a data sample $x_1\sim p_{\text{data}}$:
 
@@ -115,6 +117,8 @@ guidance-specific machinery.
 
 ## 3. Comparison with diffusion
 
+That sampler is simple because the training target was chosen to be simple. It's worth being precise about how much of that simplicity is genuinely new, and how much is diffusion in disguise with a different interpolation path.
+
 | | Diffusion (DDPM) | Flow matching |
 |---|---|---|
 | Path shape | curved (schedule-dependent) | **straight** |
@@ -153,6 +157,8 @@ very bright or very dark images. Flow matching has no such gap.
 
 ## 4. Rectified flow and reflow
 
+Straight-line training already helps, but the straightest possible paths — the ones that let a single Euler step be exact — aren't guaranteed by one round of training alone. Getting there is an iterative procedure with its own name.
+
 The paths are straight *conditionally*, but the learned marginal field can still be curved, because
 different conditional paths cross.
 
@@ -189,6 +195,8 @@ this to produce a one-step text-to-image model from Stable Diffusion.
 
 ## 5. Timestep sampling: the detail that matters in practice
 
+Reflow is the big structural lever for straightening paths. A much smaller, easy-to-miss detail turns out to matter almost as much in practice: which timesteps you actually sample during training.
+
 > [!WARNING]
 > Uniform $t \sim \mathcal{U}[0,1]$ is *not* optimal. The middle timesteps ($t \approx 0.5$) are
 > where the prediction problem is hardest and where the perceptually important structure is decided.
@@ -216,6 +224,8 @@ $$t_{\text{shifted}} = \frac{s\cdot t}{1 + (s-1)t}, \qquad s \propto \sqrt{\frac
 
 ## 6. Where it's used
 
+That timestep-sampling detail is specific to images. The framework itself is far more general than image diffusion's successor — it's become the default generative recipe well beyond pictures.
+
 Production systems built on flow matching:
 
 | System | Notes |
@@ -237,6 +247,8 @@ Production systems built on flow matching:
 ---
 
 ## 7. Implementation with CFG and a proper sampler
+
+Whether it's images, video, audio or molecules, every one of those applications trains the same regression objective from §2 and samples with the same kind of ODE solver from §3. Putting text conditioning and a real solver around that minimal loop is what turns the theory into a system you could actually deploy.
 
 A complete flow-matching model with conditioning and guidance:
 
