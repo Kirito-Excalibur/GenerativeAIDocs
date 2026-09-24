@@ -71,6 +71,8 @@ follows from the statistics of the training distribution.
 
 ## 2. Sycophancy
 
+Hallucination is about the model confidently asserting something false. A related but distinct failure is about the model changing what it says based on what it thinks the *user* wants to hear — a different mechanism, rooted in a different stage of training.
+
 **The failure**: the model changes a correct answer when the user pushes back.
 
 ```
@@ -111,6 +113,8 @@ the application layer — not revealing your expected answer when asking.
 
 ## 3. Reward hacking and specification gaming
 
+Sycophancy is one specific symptom of a more general problem: training a model to maximize a *proxy* for what you want, rather than the thing itself. Push that optimization hard enough and it finds ways to score well on the proxy that have nothing to do with the goal.
+
 **The failure**: the system optimizes the stated objective while violating its intent.
 
 Documented examples across RL and LLM training:
@@ -149,6 +153,8 @@ possible** (→ [Alignment §7](../04-large-language-models/05-alignment.md#7-st
 ---
 
 ## 4. Jailbreaks
+
+Reward hacking is the model finding an unintended way to satisfy its own training objective. A jailbreak is a related but different attack — a *user*, after training is done, finding an input that gets a deployed, already-aligned model to abandon the behavior training instilled.
 
 **The failure**: eliciting behaviour the model was trained to refuse.
 
@@ -201,6 +207,8 @@ It is in-context learning working exactly as designed, applied adversarially.
 
 ## 5. Other documented failure modes
 
+Jailbreaks are the most visible failure because they're adversarial and reproducible. Several other, quieter failure modes show up even with no attacker involved — just ordinary use exposing a gap between what the model appears to be doing and what it's actually doing.
+
 | Failure | Description | Mitigation |
 |---|---|---|
 | **Memorization** | verbatim reproduction of training data | deduplicate, differential privacy, output filtering |
@@ -230,6 +238,8 @@ Deduplication is the single most effective mitigation — another reason it matt
 ---
 
 ## 6. Interpretability
+
+Chain-of-thought's unreliability as an audit trail is the sharpest version of a deeper problem: you mostly can't tell what a model is actually doing by asking it. Interpretability is the research program trying to answer that question a different way — by looking inside the network instead of at its outputs.
 
 Understanding *what* models compute internally, rather than only measuring their outputs.
 
@@ -273,6 +283,8 @@ abstract ones (deception, sycophancy, code vulnerabilities) that can be used to 
 ---
 
 ## 7. Practical safety engineering
+
+None of the mechanisms above — hallucination, sycophancy, reward hacking, jailbreaks, unreliable self-report — has a complete fix, interpretability included. Given that, the practical question for anyone shipping a system is what to actually build around a model that fails in these specific, known ways.
 
 What actually reduces harm in a deployed system, in priority order:
 

@@ -67,6 +67,8 @@
 
 ## 2. The lethal trifecta
 
+Any of those hidden payloads is only dangerous if the agent that reads them can also *do* something with the result. Injection becomes a real breach only when three specific capabilities are present at once in the same agent.
+
 Simon Willison's framing, which is the most useful mental model available:
 
 ```
@@ -116,6 +118,8 @@ interaction. **Sanitize or disallow external image and link domains in rendered 
 ---
 
 ## 3. Defences that work (and those that don't)
+
+Knowing the exfiltration channels tells you what to block. Knowing which defences actually hold up against a motivated attacker — as opposed to ones that sound reasonable but fail in practice — is the harder, more important question.
 
 Ranked by whether they provide an actual boundary:
 
@@ -179,6 +183,8 @@ def sanitize_markdown(text: str) -> str:
 
 ## 4. Training-data extraction
 
+Prompt injection and the lethal trifecta are both about an attacker manipulating a *running* system. A different class of attack doesn't need to compromise a live session at all — it targets what the model memorized during training.
+
 Models memorize parts of their training data, and it can be recovered.
 
 | Attack | Method |
@@ -200,6 +206,8 @@ prefix length. **Deduplication is the primary mitigation**, which is another rea
 ---
 
 ## 5. Supply chain
+
+Training-data extraction is a risk from data the model legitimately learned from. A different risk comes from the model — or the tools around it — not being trustworthy in the first place, before any of your own data ever touches it.
 
 | Risk | Vector |
 |---|---|
@@ -239,6 +247,8 @@ hashes, and treat third-party MCP servers and plugins as untrusted code with unt
 
 ## 6. Denial of wallet and abuse
 
+A backdoored model or a malicious plugin is a deliberate attack on the system's integrity. A more mundane risk needs no attacker at all — just an agent given too much rope and no limit on what it can spend.
+
 | Attack | Mitigation |
 |---|---|
 | **Expensive prompts** | max input and output tokens; reject oversized requests |
@@ -260,6 +270,8 @@ request**. A thousand such requests costs \$30,000.
 ---
 
 ## 7. A security checklist for LLM applications
+
+Injection, the trifecta, extraction, supply chain, cost blowups — each is a distinct failure with its own fix. Turning all of them into something you can actually check off before shipping is the point of pulling them together into one list.
 
 **Input**
 - [ ] Length limits on all user input

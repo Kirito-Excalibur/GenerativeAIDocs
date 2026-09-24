@@ -61,6 +61,8 @@ explicit about which fairness definition you chose and why.
 
 ## 2. Copyright and training data
 
+Bias is a question about what a model outputs. A separate, equally unresolved question is about what went into training it in the first place — and whether that was ever permitted.
+
 > [!WARNING]
 > **This is genuinely unsettled law, varying by jurisdiction, with major cases in progress.** What
 > follows describes the arguments, not a legal conclusion.
@@ -104,6 +106,8 @@ some of this ahead of the courts.
 
 ## 3. Labour
 
+Copyright asks who owns the inputs to training. A related economic question, just as contested, is who bears the consequences once the trained model is actually deployed at work.
+
 **What the evidence shows so far:**
 
 | Finding | Source pattern |
@@ -141,6 +145,8 @@ confident predictions in either direction are not supported by current evidence.
 ---
 
 ## 4. Environment
+
+Labour effects are about what AI changes for the people using or displaced by it. A different cost is borne regardless of who uses the model at all: the physical resources — energy, water, hardware — that training and running it consume.
 
 **Training costs** (approximate, published estimates):
 
@@ -182,6 +188,8 @@ aggregate matters more than the individual query.
 ---
 
 ## 5. Synthetic media and provenance
+
+Environmental cost is about what it takes to make a generation happen. A separate concern is about what happens once that generation exists in the world — specifically, whether anyone can tell it was AI-generated at all.
 
 **Current capabilities:**
 
@@ -229,6 +237,8 @@ aggregate matters more than the individual query.
 
 ## 6. Access and concentration
 
+Provenance and detection are about verifying any *individual* piece of content. Zoom out, and there's a parallel question about who gets to build and control the models that produce that content in the first place.
+
 > [!WARNING]
 > Frontier model training requires capital available to a small number of organizations.
 
@@ -256,6 +266,8 @@ and open models exists, but it has not widened as much as many predicted.
 
 ## 7. Regulation
 
+Every issue above — bias, copyright, labour, environment, provenance, concentration — is a candidate for policy intervention, and governments have started to respond, in genuinely different ways.
+
 A snapshot of the landscape (this section dates fastest — verify before relying on it):
 
 | Jurisdiction | Approach |
@@ -282,6 +294,8 @@ A snapshot of the landscape (this section dates fastest — verify before relyin
 ---
 
 ## 8. What to actually do
+
+None of these problems — legal, economic, environmental, political — has a clean resolution, and this page has deliberately avoided pretending otherwise. What's left is the practical question: given all of that uncertainty, what should someone actually building with these models do?
 
 If you build with these systems, the concrete practices:
 
