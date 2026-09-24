@@ -52,6 +52,8 @@ stack many of them.
 
 ## 2. The determinant problem
 
+Composing layers is cheap — but only if each individual layer's log-determinant is cheap to compute in the first place. For a generic invertible map, it isn't.
+
 For a general $d\times d$ Jacobian, computing $\det J$ costs $O(d^3)$. For $d = 3072$ (a
 $32\times32$ RGB image) that is $2.9\times10^{10}$ operations **per sample per layer**. Completely
 infeasible.
@@ -66,6 +68,8 @@ retaining expressive power.
 ---
 
 ## 3. Affine coupling layers (RealNVP)
+
+Affine coupling is the simplest way to build a triangular Jacobian: split the variables in two, and only transform one half using the other.
 
 The most important construction. Split the input in half: $h = (h_A, h_B)$.
 
@@ -123,6 +127,8 @@ density dropped by exactly that factor. ✓
 
 ## 4. The architecture lineage
 
+That one coupling layer works, but by itself it only ever transforms half the variables — later layers have to fix that, and later architectures found progressively better ways to.
+
 | Model | Year | Contribution |
 |---|---|---|
 | NICE | 2014 | additive coupling ($s = 0$); volume-preserving, $\log\det = 0$ |
@@ -164,6 +170,8 @@ parameterization, deploy with the other one."
 ---
 
 ## 5. Training: it's just maximum likelihood
+
+Whichever architecture you pick, once it's invertible with a tractable log-det, training it is almost an afterthought: the change-of-variables formula gives you an exact log-likelihood, so you just maximize it directly.
 
 $$\mathcal{L}(\theta) = -\frac{1}{N}\sum_{i=1}^{N}\left[\log p_Z\!\big(f_\theta^{-1}(x^{(i)})\big) + \sum_{k}\log\left|\det J_k^{-1}\right|\right]$$
 
@@ -216,6 +224,8 @@ nats** — which is exactly why flows are the standard tool when a calibrated de
 
 ## 6. The constraints, stated honestly
 
+That likelihood gap on CIFAR-10 isn't a tuning problem — it's a direct consequence of what invertibility demands of the architecture, and it's worth being explicit about exactly what a bijective map cannot do.
+
 | Constraint | Consequence |
 |---|---|
 | $f$ must be invertible | **no dimensionality reduction** — the latent has the same size as the data |
@@ -246,6 +256,8 @@ nats** — which is exactly why flows are the standard tool when a calibrated de
 
 ## 7. Where flows are used
 
+That structural limitation rules flows out as the default choice for pure image synthesis. It doesn't rule them out everywhere — exact, tractable likelihood is exactly what a handful of other applications need.
+
 | Application | Why a flow |
 |---|---|
 | **Density estimation / anomaly detection** | exact calibrated $p(x)$; threshold on log-likelihood |
@@ -268,6 +280,8 @@ nats** — which is exactly why flows are the standard tool when a calibrated de
 ---
 
 ## 8. Continuous normalizing flows: the bridge to modern methods
+
+Every layer discussed so far is a discrete transformation, one coupling layer at a time. Taking the number of layers to infinity turns the whole construction into a continuous-time process — and that limit is the direct ancestor of diffusion and flow matching.
 
 Take the number of layers to infinity and each layer's change to zero. The discrete composition
 becomes an ODE:

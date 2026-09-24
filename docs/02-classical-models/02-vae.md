@@ -34,6 +34,8 @@ which is intractable — it integrates a neural network over a $d_z$-dimensional
 
 ## 2. The ELBO, and what each half wants
 
+That learned proposal $q_\phi(z\mid x)$ is the encoder, and plugging it into the intractable likelihood gives you something you actually can optimize: the ELBO.
+
 $$\log p_\theta(x) = \underbrace{\mathcal{L}(\theta,\phi;x)}_{\text{ELBO}} + \underbrace{D_{\mathrm{KL}}(q_\phi(z|x)\,\|\,p_\theta(z|x))}_{\ge 0}$$
 
 (full derivation: → [Probability & information theory §7](../01-foundations/02-probability-and-information-theory.md#7-the-elbo-what-to-do-when-the-likelihood-is-intractable))
@@ -83,6 +85,8 @@ lossy compressor, and $\beta$ (below) slides you along the rate–distortion cur
 
 ## 3. The reparameterization trick
 
+The ELBO is a well-defined objective, but training it means backpropagating through a *sampling* step — $z \sim q_\phi(z\mid x)$ — and gradients don't flow through randomness by default. The reparameterization trick is what makes that step differentiable at all.
+
 We need $\nabla_\phi \mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x\mid z)]$, but the distribution being
 sampled from depends on $\phi$. Sampling is not differentiable.
 
@@ -125,6 +129,8 @@ kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(), dim=1)
 
 ## 4. The loss, concretely
 
+With a differentiable sampling step in hand, the ELBO turns into two ordinary terms you can compute and add up on real data — which is worth doing by hand once, numbers included.
+
 $$\mathcal{L}_{\text{VAE}} = \underbrace{\|x - \hat x\|_2^2}_{\text{Gaussian decoder}}
 \;+\; \underbrace{\tfrac12\sum_{j=1}^{d_z}\left(\mu_j^2 + \sigma_j^2 - \log\sigma_j^2 - 1\right)}_{\text{KL to } \mathcal{N}(0,I)}$$
 
@@ -164,6 +170,8 @@ The choice of reconstruction term **is** a choice of decoder likelihood:
 ---
 
 ## 5. The two classic failure modes
+
+Blur is one specific symptom of a VAE's Gaussian likelihood. It isn't the only place where the theory and the practice diverge — the encoder and the prior can also drift apart in a way that has nothing to do with reconstruction quality.
 
 ### Posterior collapse
 
@@ -214,6 +222,8 @@ a diffusion model on $q_\phi(z)$ instead of assuming it is Gaussian.
 
 ## 6. Beta-VAE and disentanglement
 
+Posterior collapse and the prior-hole problem are both failure modes to fix. A more ambitious question is whether you can *shape* the latent space on purpose — for instance, so that each dimension corresponds to one independent factor of variation.
+
 $$\mathcal{L}_\beta = \mathbb{E}_{q}[\log p_\theta(x\mid z)] - \beta\, D_{\mathrm{KL}}(q_\phi(z|x)\|p(z))$$
 
 | $\beta$ | Behaviour |
@@ -240,6 +250,8 @@ $$\mathcal{L}_\beta = \mathbb{E}_{q}[\log p_\theta(x\mid z)] - \beta\, D_{\mathr
 ---
 
 ## 7. VQ-VAE: discrete latents
+
+Disentanglement asks the latent space to be structured in a particular *continuous* way. A more radical change is to make it discrete altogether — trading the Gaussian prior for a learned codebook, and the VAE's usual role for a completely different one.
 
 Replace the continuous Gaussian latent with a lookup into a learned **codebook**
 $\mathcal{E} = \{e_1,\dots,e_K\} \subset \mathbb{R}^{d}$.
@@ -298,6 +310,8 @@ and most video generation.
 
 ## 8. Implementation
 
+All of that — ELBO, reparameterization, the failure modes, VQ — comes together in surprisingly little code. Training one end to end on MNIST is worth doing once, both because it works and because the numbers it produces tell you what a healthy VAE should look like.
+
 A complete VAE on MNIST, end to end:
 
 ```python
@@ -354,6 +368,8 @@ have posterior collapse. If it is near the reconstruction loss, $\beta$ is too l
 ---
 
 ## 9. Where VAEs actually live today
+
+Those healthy-looking numbers come from a toy 20-dimensional MNIST model. At the scale modern systems actually operate, the VAE covered in this page is rarely the end product anymore — it's a component inside something bigger.
 
 | Role | System | Why a VAE |
 |---|---|---|

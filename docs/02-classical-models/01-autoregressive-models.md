@@ -33,6 +33,8 @@ raster scan is arbitrary, and the arbitrariness hurts.
 
 ## 2. Training: teacher forcing
 
+That factorization tells you what to compute at inference. It doesn't yet tell you how to train $n$ conditionals at once without waiting for the model to generate each token in sequence — which is what teacher forcing solves.
+
 The crucial engineering fact: **you can compute all $n$ conditionals in one parallel forward pass**
 if you (a) feed the *ground truth* prefix rather than the model's own outputs, and (b) mask the
 attention/convolution so position $i$ cannot see positions $\ge i$.
@@ -69,6 +71,8 @@ proposed to fix it but introduces a biased gradient and is rarely used for LLMs.
 ---
 
 ## 3. A complete, worked micro-example
+
+That's the training procedure in the abstract. Running it by hand on a tiny vocabulary, end to end from probabilities to a loss number, makes every piece of it concrete.
 
 Let's actually build a bigram model on a tiny corpus, by hand.
 
@@ -111,6 +115,8 @@ Perplexity $= e^{0.733} = 2.08$ — the model is about as confused as a fair coi
 ---
 
 ## 4. The architecture progression
+
+Sharing parameters across contexts is *why* neural models work at all. Which network computes $p(x_i \mid x_{<i})$ — and how that architecture evolved from n-grams to RNNs to Transformers — is a separate question of *how well* and *how efficiently* it works.
 
 | Year | Model | Context handling | Sampling cost | Key limitation |
 |---|---|---|---|---|
@@ -170,6 +176,8 @@ you have information leakage.
 
 ## 5. PixelCNN and WaveNet: AR beyond text
 
+Text has an obvious left-to-right order, which is most of why Transformers dominate it. Other modalities don't have a natural order handed to them, and forcing autoregression onto them anyway is where the framework gets more interesting.
+
 ### PixelCNN: images as a raster scan
 
 $$p(x) = \prod_{i=1}^{H\cdot W} p(x_i \mid x_{<i})$$
@@ -211,6 +219,8 @@ diffusion.
 
 ## 6. Complexity analysis
 
+Whether it's text, pixels or audio samples, autoregressive generation pays the same structural cost: one forward pass per output, in sequence. Making that cost precise — and finding the trick that tames it — is the point of the next two sections.
+
 | Quantity | Transformer AR | Notes |
 |---|---|---|
 | Training time | $O(n^2 d + nd^2)$ per sequence | one parallel pass |
@@ -230,6 +240,8 @@ attention was adopted universally.
 ---
 
 ## 7. Minimal implementation
+
+That 21.5 GB number is an argument on paper. Seeing the same mechanism — one token in, one token out, feeding back into itself — in fewer than 20 lines of working code makes it concrete.
 
 A complete character-level autoregressive Transformer. This is the whole idea in ~60 lines.
 
@@ -312,6 +324,8 @@ the numbers change.
 ---
 
 ## 8. Strengths and weaknesses
+
+That toy model already exhibits every structural property of a frontier LLM: exact likelihood, stable training, and strictly sequential sampling. Whether those properties are a good trade depends on what you're building, which is the honest summary this page closes with.
 
 | ✅ Strengths | ❌ Weaknesses |
 |---|---|

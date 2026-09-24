@@ -51,6 +51,8 @@ training is going well).
 
 ## 2. Theory: what the game actually optimizes
 
+That adversarial signal is intuitive as a story about a forger and a detective. It's worth checking that the story actually converges somewhere sensible — that the min-max game has a well-defined optimum, and what that optimum is in terms of the divergences from earlier in the wiki.
+
 **Step 1 — the optimal discriminator.** For a fixed $G$ with induced distribution $p_g$,
 maximize the integrand pointwise:
 
@@ -86,6 +88,8 @@ has won and the generator is receiving no useful gradient.
 ---
 
 ## 3. Why GANs are hard: the four structural problems
+
+That derivation is also the theory's limit: it describes the game *at equilibrium*, assuming both players are optimized perfectly at every step. Real training never reaches that idealized equilibrium, and the ways it fails to get there are structural, not incidental.
 
 ### (a) Vanishing gradients when D wins
 
@@ -143,6 +147,8 @@ with a separate metric (FID) and by looking at samples. This is a genuine engine
 ---
 
 ## 4. Wasserstein GAN: a better divergence
+
+Problem (d) — no informative loss curve — and mode collapse both trace back to the same root cause: the JS divergence the original objective minimizes provides almost no useful gradient once $p_g$ and $p_{\text{data}}$ stop overlapping. Swapping in a divergence that stays informative even then fixes several of these problems at once.
 
 > [!WARNING]
 > **The root problem with JSD.** If $p_{\text{data}}$ and $p_g$ live on low-dimensional manifolds
@@ -205,6 +211,8 @@ the opposite of standard GAN advice.
 
 ## 5. The architecture lineage
 
+A better loss function fixes *how* the game is scored. It says nothing about *what* the generator and discriminator are made of, and that architecture — largely independent of the WGAN-vs-original-loss question — is where most of the visible progress in GAN image quality actually came from.
+
 | Year | Model | Contribution | 📊 FID on FFHQ/ImageNet |
 |---|---|---|---|
 | 2014 | GAN | the idea; MLPs on MNIST | — |
@@ -253,6 +261,8 @@ made this work on real images, and this was the dominant face-editing technology
 ---
 
 ## 6. Practical training recipe
+
+None of that theory or architecture guarantees a GAN trains cleanly in practice. Getting one to actually converge comes down to a short list of empirically discovered tricks, most of which have no clean theoretical justification.
 
 A working DCGAN training step, with the details that matter:
 
@@ -307,6 +317,8 @@ for real, _ in loader:
 ---
 
 ## 7. What happened to GANs
+
+Even with every trick above applied correctly, GANs lost the image-synthesis race by 2022. Understanding why — and where the adversarial idea survived anyway — is the honest ending to this page.
 
 The turning point was Dhariwal & Nichol, *Diffusion Models Beat GANs on Image Synthesis* (2021):
 

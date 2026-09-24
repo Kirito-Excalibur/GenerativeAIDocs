@@ -48,6 +48,8 @@ $d = 3072$ it cannot be computed, estimated reliably, or differentiated.
 
 ## 2. Training: the contrastive gradient
 
+That intractable $Z_\theta$ looks like it should block training entirely — maximum likelihood needs $\log Z_\theta$, gradient and all. It doesn't, quite: differentiate first, and the ugly normalizing constant turns into something you can actually estimate.
+
 **Derivation.** Maximize $\log p_\theta(x) = -E_\theta(x) - \log Z_\theta$:
 
 $$\nabla_\theta \log p_\theta(x) = -\nabla_\theta E_\theta(x) - \nabla_\theta \log Z_\theta$$
@@ -91,6 +93,8 @@ $$\boxed{\;\nabla_\theta \mathcal{L} = \underbrace{\mathbb{E}_{x\sim p_{\text{da
 
 ## 3. Sampling: Langevin dynamics
 
+That gradient needs samples from $p_\theta$ itself — the model you're training. Getting those samples, without ever computing $Z_\theta$, is a separate problem with its own machinery: Langevin dynamics.
+
 $$x_{t+1} = x_t - \frac{\eta}{2}\nabla_x E_\theta(x_t) + \sqrt{\eta}\,\epsilon_t, \qquad \epsilon_t\sim\mathcal{N}(0,I)$$
 
 > [!TIP]
@@ -119,6 +123,8 @@ compute a normalized density; they only ever estimate its gradient.
 ---
 
 ## 4. Contrastive divergence: the practical hack
+
+Slow, badly-mixing chains are a real obstacle to training, not just sampling — every gradient step in §2 needs fresh negative-phase samples. Contrastive divergence is the standard compromise: run the chain for far fewer steps than mixing requires, and accept the bias.
 
 Running Langevin to convergence in the inner loop of training is hopeless. **Contrastive
 divergence (CD-$k$)**: run only $k$ steps, starting from the data.
@@ -171,6 +177,8 @@ for real in loader:
 
 ## 5. Score matching: training without MCMC at all
 
+CD makes MCMC-based training *tractable*, but it's still MCMC — slow, biased, and fragile. The more radical fix is to sidestep sampling from $p_\theta$ during training altogether, which turns out to be possible.
+
 If MCMC is the problem, can we train an EBM without it? **Yes** — match the *score* instead of the
 density.
 
@@ -204,6 +212,8 @@ by a learned, noise-level-annealed sampler.
 
 ## 6. The historical line
 
+That lineage from EBMs to Stable Diffusion didn't happen in one leap — it's the record of a specific sequence of papers, each one fixing the previous one's biggest problem.
+
 | Model | Year | Energy function | Note |
 |---|---|---|---|
 | Hopfield network | 1982 | $-\frac12 x^\top W x$ | associative memory; the 2024 physics Nobel |
@@ -228,6 +238,8 @@ EBM-grade training instability.
 ---
 
 ## 7. Honest assessment
+
+JEM shows the idea can even piggyback on an ordinary classifier. Whether any of this — plain EBMs, CD, JEM — is worth deploying directly, versus just borrowing the idea as diffusion does, is a fair question to end on.
 
 | ✅ Strengths | ❌ Weaknesses |
 |---|---|
