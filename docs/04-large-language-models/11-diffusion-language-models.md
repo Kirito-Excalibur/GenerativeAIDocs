@@ -43,6 +43,8 @@ reconsidered, and nothing in the model assumes a direction.
 
 ## 2. Why Gaussian noise doesn't work for text
 
+Parallel filling is the goal. Image diffusion gets there by corrupting pixels with Gaussian noise — but text tokens are discrete, so the corruption process has to be reinvented from scratch.
+
 Image diffusion adds a small amount of Gaussian noise to continuous pixel values. Text is
 **discrete**: a token is one of about 100,000 symbols, and "the cat" plus a little noise is not a
 meaningful point. There are two ways around this.
@@ -71,6 +73,8 @@ tokens are replaced. D3PM (Austin et al., 2021) studied several choices:
 
 ## 3. Masked diffusion: the forward process
 
+Masking wins the choice of corruption. Turning that choice into an actual forward process — a schedule for how many tokens get masked, and when — is what the diffusion machinery from → [Diffusion models](../05-diffusion-and-vision/01-diffusion-models.md) requires next.
+
 Pick a noise level $t \in [0, 1]$. Independently for every position, keep the token with
 probability $\alpha_t$ and replace it with `[MASK]` otherwise:
 
@@ -90,6 +94,8 @@ or gone. There is no partially corrupted state.
 ---
 
 ## 4. The training objective, and its link to BERT
+
+With a forward process defined, training is the usual diffusion move: predict what the corruption removed. For masked tokens specifically, that prediction task turns out to be a familiar one wearing a different name.
 
 The reverse model $p_\theta(x_0 \mid x_t)$ is a Transformer that sees the partly masked sequence
 and predicts the original token at every masked position. Working through the variational bound
@@ -135,6 +141,8 @@ def masked_diffusion_loss(model, x0, mask_id, eps=1e-3):
 
 ## 5. Sampling
 
+That objective trains the model to fill in *any* masked position given the rest. Actually generating a full sequence means running that fill-in step repeatedly, deciding how many positions to unmask each round — and that choice has a real, visible cost in quality.
+
 Start from a fully masked sequence and step the noise level down from 1 to 0. At each step:
 
 1. Run the model once on the current sequence to get a distribution at every masked position.
@@ -179,6 +187,8 @@ more tokens filled together, so more of these conflicts.
 ---
 
 ## 6. Where they stand
+
+No KV cache, and a quality-vs-speed tradeoff on top of it — the practical picture is genuinely different from an autoregressive model's. Weighing all of that against what diffusion buys you is the honest place to end.
 
 **Evidence from the main papers:**
 

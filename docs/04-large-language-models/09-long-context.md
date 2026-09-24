@@ -34,6 +34,8 @@
 
 ## 2. The cost, concretely
 
+Those are the three problems in the abstract. Problem 1 — quadratic attention cost — is the easiest to make concrete, because it's just arithmetic: FLOPs and bytes, as a function of $T$.
+
 Attention FLOPs vs MLP FLOPs per layer (from → [Transformer §4](../03-sequence-models/04-transformer.md#4-flop-counting)):
 $4Td$ vs $24d^2$, with $d = 4096$:
 
@@ -57,6 +59,8 @@ caching: if the same 100k-token document is reused, cache its KV states and skip
 ---
 
 ## 3. Efficient attention: the landscape
+
+Both walls in §2 — compute at 32k, KV cache at 128k+ — trace back to the same root cause: standard attention computes and stores a $T\times T$ matrix. The most direct fix is to change the attention mechanism itself so that matrix never has to exist.
 
 ```mermaid
 graph TD
@@ -141,6 +145,8 @@ $T$. Linear in sequence length, and it gives you an RNN at inference.
 
 ## 4. State-space models and hybrids
 
+Linear attention's fixed-size state is really just a special case of a much older idea — recurrence — dressed up to look like attention. Pushing that framing further, rather than starting from attention and linearizing it, is what state-space models do.
+
 $$h_t = A h_{t-1} + Bx_t, \qquad y_t = Ch_t$$
 
 Linear recurrence → parallelizable by prefix scan during training, $O(1)$ state at inference.
@@ -170,6 +176,8 @@ retrieval and in-context learning. Interleaving a small number of full-attention
 
 ## 5. Extending an existing model's context
 
+Efficient attention and SSMs are architectural choices made before training even starts. Most existing long-context models took a different, cheaper path: train short, then teach the model to handle long sequences afterward.
+
 Most long-context models are *short-context models that were extended*.
 
 **The recipe:**
@@ -190,6 +198,8 @@ be ~16× the attention cost throughout).
 ---
 
 ## 6. What long context actually delivers
+
+Extending the context window, however it's done, only buys you a model that *can* accept long inputs. Whether it actually uses them well — reads the whole thing, not just the first and last few thousand tokens — is a separate, empirical question.
 
 ### Needle in a haystack
 
@@ -257,6 +267,8 @@ degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.
 
 ## 7. Long context vs RAG
 
+Given that real, useful context is smaller than the advertised number, the practical question for any given task is whether to spend that budget on stuffing everything into the prompt at all — or to retrieve only what's relevant instead.
+
 | | Long context | RAG |
 |---|---|---|
 | Setup cost | none | index building, chunking, embedding |
@@ -286,6 +298,8 @@ degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.
 ---
 
 ## 8. Practical techniques
+
+That decision rule is about *whether* to use long context. Once you've decided to, there's a short list of engineering habits that determine whether the tokens you spend on it actually help.
 
 | Technique | What it does |
 |---|---|

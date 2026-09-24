@@ -55,6 +55,8 @@ $$\text{Transformer} + \text{CoT of length } k \;\approx\; \text{a circuit of de
 
 ## 2. Chain-of-thought prompting
 
+That's the theory: more tokens buys more effective depth. Whether prompting a model to actually produce those extra tokens helps — and by how much — is an empirical question with a surprisingly large, well-measured answer.
+
 ```
   STANDARD                                 CHAIN OF THOUGHT
   
@@ -95,6 +97,8 @@ accuracy on InstructGPT (text-davinci-002) from 10.4% to 40.7%. No examples requ
 ---
 
 ## 3. Scaling test-time compute
+
+CoT converts extra *tokens* into extra depth for a single attempt. A different lever entirely is generating many attempts and picking the best — which needs some way to judge which attempt is actually best.
 
 **The empirical law**: accuracy improves log-linearly in the amount of inference compute, across
 several distinct mechanisms.
@@ -166,6 +170,8 @@ for the end.
 
 ## 4. Prompting patterns
 
+Best-of-$n$ and search both assume you're generating one linear chain of thought per attempt. There's a whole family of prompting strategies that change the *shape* of that reasoning process itself — branching, revising, or delegating parts of it to a tool.
+
 | Pattern | Idea | Use when |
 |---|---|---|
 | **Zero-shot CoT** | "Let's think step by step" | any reasoning task, no examples available |
@@ -189,6 +195,8 @@ is central to modern agents. → [Agents & tool use](../06-applications/04-agent
 ---
 
 ## 5. Training models to reason: RLVR
+
+All of the above — CoT, best-of-$n$, PRMs, prompting patterns — are things you do at inference time to a model that was never specifically trained to reason well. The more direct fix is to train that behavior in, using exactly the RL machinery from → [Alignment §7](05-alignment.md#7-stage-3c-rlvr-rl-on-verifiable-rewards).
 
 The major shift since 2024: rather than *prompting* for reasoning, **train** for it with
 reinforcement learning on verifiable rewards.
@@ -243,6 +251,8 @@ for them, and weak models rarely do.
 
 ## 6. The inference-compute scaling law
 
+RLVR is what makes a model good at spending extra tokens productively. Once you have that, "how many tokens to spend" becomes a genuine dial you can turn per query, and like every other scaling axis in this wiki, it follows a predictable — if unforgiving — curve.
+
 Snell et al. (2024): for some problem distributions, **spending compute at inference beats
 spending it on a bigger model.**
 
@@ -273,6 +283,8 @@ standard product feature.
 ---
 
 ## 7. How much of this is "real" reasoning?
+
+That ceiling is itself a clue about what's actually happening inside these models when they "reason." It's worth confronting the question directly, rather than assuming the answer from either the hype or the skepticism.
 
 > [!WARNING]
 > Worth engaging with honestly rather than dismissing either way.
@@ -311,6 +323,8 @@ standard product feature.
 ---
 
 ## 8. Implementation
+
+All of that is easier to evaluate once you've actually built a minimal version of the pipeline — a model, a verifier, and an RL loop between them — rather than only reading about RLVR in the abstract.
 
 Self-consistency, the highest value-per-line technique here:
 
