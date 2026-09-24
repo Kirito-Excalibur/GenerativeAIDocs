@@ -290,7 +290,7 @@ preserved by checking the formula is dimensionally sensible (does $p_X$ integrat
 $[0,1]$? You don't need to do the full integral — just check the formula's shape makes it
 plausible).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $z = f^{-1}(x) = x^{1/3}$, so $\frac{dz}{dx} = \frac13 x^{-2/3}$. At $x=0.125$: $z = 0.5$, and
 $\frac{dz}{dx} = \frac13(0.125)^{-2/3} = \frac13 \times 4 = 1.333$.
@@ -311,7 +311,7 @@ $\mathbb{E}[\|z\|]$ and its standard deviation for $z\sim\mathcal{N}(0,I_{64})$.
 independent samples from this distribution, what is the probability, roughly, that their norms
 differ by more than 2 (using the $\pm 1/\sqrt2$ std rule)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $\mathbb{E}[\|z\|]\approx\sqrt{64}=8$, with std $\approx 1/\sqrt2\approx0.707$. Two independent
 samples $\|z_1\|,\|z_2\|$ each have std $0.707$, so their **difference** has std
@@ -328,7 +328,7 @@ at rank $r=4$. Compute the parameter count and reduction factor, and compare wit
 example worked in §5 (4096×4096, 256× reduction). Does doubling the matrix size and halving the
 rank move the reduction factor up or down, and by roughly what multiple?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Full: $2048^2 = 4{,}194{,}304$. LoRA: $2\times2048\times4 = 16{,}384$. Fraction: $0.39\%$,
 reduction factor $= 256\times$ — **identical** to the worked $4096\times4096$, $r=8$ example.

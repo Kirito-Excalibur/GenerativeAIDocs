@@ -342,7 +342,7 @@ BF16 peak) for 10 days to train a 7B model on 2T tokens. Using $C=6ND$ and the M
 §4, compute the run's achieved MFU. Is it in the "good," "excellent," or "something's wrong"
 range per §4's table?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $C = 6\times7\times10^9\times2\times10^{12}=8.4\times10^{22}$ FLOPs.
 
@@ -367,7 +367,7 @@ somewhere in the cluster) is 3 hours for this 2000-GPU cluster. If checkpointing
 fraction of wall-clock time is spent on checkpoint writes, and how much progress (in minutes) do
 you expect to lose per failure on average?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Checkpoint overhead: 90 seconds every 1200 seconds (20 min) $= 90/1200=7.5\%$ of wall-clock time
 spent writing checkpoints.
@@ -390,7 +390,7 @@ $\text{bubble} = (P-1)/(m+P-1)$, compute the bubble fraction for $P=8$ pipeline 
 $m=16$ and at $m=64$ micro-batches. At $m=16$, is this "acceptable" per §3's rule of thumb
 ($m\gg P$)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $P=8$, $m=16$: bubble $=7/(16+7)=7/23=30.4\%$ — this is **not** a case of $m\gg P$ ($m$ is only
 $2\times P$), and 30.4% wasted time is a substantial inefficiency, closer to §3's "unacceptable"

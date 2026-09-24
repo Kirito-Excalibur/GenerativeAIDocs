@@ -389,7 +389,7 @@ probability for a 12-step task at per-step reliability $p=0.92$. How does this c
 §4's own $p{=}0.95$, 20-step row (36%)? Which lever — more steps at higher reliability, or fewer
 steps at lower reliability — gives the better overall success rate here?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $0.92^{12} = 0.368$ — **36.8%**, essentially identical to §4's $p{=}0.95$, $k{=}20$ row (36%),
 despite this task having *fewer* steps (12 vs 20) but a noticeably *lower* per-step reliability
@@ -411,7 +411,7 @@ created_at. Use for questions about order history, totals, or status — NOT for
 (this tool is read-only and will reject writes)."` Using §2's tool-description guidance, list
 three concrete failure modes description (A) invites that (B) prevents.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §2's checklist ("what it does, when to use it, when **not** to use it, parameter formats with
 examples, and what the output looks like"), description (A) is missing nearly everything B
@@ -438,7 +438,7 @@ filings, and app-store reviews. Using §6's guidance ("try a single agent with g
 would you recommend starting with a single agent or an orchestrator-worker setup, and which of
 §6's three "genuinely helps" criteria (if any) applies here?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Start with a **single agent** first, per §6's default recommendation — but this task actually
 has a reasonable case for the orchestrator-worker pattern once you test the single-agent version

@@ -255,7 +255,7 @@ is (a) exact, (b) a bound, or (c) not modeled at all, using the organizing quest
 normalizing flow used for anomaly detection; a GAN generating faces; a diffusion model trained
 with the simple $\epsilon$-prediction loss.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 - **Normalizing flow**: exact. The whole point of the change-of-variables construction is that
   $\log p(x)$ is computable exactly, which is exactly why it's the right tool for anomaly
@@ -276,7 +276,7 @@ probability-flow ODE, even though diffusion is normally listed as "approximate/b
 master table, and (b) why a score-based model never needs to know the normalizing constant $Z$ of
 the data distribution.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 (a) The probability-flow ODE (connection 4 in §4) turns the *stochastic* diffusion process into
 a *deterministic, invertible* map with the same marginals — and any invertible map admits exact
@@ -295,7 +295,7 @@ construction — the intractable normalizing constant simply differentiates away
 data is continuous. Walk through §6's decision tree and say which branch you land on, then check
 your answer against §5's modality table.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Following §6's tree: "exact log p(x) required?" → No (ruled out by (a)). "Best possible sample
 quality, don't care about latency?" → Yes, and the data is continuous (not text/code) → routes to

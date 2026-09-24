@@ -233,7 +233,7 @@ Mitigations used in practice:
 example (93.75 fps), and does a *lower* sample rate with a *smaller* hop necessarily mean a
 higher or lower frame rate?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $16000/200 = 80.0$ fps — **lower** than §2's 93.75 fps example, even though the hop is smaller
 (200 vs 256, which alone would push frame rate *up*). The reason: sample rate dropped
@@ -250,7 +250,7 @@ bitrate for a codec at 50 fps with 6 codebooks of size 1024 each. Compare the re
 compression ratio against raw 16-bit, 16kHz audio (256 kbps) with §4's own EnCodec example (64×
 at 24kHz/6kbps).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Bits/code $=\log_2(1024)=10$. Bitrate $=50\times6\times10=3000$ bits/s $=3.0$ kbps.
 
@@ -274,7 +274,7 @@ described elsewhere in this wiki
 (→ [Diffusion LMs §5](../04-large-language-models/11-diffusion-language-models.md#5-sampling)),
 which explicitly cannot.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 A codec-token LM (even with the delay pattern interleaving multiple codebook streams) is still
 fundamentally **autoregressive left-to-right**: once a codebook's code is emitted at a given

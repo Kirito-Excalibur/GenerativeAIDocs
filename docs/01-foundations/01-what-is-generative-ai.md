@@ -330,7 +330,7 @@ smoothly. Change the metric, and the cliff becomes a ramp.
 **Problem 1 — bin counting.** Redo the sparsity table in §2 for $d = 15$ and $d = 25$, still with
 60,000 samples. At what $d$ does the expected count per bin first drop below 1?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Bins $= 2^d$; samples/bin $= 60000/2^d$.
 
@@ -353,7 +353,7 @@ informal "infinite penalty" rule from §6, which of $q_1, q_2$ would forward KL 
 prefer, and which would reverse KL $D_{KL}(q\|p)$ prefer? Why can neither actually be evaluated
 if $q$ is a point mass?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Forward KL integrates $p(x)\log(p(x)/q(x))$: wherever $p(x)>0$ but $q(x)=0$, the term is
 $+\infty$. Since $p$ has mass at *both* 0 and 10, **any** $q$ that is zero at either point gives
@@ -379,7 +379,7 @@ forward pass, claims perfect mode coverage (no mode collapse, ever), and produce
 state-of-the-art FID. Using the trilemma from §4, what should you be suspicious of, and what's
 the first experiment you'd run?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 The trilemma says quality, speed, and coverage cannot all be maximized simultaneously by any
 known method — every real model sits at a point on the triangle with at least one weaker leg. A
@@ -402,7 +402,7 @@ If you *double* the weight on the second term, informally what should happen to 
 images match the prompt, and (b) sample diversity for a fixed prompt? Which page derives this
 precisely?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Doubling the $\nabla\log p(c\mid x)$ term pushes samples harder toward high-$p(c\mid x)$ regions
 of image space — i.e. (a) **prompt adherence increases**. But that same push shrinks the

@@ -306,7 +306,7 @@ Set `baseline` to stay at 0 and compare: learning becomes much slower and less s
 $G_0$. If the reward of 5 arrived at step 1 instead of step 3 (rewards $(1,5,0,0)$), what would
 $G_0$ be, and by what factor did moving it earlier change its contribution?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $G_0 = 1 + 0.8(0) + 0.64(0) + 0.512(5) = 1 + 2.56 = 3.56$.
 
@@ -324,7 +324,7 @@ arms $(A,B)$ (mean $10$). Using the gradient-on-$z_B$ formula from §4
 ($\nabla\log\pi(a) = \mathbb{1}[a{=}j]-\pi(j)$), compute the no-baseline gradient for each
 possible sample and their mean, then repeat with baseline $b=10$. What changed and what didn't?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 No baseline: pulling A gives gradient $(0-0.5)\times6=-3.0$; pulling B gives
 $(1-0.5)\times14=7.0$. Mean over the two outcomes: $(-3.0+7.0)/2=2.0$.
@@ -345,7 +345,7 @@ PPO objective for $\rho=1.3$ (ratio increased) and separately for $\rho=0.7$ (ra
 even though the action was good), using $\epsilon=0.2$. Which one gets clipped, and does the
 result match your intuition that "PPO always limits how far the ratio can move"?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $\rho=1.3$ (outside $[0.8,1.2]$ on the *high* side): unclipped $=1.3\times3=3.9$;
 $\text{clip}(1.3)=1.2$, clipped $=1.2\times3=3.6$. Objective $=\min(3.9,3.6)=\mathbf{3.6}$ —

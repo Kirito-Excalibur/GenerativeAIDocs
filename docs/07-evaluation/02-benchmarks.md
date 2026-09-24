@@ -284,7 +284,7 @@ choice (instead of the standard 4-way in §2's MMLU discussion). What's the chan
 If a model scores 28% on this benchmark, using §2's framing, is that meaningfully above chance,
 or roughly indistinguishable from guessing?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Chance floor $=1/6=16.7\%$ (vs 4-way MC's 25%, per §2).
 
@@ -305,7 +305,7 @@ compute the point-value of 1 problem and of 2 problems on the actual 164-item Hu
 papers report scores that differ by exactly 1 problem's worth of accuracy, is it ever legitimate
 to describe one as "better" without further evidence, per §5's argument?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 1 problem $=1/164=0.61$ percentage points. 2 problems $=1.22$ points.
 
@@ -325,7 +325,7 @@ freshly-created benchmark (same difficulty, same format, published one week afte
 cutoff). Using §3's detection methods, what does this pattern suggest, and which specific method
 from §3 does this scenario directly embody?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 This is a textbook case of **temporal detection**, the method §3 calls "the most robust": "evaluate
 on problems created *after* the model's cutoff." The 33-point gap between the old (94%) and new

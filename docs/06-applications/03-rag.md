@@ -342,7 +342,7 @@ chunk into the top-5, and it survives reranking into the top-3, but the final an
 omits a key fact that *was* in the retrieved context. Using §4's 8-point taxonomy, which failure
 number does this match, and what's the recommended fix?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 This matches **failure #4, "Not extracted"**: "the chunk is in context but the LLM missed it."
 Retrieval (failures #1–2) and reranking/ordering (failure #3) are both ruled out by the problem
@@ -361,7 +361,7 @@ sentence), and assuming each call costs \$0.0003 (a small/cheap model) and takes
 (assume full parallelism across many concurrent calls, so wall-clock isn't simply $50000\times0.5$s),
 what's the one-time indexing cost in dollars? Per §2, is this a recurring cost or a one-off?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $50{,}000\times\$0.0003=\$15.00$ — a modest one-time cost.
 
@@ -381,7 +381,7 @@ unanswerable group's scores cluster around 0.15–0.35; the answerable group clu
 0.55–0.95, with some overlap around 0.4–0.5. Where would you set `RELEVANCE_FLOOR`, and what's
 the trade-off at each end of that overlap range?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Somewhere in the **0.4–0.5 overlap band** is the right zone — exactly matching §8's instruction
 to "calibrate the floor on known-unanswerable queries."

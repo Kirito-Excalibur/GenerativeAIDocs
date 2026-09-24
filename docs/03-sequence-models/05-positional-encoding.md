@@ -338,7 +338,7 @@ $d=128$, extending context by $s=4\times$, starting from $\theta_{\text{old}}=10
 the exponent $d/(d-2)$ to a naive "$\theta_{\text{new}}=s\times\theta_{\text{old}}$" — is
 NTK-aware scaling more or less aggressive than a plain linear scale-up?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $d/(d-2) = 128/126 = 1.0159$ — just barely above 1. So
 $\theta_{\text{new}} = 10000\times4^{1.0159} = 10000\times4.089=40{,}890$.
@@ -358,7 +358,7 @@ its bias penalty at distances 1, 10, and 100. Roughly how many tokens back does 
 "attention horizon" (per §5's framing of different heads having different effective ranges)
 extend before the penalty exceeds, say, a typical attention-score range of $\pm10$?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Bias $=-m\times\text{dist}$: at dist 1, $-0.125$; at dist 10, $-1.25$; at dist 100, $-12.5$.
 
@@ -379,7 +379,7 @@ poorly in practice," while §6 says RoPE, built on a similar rotation idea, extr
 better (with scaling). What's the actual mechanistic difference that explains this gap, given
 both use rotation-like math?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 The key difference is *where* the position information enters the computation, not the
 underlying trigonometry. Sinusoidal encoding is **added once, to the input embeddings**, before

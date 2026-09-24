@@ -335,7 +335,7 @@ $\sqrt{\bar\alpha_t}$, and $\sqrt{1-\bar\alpha_t}$ at $t=200$ and $t=600$ (value
 page's own table). Where does $t=600$ fall relative to the "image is essentially destroyed"
 observation §2 makes about $t\approx700$?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 | $t$ | $\bar\alpha_t$ | $\sqrt{\bar\alpha_t}$ (signal) | $\sqrt{1-\bar\alpha_t}$ (noise) |
 |---|---|---|---|
@@ -357,7 +357,7 @@ target using §6's formula $v=\sqrt{\bar\alpha_t}\epsilon-\sqrt{1-\bar\alpha_t}x
 timestep (mostly noise), does $v$ end up closer to $-x_0$ or to $\epsilon$, and does that match
 §6's claim that $v$-prediction "interpolates between the two targets"?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$v = \sqrt{0.0259}\times0.5 - \sqrt{1-0.0259}\times1.0 = 0.161\times0.5 - 0.987\times1.0
 = 0.0805-0.987=-0.906$$
@@ -376,7 +376,7 @@ $-x_0$ end of that spectrum.
 a correctly-noised version of the known region at every step), explain what would go wrong if you
 instead pasted the *clean, unnoised* known region at every step (skipping the re-noising).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 The reverse process at any intermediate step $t$ expects its *entire* input $x_t$ to be at a
 consistent noise level $t$ — that's what the denoiser $\epsilon_\theta(x_t,t)$ is conditioned on

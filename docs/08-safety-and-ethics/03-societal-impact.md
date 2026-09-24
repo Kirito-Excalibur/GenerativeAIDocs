@@ -304,7 +304,89 @@ If you build with these systems, the concrete practices:
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — bias measurement, aggregate vs stratified.** A hiring-screening model shows 82%
+overall accuracy at predicting "would this candidate be shortlisted by a human recruiter."
+Broken down by demographic group, accuracy is 90% for one group and 65% for another. Using §1's
+warning about aggregate scores, what does the 82% figure conceal, and which of §8's practices
+would have surfaced this?
+
+<details markdown="1"><summary>Solution</summary>
+
+The 82% aggregate conceals a **17-25 point accuracy gap between groups** — the overall figure is
+a population-weighted average that makes a genuinely disparate-impact model look uniformly
+decent. This is a direct instance of §1's point that "aggregate scores hide disparate impact" (in
+the specific form of §7's "reliability" discussion elsewhere in this wiki: 82% average could mean
+uniformly mediocre *or* excellent-for-some/poor-for-others — completely different products with
+completely different real-world consequences, especially in a hiring context where the low-
+accuracy group predictably correlates with worse outcomes for real people).
+
+The practice that would have surfaced this: §8's "measure across demographic slices, not just in
+aggregate" — the *only* way to detect this gap is to explicitly compute accuracy (or whatever
+metric matters) separately per demographic group, rather than trusting a single headline number.
+
+</details>
+
+**Problem 2 — fairness definitions, a genuine trade-off.** A loan-approval model satisfies
+"demographic parity" (equal approval rates across groups) but not "equalized odds" (equal true-
+positive and false-positive rates across groups) — this is common because, per §1, these
+definitions are "mathematically incompatible except in degenerate cases." Explain concretely
+(using loan approval as the example) what it would mean for these two definitions to actually
+conflict — i.e., construct a scenario where improving one necessarily worsens the other.
+
+<details markdown="1"><summary>Solution</summary>
+
+Suppose Group A and Group B have genuinely different *underlying* default-risk distributions in
+the training data (say, due to historical economic factors correlated with group membership, not
+anything about the model). A model that perfectly predicts true creditworthiness would naturally
+approve different *rates* of applicants from each group (since the groups' true qualification
+rates differ) — satisfying equalized odds (correct predictions are equally accurate for both
+groups) but *violating* demographic parity (approval rates differ).
+
+To force demographic parity instead — equal approval rates — the model would have to approve some
+lower-creditworthiness applicants from the group with the lower true qualification rate (to bring
+its approval rate up to match) and/or reject some higher-creditworthiness applicants from the
+other group (to bring its rate down) — which directly *breaks* equalized odds, since now the
+model's error rates (false positives, false negatives) differ systematically by group even though
+they didn't before. This is the concrete mechanism behind §1's abstract claim: satisfying one
+fairness definition, when the underlying group base rates genuinely differ, mathematically
+requires violating the other — there is no model that can satisfy both simultaneously except in
+the special case where the groups' true qualification distributions are already identical.
+
+</details>
+
+**Problem 3 — provenance vs detection, applied.** A journalist receives a video allegedly showing
+a public figure making an inflammatory statement, with no C2PA metadata attached (it was
+apparently re-encoded through several sharing platforms). Using §5's framing, is running the
+video through an AI-generated-content *detector* a reliable way to establish whether it's real?
+What would running the *same* video through a C2PA verification actually prove or fail to prove
+in this specific case?
+
+<details markdown="1"><summary>Solution</summary>
+
+Running a detector is **not reliable** per §5: "detection does not work reliably, and this is
+unlikely to change" — classifier-based detectors have "poor generalization" and "high false-
+positive rates," so a detector's verdict here (real or fake) shouldn't be treated as authoritative
+evidence either way.
+
+C2PA verification, in this specific case, would likely be **inconclusive rather than
+disprove authenticity** — per §5, "metadata can be stripped, and absence of provenance can't be
+treated as proof of fakery." The video's lack of C2PA metadata after "several re-encodes through
+sharing platforms" is exactly the scenario §5 anticipates: most platforms don't yet preserve
+C2PA chains through re-encoding, so a missing signature here tells you *nothing definitive* about
+whether the original capture was genuine — it only tells you the provenance chain wasn't
+preserved through this particular distribution path. The honest conclusion, per §5's own
+framing, is that **neither tool available here can establish ground truth**: the video's
+authenticity would need to be verified through other means entirely (contacting the original
+source, checking for the statement through independent channels, examining context) — a useful
+illustration that provenance technology's value is contingent on adoption throughout the
+distribution chain, not a tool that retroactively proves or disproves content that predates or
+bypasses it.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

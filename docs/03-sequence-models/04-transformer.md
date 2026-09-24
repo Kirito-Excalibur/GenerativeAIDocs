@@ -390,7 +390,7 @@ Read this table alongside $N \approx 12Ld^2$:
 using the $12Ld^2+Vd$ formula from §3. Which size tier (per → [LLM architecture §5](../04-large-language-models/01-llm-architecture.md#5-model-size-tiers-and-what-each-is-for))
 does this land in?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$N = 12\times24\times1536^2 + 32000\times1536 = 679{,}477{,}248 + 49{,}152{,}000 = 728{,}629{,}248 \approx 0.73\text{ B}$$
 
@@ -407,7 +407,7 @@ at $T=16384$ (an intermediate length not in §4's table). Interpolating between 
 (25%) and $T=32768$ (57.1%) rows, does your computed value fall roughly where linear
 interpolation would suggest, or does the curve bend?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$\text{share} = \frac{4\times16384\times4096}{24\times4096^2+4\times16384\times4096}
 = \frac{2.684\times10^8}{4.027\times10^8+2.684\times10^8} = \frac{2.684}{6.711}=0.400=\mathbf{40.0\%}$$
@@ -428,7 +428,7 @@ Transformers add every layer's output to the residual stream, and nothing is eve
 you could in principle train a 1000-layer Transformer and it would work exactly as well as a
 32-layer one, just slower." Using §2 and §6, what's right and what's incomplete about this claim?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 **Right**: the identity-preserving gradient path from pre-norm (§6: "trains at any depth") means
 depth alone doesn't cause the training *instability* that killed post-norm at depth — this part

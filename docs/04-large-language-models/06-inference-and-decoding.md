@@ -435,7 +435,7 @@ Good starting points by task:
 $0.35, 0.25, 0.15, 0.12, 0.08, 0.05$ over 6 tokens. Using §3's top-$p$ procedure with $p=0.8$,
 which tokens are in the nucleus? What if $p=0.5$?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Cumulative: $0.35, 0.60, 0.75, 0.87, 0.95, 1.00$.
 
@@ -456,7 +456,7 @@ verification round for $\alpha=0.75$, $k=6$ (a harder-to-predict domain than the
 examples, with a longer draft). Compare against §6's $\alpha{=}0.8,k{=}4$ row (3.36) — did
 increasing $k$ compensate for the lower $\alpha$?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$\mathbb{E}[\text{tokens}] = \frac{1-0.75^7}{1-0.75} = \frac{1-0.1335}{0.25} = \frac{0.8665}{0.25}=3.47$$
 
@@ -477,7 +477,7 @@ fraction wasted under naive contiguous allocation. If instead this request used 
 (PagedAttention-style), how many blocks would actually be allocated, and what's the maximum
 possible waste in the last (partially-filled) block?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Naive: $1 - 320/4096 = 92.2\%$ wasted — even worse than §5's own 97.5% example (100 tokens in a
 4096 buffer), just less extreme since more of the buffer got used.

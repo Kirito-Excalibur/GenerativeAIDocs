@@ -319,7 +319,7 @@ for name, p in model.named_parameters():
 $w_2=-1.0$, target $y=0.5$. Compute the forward pass, the backward pass, and the loss after one
 gradient step with $\eta=0.1$.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Forward: $z_1 = 1.2$, $a_1=\tanh(1.2)=0.8337$, $\hat y = z_2 = -0.8337$,
 $L=\frac12(-1.3337)^2=0.8893$.
@@ -338,13 +338,15 @@ $0.8893$, confirming the step reduced the loss, same pattern as the worked examp
 compute both LayerNorm and RMSNorm outputs. Confirm LayerNorm's output has mean 0, and note
 whether RMSNorm's does too.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
-$\mu = 1.5$, $\sigma^2 = 6.75$, $\sigma=2.598$.
-**LayerNorm**: $(0.655,\,-1.348,\,-0.192,\,0.962)$... recomputing precisely:
-$(x-\mu)/\sigma = (1.5/2.598,\,-3.5/2.598,\,-0.5/2.598,\,2.5/2.598) = (0.577,\,-1.347,\,-0.192,\,0.962)$.
-Mean of this output: $(0.577-1.347-0.192+0.962)/4 \approx 0$ ✓ (by construction — centering
-guarantees this).
+$\mu = 1.5$; $\sigma^2 = \frac14\big((3{-}1.5)^2+({-}2{-}1.5)^2+(1{-}1.5)^2+(4{-}1.5)^2\big)
+= \frac{2.25+12.25+0.25+6.25}{4}=5.25$, so $\sigma=2.291$.
+
+**LayerNorm**: $(x-\mu)/\sigma = (1.5/2.291,\,-3.5/2.291,\,-0.5/2.291,\,2.5/2.291)
+= (0.655,\,-1.528,\,-0.218,\,1.091)$.
+Mean of this output: $(0.655-1.528-0.218+1.091)/4 = 0$ ✓ (by construction — centering guarantees
+this exactly).
 
 **RMSNorm**: RMS $=\sqrt{(9+4+1+16)/4}=\sqrt{7.5}=2.739$. Output: $x/\text{RMS} =
 (1.095,\,-0.730,\,0.365,\,1.461)$. Mean of this output: $(1.095-0.730+0.365+1.461)/4 = 0.548 \ne 0$
@@ -359,7 +361,7 @@ initialize a weight matrix with $n_{in}=512$? If you mistakenly used Xavier init
 ($\sigma_w^2 = 2/(n_{in}+n_{out})$, $n_{out}=512$) instead, by what factor would your initial
 weight variance be too small, and what symptom would you expect during early training?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 He: $\sigma_w^2 = 2/512 = 0.00391$, so $\sigma_w = 0.0625$.
 

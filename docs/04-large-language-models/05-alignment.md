@@ -380,7 +380,7 @@ human prefers the chosen response? If instead $r_w=r_l+10$ (a huge gap), what do
 predict, and does that match the intuition that a confident reward-model gap should mean near-
 certain preference?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$P(y_w\succ y_l) = \sigma(r_w-r_l) = \sigma(1.5) = \frac{1}{1+e^{-1.5}} = 0.818$$
 
@@ -398,7 +398,7 @@ gives $\log\pi_{ref}(y_w|x)=-2.2$, $\log\pi_{ref}(y_l|x)=-3.0$. With $\beta=0.1$
 loss for this example using §6's boxed formula. Is the policy currently "correct" (prefers $y_w$
 more than the reference does, relatively) or not?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$\text{logits} = \beta\Big[(\log\pi_\theta(y_w)-\log\pi_{ref}(y_w)) - (\log\pi_\theta(y_l)-\log\pi_{ref}(y_l))\Big]
 = 0.1\big[(-2.0-(-2.2)) - (-3.5-(-3.0))\big] = 0.1[0.2-(-0.5)]=0.1(0.7)=0.07$$
@@ -420,7 +420,7 @@ you're monitoring a PPO run and see proxy reward climbing steadily for 10,000 st
 small held-out human-eval score peaks at step 4,000 and then declines. What should you do, and
 why is "just keep training since reward is still going up" the wrong read of this situation?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 You should **stop training around step 4,000** (or roll back to a checkpoint near there) and
 treat the continued proxy-reward climb after that point as evidence of over-optimization, not

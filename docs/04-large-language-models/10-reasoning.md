@@ -370,7 +370,7 @@ pass@1 and pass@8 for $n{=}24$ samples with $c{=}6$ correct. Compare with §3's
 best-of-$n$ table (which used a *simplified* perfect-verifier formula
 $1-(1-p)^n$ at $p{=}0.25$) — do the two approaches roughly agree at $n{=}8$?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 pass@1 $= c/n = 6/24 = 0.25$.
 
@@ -395,7 +395,7 @@ formula, compute the advantage for a correct attempt and for the wrong attempt. 
 group gives a stronger training signal, and why does that make sense given how "surprising" each
 outcome is?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Mean $=7/8=0.875$; variance $=\frac18[7(1-0.875)^2+1(0-0.875)^2]=\frac18[7(0.0156)+0.7656]
 =\frac18[0.1094+0.7656]=0.1094$; std $=\sqrt{0.1094}=0.3307$.
@@ -424,7 +424,7 @@ puzzle in one shot. Roughly how many CoT tokens would be needed to reach that ef
 and does this help explain why very long reasoning traces (thousands of tokens) are sometimes
 necessary for hard problems, rather than a slight prompting tweak?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $O(L\times k)\ge600$ with $L{=}24$ gives $k\ge600/24=25$ CoT tokens **at minimum**, by this
 rough asymptotic argument — though in practice the constant hidden in the $O(\cdot)$, and the

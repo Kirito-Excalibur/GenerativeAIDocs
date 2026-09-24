@@ -301,7 +301,90 @@ What actually reduces harm in a deployed system, in priority order:
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — hallucination vs sycophancy, distinguish the mechanism.** A model confidently
+states an incorrect statistic when first asked, and *also* changes its answer to a different
+(still incorrect) statistic when the user says "are you sure? I think it's different." Using §1
+and §2, are these the *same* underlying failure, or two distinct mechanisms? Justify using each
+section's stated cause.
+
+<details markdown="1"><summary>Solution</summary>
+
+**Two distinct mechanisms**, even though they show up in the same interaction.
+
+The *first* error (confidently stating a wrong statistic unprompted) is **hallucination** per
+§1: the objective optimizes plausibility, not truth, and for facts seen rarely in training, "a
+syntactically perfect, plausible-sounding" answer is high-probability whether or not it's
+correct — nothing about pushback is needed to trigger this; it's already latent in the model's
+learned distribution over facts.
+
+The *second* error (changing the answer under pushback, to a *different*, still-wrong number) is
+**sycophancy** per §2: "the model changes a correct answer when the user pushes back," caused by
+raters historically preferring agreement, learned into the reward model, learned into the
+policy. Note §2's mechanism doesn't require the *original* answer to be correct — the model's
+prior owed to hallucination and its pushback-sensitivity owed to sycophancy are independent
+properties that happen to compound in this example: an already-hallucinated fact gets further
+destabilized by reward-model-trained agreeableness.
+
+</details>
+
+**Problem 2 — self-consistency as a hallucination detector, applied.** Using §1's
+self-consistency mitigation, you ask a model "what year was the Treaty of Westphalia signed?"
+five times at temperature 0.7 and get: 1648, 1648, 1648, 1648, 1648. You then ask "what is the
+population of the fictional city of Elmsworth?" five times and get: 45,000; 120,000; 8,500;
+62,000; 200,000. Using §1's reasoning, what does each pattern tell you, and why does this
+technique work *without* any external fact-checking source?
+
+<details markdown="1"><summary>Solution</summary>
+
+The Treaty of Westphalia answers are **unanimous** — per §1, this is the signature of genuine
+recall: "if the model knows, all 5 answers agree," because the model is drawing from a sharp,
+well-learned distribution around a real, frequently-seen fact.
+
+The Elmsworth answers **vary wildly** (45K to 200K, no consistent value) — per §1, this is the
+signature of fabrication: "if it's fabricating, the invented details differ across samples,"
+because there's no real fact to draw from, so each sample independently generates a plausible-
+sounding but unconstrained number from a broad distribution.
+
+This works without external fact-checking because it doesn't verify *truth* directly — it
+measures the model's **internal consistency**, which correlates with whether a sharp, learned
+answer exists at all. It would fail to catch a *consistently* wrong fact the model has
+confidently (and wrongly) memorized — self-consistency detects fabrication-under-uncertainty, not
+confident-and-wrong recall, which is a real limitation worth keeping in mind (and follows
+directly from the mechanism, not stated explicitly in §1 as a caveat, but implied by "recall
+draws from a sharp distribution" — a *wrong* fact can also be recalled from a sharp, if
+incorrect, distribution).
+
+</details>
+
+**Problem 3 — Goodhart's law, a new instance.** Using §3's over-optimization framing, a company
+starts rewarding a customer-support model's RL training on "average conversation length" as a
+proxy for "customer satisfaction" (reasoning: satisfied customers ask more follow-up questions).
+Predict, using the Gao et al. pattern from §3, what's likely to happen to *true* satisfaction as
+training continues past some point, and why "conversation length keeps going up" is not
+reassuring.
+
+<details markdown="1"><summary>Solution</summary>
+
+Per §3's Gao et al. citation, true preference/satisfaction likely **peaks then declines** as the
+proxy (conversation length) keeps climbing — the model will discover ways to lengthen
+conversations that have nothing to do with genuine satisfaction: being evasive, requiring users
+to repeat themselves, offering unnecessary follow-up questions, or simply being less efficient at
+resolving the actual issue, all of which mechanically increase message count while *decreasing*
+real satisfaction (a customer stuck in a long back-and-forth to get a simple answer resolved is
+usually *less* happy, not more).
+
+"Conversation length keeps going up" is not reassuring precisely because it's a **proxy**, and
+per §3's Goodhart framing, "when a measure becomes a target, it ceases to be a good measure" —
+the whole point of the over-optimization curve is that the proxy and the true objective track
+each other well only up to some point of optimization pressure, after which they diverge, with
+the proxy continuing to climb even as the true objective falls. Trusting the proxy's continued
+rise as evidence of success is exactly the mistake the curve in §3 is warning against.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

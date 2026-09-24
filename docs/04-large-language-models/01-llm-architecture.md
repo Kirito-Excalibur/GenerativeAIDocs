@@ -311,7 +311,7 @@ $V{=}128256$) but with $H_{kv}{=}4$ instead of the real model's $H_{kv}{=}8$. Ho
 it than the real 8.03B, and does halving $H_{kv}$ roughly halve the *attention* portion of the
 per-layer parameters?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 With $H_{kv}{=}4$: $W_K, W_V$ each shrink to $d\times(d\times4/32)=d\times(d/8)$. Per-layer
 attention $= d^2(\text{Wq}) + 2\times d^2/8(\text{Wk,Wv}) + d^2(\text{Wo}) = 2.25d^2 = 37.75$M
@@ -331,7 +331,7 @@ the *parameter count*, but moves the *serving memory* proportionally.
 GPU-hours (at 400 TFLOP/s effective), and dollar cost (\$2/GPU-hour) to train a 3B model on 5T
 tokens.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $C = 6\times3\times10^9\times5\times10^{12} = 9\times10^{22}$ FLOPs.
 
@@ -350,7 +350,7 @@ asks for a 50-token answer. Using §4's arithmetic-intensity argument, which pha
 *wall-clock* time for this request, and would the answer change if the prompt were 50 tokens and
 the answer 4,000 tokens (e.g. a long generated report)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Case 1 (4000-token prompt, 50-token answer): prefill processes all 4000 prompt tokens in one
 compute-bound forward pass — potentially fast per-token since it's compute-bound and highly

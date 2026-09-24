@@ -363,7 +363,7 @@ class SimpleVLM(nn.Module):
 patches for a $384\times384$ image with patch size 16. How does attention cost (roughly
 quadratic in patch count) compare with §1's $224\times224$, patch-16 example (196 patches)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $(384/16)^2 = 24^2 = 576$ patches (vs §1's 196 at $224\times224$).
 
@@ -380,7 +380,7 @@ bound, compare the maximum certifiable MI (in nats) for CLIP-style training at b
 $N{=}1024$ versus $N{=}65{,}536$ (CLIP's actual batch size, per §2). Roughly how many *times*
 larger a batch would you need beyond 65,536 to double the certifiable-MI ceiling?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $\log(1024)=6.93$ nats; $\log(65536)=11.09$ nats — batch size 64× larger yields a ceiling only
 $11.09/6.93=1.60\times$ higher, because the bound grows **logarithmically**, not linearly, in $N$.
@@ -400,7 +400,7 @@ GPU-day and a strong preference not to touch the LLM's existing weights or degra
 quality. Using §3's three patterns, which should they choose, and what's the specific mechanism
 that satisfies "don't touch/degrade the existing weights"?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 **Pattern 2 (cross-attention, Flamingo-style)** is the best match specifically for the "don't
 touch or degrade the LLM" requirement: §3 states this pattern "preserves language ability

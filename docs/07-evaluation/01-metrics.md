@@ -398,7 +398,7 @@ A practical structure:
 low bigram overlap despite a reasonable *semantic* match (the sentences mean nearly the same
 thing) illustrate §2's core criticism of BLEU?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Unigram: candidate words $\{$the, fast, brown, fox, leaps$\}$; matches against the reference
 $\{$the, quick, brown, fox, jumps$\}$: "the," "brown," "fox" match — $3/5=0.6$ precision.
@@ -421,7 +421,7 @@ carry the same meaning.
 400→91%), do your computed values fall roughly where you'd expect, and does the curve's shape
 (concave, convex, or roughly linear in this range) matter for that intuition?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 150-point gap: $P=1/(1+10^{-150/400})=0.703$ — **70.3%**, sitting between the 64% (100-gap) and
 76% (200-gap) table rows, roughly where linear interpolation would suggest (linear interpolation
@@ -447,7 +447,7 @@ interval. How does this compare with §6's own HumanEval example (164 items, whe
 was shown to be noise)? At what benchmark size would a 1-point gap become meaningful at this
 same accuracy level?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $SE=\sqrt{0.75(0.25)/500}=0.0194$; 95% CI $\approx\pm1.96\times0.0194=\pm3.8$ points, i.e.
 roughly $71.2\%$ to $78.8\%$.

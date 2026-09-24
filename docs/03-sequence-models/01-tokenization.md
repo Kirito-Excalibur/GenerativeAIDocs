@@ -437,7 +437,7 @@ mysterious quality problems.
 characters with `</w>` boundary markers (as in §2), count all adjacent pairs, and identify the
 first merge.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Initial split: `l o w </w>` ×3, `n e w </w>` ×5, `w i d e </w>` ×2.
 
@@ -458,7 +458,7 @@ string-concatenating `prompt + "\n" + response` where `response` sometimes start
 space (inconsistently, depending on how the data was scraped). What symptom would you expect at
 inference time?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §4, `"the"` and `" the"` (with a leading space) are **different tokens** with different
 embeddings under GPT-2-style byte-level BPE (the space attaches to the *following* word by
@@ -483,7 +483,7 @@ though the *character count* of a translation isn't identical — assume for thi
 2,000 characters for simplicity). What's the cost multiple in tokens, and name two concrete
 consequences from §6 beyond just "more tokens."
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 English: $2000/4.0 = 500$ tokens. Hindi: $2000/1.0=2000$ tokens. **4× more tokens** for the same
 character count — matching §6's "2.5×" relative-cost figure for Hindi in the table (the

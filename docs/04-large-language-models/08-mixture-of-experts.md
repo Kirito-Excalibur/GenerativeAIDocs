@@ -327,7 +327,7 @@ total_loss = ce_loss + sum(m.aux_loss for m in model.modules() if isinstance(m, 
 parameters for $E{=}16$ experts, top-$k{=}4$. What's the total/active ratio, and how does it
 compare with $E/k$ (the naive ratio you'd expect if the shared components were negligible)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per-expert-per-layer MLP: $3\times4096\times14336=176.2$M (identical to §2's Mixtral figure,
 since $d,d_{ff}$ are unchanged — only $E,k$ differ here).
@@ -349,7 +349,7 @@ through $E{=}8$ experts at top-$k{=}2$. Using §3's capacity formula, compute th
 capacity at CF$=1.5$, and say how many tokens per expert a *perfectly balanced* batch would send.
 How much headroom (in tokens) does CF$=1.5$ give over perfect balance?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Capacity $= \text{CF}\times\frac{\text{tokens}\times k}{E} = 1.5\times\frac{8192\times2}{8}
 = 1.5\times2048=3072$ tokens per expert.
@@ -368,7 +368,7 @@ efficiency, explain why a chatbot serving *one user at a time* would get worse G
 from an MoE model than from a dense model of the same *active* parameter count, even though both
 require exactly the same FLOPs per token.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 For a dense model, every token in a batch uses the *same* weights, so a batch of (say) 1 token
 still runs one clean, reasonably-shaped matmul against the full weight matrices — GPU utilization

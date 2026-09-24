@@ -253,7 +253,7 @@ current point $x_t=0.5$, and a drawn noise value $z_t=0.3$. Compute $x_{t+1}$ us
 rule. Which direction did the drift term push $x$ (toward or away from the energy minimum at
 $x{=}0$), and would a *larger* $\eta$ make the noise term relatively more or less influential?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$x_{t+1} = x_t - \frac{\eta}{2}\nabla_xE(x_t) + \sqrt\eta\,z_t
 = 0.5 - 0.05(1.0) + \sqrt{0.1}(0.3) = 0.5 - 0.05 + 0.0949 = 0.545$$
@@ -278,7 +278,7 @@ E_2(b)=0.5$ (an "outdoor" detector). Using §7's compositionality property, whic
 *combined* energy $E_1+E_2$ favor as "cat outdoors," and does either individual detector agree
 with the combined verdict?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $E_{\text{total}}(a) = 1.0+2.0=3.0$; $E_{\text{total}}(b)=3.0+0.5=3.5$. Lower energy is more
 probable, so **image $a$** is favored as "cat outdoors" overall.
@@ -297,7 +297,7 @@ gradient (compare with the unbiased "true" MLE gradient in §2, which requires n
 samples from the *actual* model distribution $p_\theta$, not from a 1-step perturbation of the
 data). What would happen to the bias as $k\to\infty$?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 The unbiased gradient (§2) needs $\mathbb{E}_{x'\sim p_\theta}[\nabla_\theta E_\theta(x')]$ — an
 expectation under the model's *true, converged* distribution. CD-$k$ substitutes a **1-step

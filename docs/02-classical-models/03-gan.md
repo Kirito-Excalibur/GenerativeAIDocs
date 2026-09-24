@@ -342,7 +342,7 @@ and $p_g(x_0)=0.2$ at a particular point $x_0$. Using §2's formula, what does t
 discriminator output at $x_0$? Is $x_0$ a region where real or fake data is relatively more
 common, and does $D^*$'s value reflect that?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$D^*(x_0) = \frac{p_{\text{data}}(x_0)}{p_{\text{data}}(x_0)+p_g(x_0)} = \frac{0.6}{0.8} = 0.75$$
 
@@ -360,7 +360,7 @@ $-\log D(G(z))$ and $\log(1-D(G(z)))$ with respect to $D(G(z))$ directly (treat 
 variable $d\in(0,1)$) and evaluate both derivatives at $d=0.01$ (G is very bad) and $d=0.99$ (G
 is very good). Do the numbers match the qualitative claim?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $\frac{d}{dd}[-\log d] = -1/d$; $\frac{d}{dd}[\log(1-d)] = -1/(1-d)$.
 
@@ -381,7 +381,7 @@ affine coupling layer has $h=(h_1,h_2)=(2.0,-1.0)$, with $s(h_1)=0.3h_1$ and $t(
 (constant, for simplicity). Compute $y_2$, verify the inverse recovers $h_2$, and give
 $\log|\det J|$.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $s = 0.3\times2.0=0.6$. $y_2 = h_2 e^s+t = (-1.0)(e^{0.6})+0.5 = -1.822+0.5=-1.322$.
 

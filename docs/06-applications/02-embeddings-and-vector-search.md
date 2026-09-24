@@ -382,7 +382,7 @@ class HybridSearch:
 Using §4's DCG formula, compute DCG, IDCG (the ideal ordering), and nDCG. What's the ideal order
 here, and how much does the actual retrieval order cost you relative to ideal?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Ideal order (sorted descending): $(3,2,1,0)$.
 
@@ -405,7 +405,7 @@ score for each document and give the final ranking. Which document benefits most
 appearing in *both* lists even at a moderate rank in each, versus a document that ranks #1 in
 only one list?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Using $1/(60+\text{rank})$ per list and summing:
 
@@ -434,7 +434,7 @@ $\text{cosine}>0.85$ by inspecting examples. They later swap in Model B for a ro
 without re-calibrating. Using §3's warning about model-specific thresholds, what's the likely
 failure mode, and what's the correct fix?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §3, cosine thresholds are **not transferable between models** — the example table shows
 "unrelated" pairs scoring 0.10 under Model A but 0.70 under Model B (different anisotropy). If

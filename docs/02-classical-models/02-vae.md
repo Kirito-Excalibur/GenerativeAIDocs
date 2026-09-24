@@ -378,7 +378,7 @@ in nats using the boxed formula from §2 (note: variance $0.25$, so $\sigma=0.5$
 resulting latent code "expensive" (far from the prior) or "cheap"? Compare with the §8 sanity
 checks ($\mu{=}0,\sigma{=}1 \to 0$ nats; $\mu{=}2,\sigma{=}1\to2$ nats, from the info-theory page).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$D_{KL} = \tfrac12(\mu^2+\sigma^2-\log\sigma^2-1) = \tfrac12(2.25+0.25-\log0.25-1)
 = \tfrac12(2.25+0.25+1.386-1) = \tfrac12(2.886) = 1.443\text{ nats} \approx 2.08\text{ bits}$$
@@ -399,7 +399,7 @@ relationship to any specific input when you check reconstructions (every input r
 roughly the same generic output). Using §5, what's happening, and name two fixes with their
 mechanism.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $KL\approx0$ is the signature of **posterior collapse** (§5): the encoder has learned to ignore
 $x$ and output $q_\phi(z|x)\approx\mathcal{N}(0,I)$ regardless of input, satisfying the KL term
@@ -424,20 +424,20 @@ calculation for a $128\times128\times3$ image compressed to a $16\times16$ grid 
 worked example). What's the compression ratio, and how does the token count compare to the
 original $256\times256$/$32\times32$/512-entry example?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Raw bits: $128\times128\times3\times8 = 393{,}216$ bits. Encoded bits:
 $16\times16\times\log_2(1024) = 256\times10 = 2{,}560$ bits.
 
 $$\text{ratio} = \frac{393{,}216}{2{,}560} = 153.6\times$$
 
-Slightly *less* compression than the worked example's $170\times$, even though this image is
-smaller — because the codebook here is smaller (1024 vs... wait, 1024 > 512, so $\log_2$ per code
-is *larger* (10 bits vs 9 bits), which pushes toward less compression, while the smaller image
-(4× fewer raw pixels) and smaller grid ($16^2{=}256$ vs $32^2{=}1024$ codes, i.e. 4× fewer codes)
-scale proportionally and roughly cancel. Net: $153.6\times$ vs $170\times$ — comparable order of
-magnitude, and in both cases the resulting token count (256 vs 1024) is small enough for a
-Transformer to model directly, which is the operative point from §7, not the exact ratio.
+Slightly *less* compression than the worked example's $170\times$ — because this codebook is
+*larger* (1024 entries vs 512), costing 10 bits/code instead of 9, which pushes toward less
+compression even though the smaller image (4× fewer raw pixels) and smaller grid ($16^2{=}256$
+vs $32^2{=}1024$ codes, i.e. 4× fewer codes) scale proportionally and roughly cancel that out.
+Net: $153.6\times$ vs $170\times$ — comparable order of magnitude, and in both cases the
+resulting token count (256 vs 1024) is small enough for a Transformer to model directly, which is
+the operative point from §7, not the exact ratio.
 
 </details>
 

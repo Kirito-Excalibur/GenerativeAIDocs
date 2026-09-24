@@ -317,7 +317,7 @@ provision) it primarily uses: (a) adding "Cite the exact paragraph you're quotin
 prompt; (b) adding "First list every constraint, then check your answer against each one" to a
 scheduling prompt; (c) adding three worked examples of the desired output format.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 (a) **Distribution selection.** It doesn't add new facts to the context (the source text is
 already there); it constrains *how* the model must use what's already available, shaping which
@@ -339,7 +339,7 @@ label correctness and that order can swing accuracy substantially on small model
 proposes always putting the *easiest* example first in a few-shot prompt "so the model warms up
 gradually." Using §2's "recency bias" note, is this the right call?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 §2 states explicitly: "put the hardest examples last — recency bias makes them more
 influential." Putting the *easiest* example first (and, implicitly, harder ones later or last)
@@ -359,7 +359,7 @@ Using the rule of thumb from → [Evaluation metrics §6](../07-evaluation/01-me
 (standard error $\approx\sqrt{p(1-p)/n}$), is a 5-point gap on 80 examples likely to be
 statistically meaningful, or likely noise?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Using $p\approx0.735$ (roughly the average of 0.71 and 0.76) and $n{=}80$:
 

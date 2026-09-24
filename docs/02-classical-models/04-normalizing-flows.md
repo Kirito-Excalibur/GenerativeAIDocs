@@ -308,12 +308,12 @@ the total $\log|\det J|$ contribution of this layer (per §4)? If the feature ma
 instead, how would the contribution change, and why does this make spatial resolution a
 *multiplier* on the layer's log-det rather than something that changes $\det W$ itself?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §4: $\log|\det J| = h\times w\times\log|\det W|$. At $16\times16$:
 $256\times\log(2.5) = 256\times0.916=234.6$.
 
-At $32\times32$: $1024\times\log(2.5)=938.6$ — exactly **4×** larger, matching the 4× increase in
+At $32\times32$: $1024\times\log(2.5)=938.3$ — exactly **4×** larger, matching the 4× increase in
 spatial positions ($32^2/16^2=4$). This is because $W$ acts *independently and identically* at
 every spatial location (it's a $1\times1$ conv — no spatial mixing), so the *same* per-location
 $\log|\det W|$ term is simply summed over however many locations there are. $\det W$ itself never
@@ -327,7 +327,7 @@ recordings. Using §4's MAF/IAF table, which would you pick and why? Now suppose
 flips: you need to score thousands of pre-recorded clips by likelihood as fast as possible, but
 generation speed doesn't matter (e.g., an anomaly-detection pipeline). Which would you pick now?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Real-time synthesis (fast generation, don't care about density evaluation speed): **IAF** — "fast
 sampling" is its whole advantage, at the cost of slow (sequential) density evaluation, which
@@ -349,7 +349,7 @@ values $\{0,...,255\}$ without adding uniform noise. Using §5's warning, what h
 reported log-likelihood as training continues, and why is comparing this number against a
 properly-dequantized model's log-likelihood meaningless?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §5: without dequantization, the model is fitting a *continuous* density to data supported
 only on a discrete grid (the integers). The optimal continuous density for discrete support is a

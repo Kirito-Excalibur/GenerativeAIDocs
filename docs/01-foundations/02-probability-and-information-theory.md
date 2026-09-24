@@ -408,7 +408,7 @@ discrete latents need special handling (→ Gumbel-softmax, straight-through, VQ
 $H(p)$ in bits, and say whether it is closer to the uniform-4 entropy (2 bits) or to a
 near-deterministic distribution (0 bits), and why that makes sense.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$H = -(0.4\log_2 0.4 + 0.3\log_2 0.3 + 0.2\log_2 0.2 + 0.1\log_2 0.1) = 1.846\text{ bits}$$
 
@@ -422,10 +422,11 @@ deterministic and needs almost no bits.
 
 **Problem 2 — Gaussian KL, general form.** Using the general diagonal-Gaussian KL formula from
 §8, compute $D_{KL}\big(\mathcal{N}(1, 2)\,\|\,\mathcal{N}(0, 1)\big)$ in nats (note: variance 2,
-not variance 1, for the first Gaussian). Then check your answer reduces correctly to the boxed
-special-case formula when $\mu_1{=}0,\sigma_1^2{=}1$.
+not variance 1, for the first Gaussian). Then confirm that the general formula reduces to the
+boxed special-case formula when the *second* distribution is $\mathcal{N}(0,1)$ (i.e.
+$\mu_2{=}0,\sigma_2^2{=}1$, leaving $\mu_1,\sigma_1$ general).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 General formula: $D_{KL} = \log\frac{\sigma_2}{\sigma_1} + \frac{\sigma_1^2+(\mu_1-\mu_2)^2}{2\sigma_2^2} - \frac12$.
 
@@ -433,12 +434,17 @@ With $\mu_1{=}1,\sigma_1^2{=}2,\mu_2{=}0,\sigma_2^2{=}1$ (so $\sigma_1=\sqrt2,\s
 
 $$D_{KL} = \log\frac{1}{\sqrt2} + \frac{2 + 1}{2} - \frac12 = -0.3466 + 1.5 - 0.5 = 0.653\text{ nats}$$
 
-Sanity check against the special case: setting $\mu_1{=}0,\sigma_1^2{=}1$ (so $\sigma_1{=}1$)
-gives $\log 1 + \frac{1+\mu_2^2}{2} - \frac12$... wait, that's the formula in the *other*
-direction ($D_{KL}(\mathcal{N}(\mu,\sigma^2)\|\mathcal{N}(0,1))$, which **is** the boxed formula
-form up to relabelling): $\log\frac{1}{\sigma} + \frac{\sigma^2+\mu^2}{2} - \frac12$, and expanding
-gives $\frac12(\mu^2+\sigma^2-\log\sigma^2-1)$ once you use $\log(1/\sigma)=-\frac12\log\sigma^2$
-— matching the boxed sum-over-dimensions formula for $d{=}1$. ✓
+Reduction check: setting $\mu_2{=}0,\sigma_2{=}1$ (the *second* distribution is standard
+normal) in the general formula, and keeping $\mu_1{=}\mu,\sigma_1{=}\sigma$ general:
+
+$$D_{KL} = \log\frac{1}{\sigma} + \frac{\sigma^2+\mu^2}{2} - \frac12
+= -\tfrac12\log\sigma^2 + \tfrac12\sigma^2+\tfrac12\mu^2-\tfrac12
+= \tfrac12\big(\mu^2+\sigma^2-\log\sigma^2-1\big)$$
+
+— exactly the boxed formula from §8, confirming the general form correctly specializes to it. As
+a further numeric check, plugging in this problem's own $\mu{=}1,\sigma^2{=}2$ into the boxed
+formula directly: $\frac12(1+2-\log2-1)=\frac12(2-0.693)=0.653$ nats ✓ — matches the value
+computed above.
 
 </details>
 
@@ -447,7 +453,7 @@ label). Your model predicts $q=(0.5,0.5)$. Compute $H(p,q)$, $H(p)$, and $D_{KL}
 If you then improve the model to predict $q'=(0.7,0.3)$ exactly, what does $D_{KL}(p\|q')$
 become, and why?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$H(p,q) = -(0.7\log_2 0.5 + 0.3\log_2 0.5) = 1.000\text{ bit}$$
 $$H(p) = -(0.7\log_2 0.7 + 0.3\log_2 0.3) = 0.881\text{ bits}$$
@@ -470,7 +476,7 @@ z = mu + logvar.exp() * torch.randn_like(mu)   # BUG
 
 What's wrong, and what does it do to training?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 The encoder outputs `logvar` $= \log\sigma^2$, so the standard deviation is
 $\sigma = \exp(\frac12\log\sigma^2)$ — the code is missing the $\times 0.5$ before the exponential.

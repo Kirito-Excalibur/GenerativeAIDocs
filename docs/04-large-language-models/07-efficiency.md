@@ -324,7 +324,7 @@ $W=(0.05, -0.62, 0.91, -0.08, 0.33)$ to INT8, compute the dequantized values, an
 possible error. Which weight has the largest *relative* error, and why (hint: think about which
 weight is smallest in magnitude)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $s = \max|W|/127 = 0.91/127 = 0.007165$.
 
@@ -350,7 +350,7 @@ $(4.0, 1.0, 0.5, -2.0)$. Compute the softened teacher distribution at $T{=}1$ (n
 $T{=}4$, per §5. How much "dark knowledge" (relative probability on the non-top classes) does
 $T{=}4$ reveal that $T{=}1$ essentially hides?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $T{=}1$: $(0.924, 0.046, 0.028, 0.002)$ — the top class dominates almost completely; classes 2
 and 3 (probabilities 0.046 and 0.028) are barely distinguishable from each other in relative
@@ -373,7 +373,7 @@ $<1\%$ at INT8, $1$–$3\%$ at INT4, and $5$–$15\%$ at 3-bit. Using §3's outl
 why the degradation from 8→4 bits is so much milder than from 4→3 bits, referencing the number of
 representable levels at each bit-width.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Bit-width sets the number of representable levels: 8-bit → 256 levels, 4-bit → 16 levels, 3-bit →
 8 levels. Going 8→4 bits is a $16\times$ reduction in levels (256→16); going 4→3 bits is only a

@@ -309,7 +309,7 @@ degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.
 attention's share of FLOPs and the KV cache size (BF16, GQA-8, $L{=}80$, $d_h{=}128$, batch 1)
 at $T=64{,}000$ (between §2's table rows for 32K and 128K).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Share $= 4Td/(24d^2+4Td)$ with $d{=}4096$: $=4\times64000\times4096/(24\times4096^2+4\times64000\times4096)
 = 1.049\times10^9/(4.027\times10^8+1.049\times10^9) = 72.3\%$ — sitting between §2's 32K row
@@ -329,7 +329,7 @@ $w{=}8192$. Per §3's caveat about *indirect* propagation being lossy, would you
 to reliably retrieve a specific fact from 200,000 tokens back if its theoretical reach exceeds
 that? Why or why not?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $L\times w = 48\times8192 = 393{,}216$ tokens — theoretically exceeds 200,000.
 
@@ -349,7 +349,7 @@ token corpus of case law that's queried thousands of times per day, with each qu
 a handful of relevant precedents. Using §7's decision rule, what should they build, and what's
 the mechanistic reason (not just "the table says so")?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §7's table, 2M tokens is well above the "100K–10M: RAG with generous $k$" range, and pushes
 toward the "$>10$M: RAG, necessarily" boundary from the lower end — either way, **RAG**, not

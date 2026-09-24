@@ -219,7 +219,7 @@ schedule, so $\alpha_t=1-t=0.6$). What's the expected number of masked tokens? W
 probability that *all 10* tokens happen to be masked in one particular sample (an unlucky but
 possible draw)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Expected masked count $= t\times L = 0.4\times10=4.0$ tokens (each of the 10 positions is masked
 independently with probability $t$, per §3).
@@ -237,7 +237,7 @@ $1/t$, what does the weight become at $t=0.05$ (very light masking, few tokens t
 that few terms are being summed at small $t$ (only ~5% of tokens are masked), does a large weight
 here make intuitive sense, or does it seem like it's over-correcting?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Weight $=1/0.05=20$ — a large multiplier.
 
@@ -260,7 +260,7 @@ generation.
 unchanged, and are confused why training loss plateaus much higher than a diffusion model trained
 from scratch. Using §4's warning, diagnose the likely cause.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §4's explicit warning, masked diffusion needs **bidirectional** attention — every position,
 including masked ones, must be able to attend to *every other* position (past and future) to

@@ -276,7 +276,7 @@ descriptions, roughly how much improvement would moving to Level 2 (ask + parse 
 Level 3 (constrained decoding) buy them, and which level *guarantees* zero malformed-JSON
 failures downstream?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §1: Level 1 sits at "~85–95%" (their 91% fits squarely in this range). Level 2 reaches
 "~99%" — a meaningful jump, cutting the failure rate roughly from ~9% to ~1% (about a 9× 
@@ -295,7 +295,7 @@ a visible error, which matters for a fully automated invoice pipeline with no hu
 all marked required. Using §5's principles, identify two design flaws and their likely
 consequence.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 **Flaw 1 — no "not found" option** (§5: "provide a 'not found' / 'unknown' value"). Not every
 contract has an explicit termination date (some are open-ended); marking `termination_date` as
@@ -318,7 +318,7 @@ sees the whole schema up front anyway (it's in the prompt), so by the time it st
 the `risk` field, it already 'knows' what `reasoning` will eventually say, regardless of which
 field comes first in the *output*." What's wrong with this argument?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 The colleague conflates *seeing the schema* (which is indeed available up front, in the prompt)
 with *having already computed the reasoning's content*. The schema only specifies field

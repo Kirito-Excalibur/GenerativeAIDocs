@@ -328,7 +328,7 @@ This caps memory and compute at the price of never learning dependencies longer 
 $\lambda^{50}$ and $\lambda^{200}$ for $\lambda=0.95$ (milder than the §2 table's $0.9$). Is
 0.95 "safe" for a 200-step dependency? Compare against the §2 table's verdict for $\lambda=0.99$.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $0.95^{50} = 0.0769$ (still usable — a 50-step gradient survives at about 7.7% of its original
 scale). $0.95^{200} = 3.5\times10^{-5}$ — **effectively vanished**, comparable to §2's
@@ -348,7 +348,7 @@ value when the gate input is dominated by the bias (a common approximation early
 compute $\sigma(b_f)^{50}$ for $b_f \in \{0, 1, 2, 3\}$. At what bias value does the 50-step
 survival first exceed 10%? Does this support §3's recommendation of "+1 or +2"?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 | $b_f$ | $\sigma(b_f)$ | $\sigma(b_f)^{50}$ |
 |---|---|---|
@@ -372,7 +372,7 @@ better *starting point*, and training does the rest.
 $x=128$ (input size), compute the LSTM and GRU parameter counts using §4's formulas
 ($4d(d+x)$ and $3d(d+x)$). Confirm the 25% reduction claim.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 LSTM: $4\times256\times(256+128) = 4\times256\times384 = 393{,}216$.
 GRU: $3\times256\times384 = 294{,}912$.

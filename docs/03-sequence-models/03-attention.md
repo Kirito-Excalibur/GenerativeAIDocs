@@ -422,7 +422,7 @@ $k_1=(1,0,0,0)$, $k_2=(0,1,0,0)$. Compute the scaled dot-product scores and the 
 softmax weights (ignore any other keys). Which key gets more attention, and does that match
 which key $q$ is more "aligned" with?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $q\cdot k_1 = 1$, $q\cdot k_2=0.5$. Scaled by $1/\sqrt{4}=0.5$: $s_1=0.5$, $s_2=0.25$.
 
@@ -443,7 +443,7 @@ unit variance. Suppose someone instead divides by $d_k$ (not $\sqrt{d_k}$). What
 the variance of the scaled scores as $d_k$ grows, and what symptom would you expect for large
 $d_k$ (e.g. $d_k=128$)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 If scores are divided by $d_k$ instead of $\sqrt{d_k}$: variance of the scaled score becomes
 $\text{Var}(q\cdot k)/d_k^2 = d_k/d_k^2 = 1/d_k$. As $d_k$ grows, this variance **shrinks toward
@@ -465,7 +465,7 @@ offset 4) equals $\langle R_0 q, R_4 k\rangle$ (positions 0 and 4, offset 4) for
 $q=k=(1,0,1,0)$, confirming the relative-position property holds for an offset other than the
 one worked in §6 (which used $m{=}2,n{=}5$).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Rotating $q=(1,0,1,0)$ by $m=3$ and $k=(1,0,1,0)$ by $n=7$ (offset $n-m=4$), then computing the
 dot product, gives $\langle R_3q, R_7k\rangle = 0.2674$.

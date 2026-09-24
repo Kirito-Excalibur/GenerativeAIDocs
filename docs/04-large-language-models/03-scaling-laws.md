@@ -291,7 +291,7 @@ $100M commitment defensible.
 ($N=\sqrt{C/120}$, $D=20N$), compute the compute-optimal model size and token count for
 $C=5\times10^{22}$ FLOPs (roughly 1.5× the worked \$1M example in §3). Verify $6ND=C$.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$N = \sqrt{5\times10^{22}/120} = \sqrt{4.167\times10^{20}} = 2.041\times10^{10} \approx 20.4\text{ B params}$$
 $$D = 20N = 4.082\times10^{11} \approx 0.41\text{ T tokens}$$
@@ -313,7 +313,7 @@ predicted loss, and roughly what $D/N$ ratio does that correspond to? Does it la
 "20 tokens/param" rule, or notably far from it — and if far, what does §2's boxed warning say
 about why?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Reading the isoFLOP curve at $C=10^{21}$: the minimum sits at $N^*\approx1.82\times10^9$ (1.82B
 params), with corresponding $D^*\approx9.17\times10^{10}$ (91.7B tokens) — giving
@@ -335,7 +335,7 @@ discussion. If you expect to serve 50 billion tokens over the model's lifetime, 
 Problem-2-style reasoning to say which plan is likely better **for total lifetime cost**
 (training + inference), and why.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §3, total cost $\approx 6ND_{\text{train}} + 2ND_{\text{inference}}$. With
 $D_{\text{inference}}=5\times10^{10}$ tokens fixed regardless of which plan you pick, inference

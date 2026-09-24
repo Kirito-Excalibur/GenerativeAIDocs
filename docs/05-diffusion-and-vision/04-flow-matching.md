@@ -300,7 +300,7 @@ $x_1=3.0$, compute $x_t$ at $t=0.25$ and $t=0.75$ using §2's linear interpolati
 target velocity $u=x_1-x_0$ at each. Confirm the velocity target doesn't depend on $t$ — why is
 that the defining feature of a *straight-line* path?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $x_t = (1-t)x_0+tx_1$. At $t{=}0.25$: $0.75(-1.0)+0.25(3.0) = -0.75+0.75=0.0$. At $t{=}0.75$:
 $0.25(-1.0)+0.75(3.0)=-0.25+2.25=2.0$.
@@ -321,7 +321,7 @@ predicts $v_\theta(x_t,t,\varnothing)=0.4$ (unconditional) and $v_\theta(x_t,t,c
 conditional) work identically to the diffusion case worked in
 → [Latent diffusion's CFG exercise](03-latent-diffusion.md#3-classifier-free-guidance)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$v_{\text{guided}} = v_u + w(v_c-v_u) = 0.4+5(1.0-0.4)=0.4+3.0=3.4$$
 
@@ -340,7 +340,7 @@ from $x_0$ using the *current* model. Explain why this differs fundamentally fro
 training data (real $(x_0,x_1)$ pairs where $x_1$ is real data and $x_0$ is independent random
 noise), and why §4 notes "quality degrades slightly with each round."
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Original training pairs: $x_0$ (random noise) and $x_1$ (real data) are drawn **independently** —
 there's no relationship between which noise sample got paired with which data sample, which is

@@ -416,7 +416,7 @@ LoRA at rank $r=64$ on an $8192\times8192$ weight matrix (a plausible attention 
 for a 70B-class model). How does the *reduction factor* compare with §3's $4096\times4096$,
 $r=8$ example (256×)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Full: $8192^2=67{,}108{,}864$. LoRA: $2\times8192\times64=1{,}048{,}576$. Fraction: $1.56\%$,
 reduction $=64\times$ — **4× less** compression than §3's example (256×), even though this
@@ -433,7 +433,7 @@ answer questions about a product catalog that changes weekly. They're considerin
 fine-tuning on the catalog text every week. Using §1's decision framework, what's wrong with this
 plan, and what should they do instead?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §1's core heuristic ("fine-tuning changes behaviour; retrieval changes knowledge"), a
 catalog is pure **knowledge** — facts about specific products, prices, availability — not a
@@ -458,7 +458,7 @@ fit for QLoRA fine-tuning on a single 24GB consumer GPU. Use §4's ~48GB figure 
 your scaling reference (NF4 base dominates: roughly 0.5 bytes/param for the frozen base, plus a
 small, roughly-fixed overhead for LoRA adapter training state).
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Scaling the 65B → ~48GB figure roughly linearly by NF4 base size (since the LoRA adapter and
 optimizer-state overhead is a much smaller, comparatively rank-invariant additive term across

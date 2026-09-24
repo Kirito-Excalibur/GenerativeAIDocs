@@ -363,7 +363,7 @@ $\beta_1{=}0.9,\beta_2{=}0.999$), suppose $g_1=0.1$ (as before, giving step size
 and then $g_2=0.08$. Compute $m_2, v_2, \hat m_2, \hat v_2$ and the resulting step. Is the step
 still exactly $\eta$? Why or why not?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $m_2 = 0.9(0.01) + 0.1(0.08) = 0.017$; $v_2 = 0.999(10^{-5}) + 0.001(0.08^2) = 1.639\times10^{-5}$.
 
@@ -384,7 +384,7 @@ clip with `max_norm=1.0`. What is the clipped gradient, and what is its norm? No
 clips **each parameter independently** to $[-1,1]$ instead (a common mistake) — what would that
 give, and why does §5 say this is wrong?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Correct global-norm clip: scale $= \min(1, 1/5) = 0.2$, so
 $g_{clipped} = (0.6, 0.8)$, norm exactly $1.0$ — the *direction* $(3,4)/5=(0.6,0.8)$ is preserved.
@@ -404,7 +404,7 @@ multiplier ($1+B_{crit}/B$) at $B=500$, $B=2000$, and $B=8000$. At which of thes
 implication for choosing a batch size if you have a fixed number of GPUs and want to minimize
 wall-clock time (not step count)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 | $B$ | relative steps ($1+B_{crit}/B$) |
 |---|---|

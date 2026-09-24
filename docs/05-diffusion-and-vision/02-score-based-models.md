@@ -303,7 +303,7 @@ $s_\theta(x_t,t)=-\epsilon_\theta(x_t,t)/\sqrt{1-\bar\alpha_t}$, if a trained mo
 $\epsilon_\theta=0.6$ at a timestep where $\sqrt{1-\bar\alpha_t}=0.3$, what is the implied score?
 What does the *sign* of the score tell you about which direction increases $\log p(x_t)$?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $$s_\theta = -0.6/0.3 = -2.0$$
 
@@ -321,7 +321,7 @@ score (and vice versa), since the noise-to-score conversion is just a negative s
 VP parameterization's $\bar\alpha_t$ schedule). Using §5's table, explain why this is likely to
 fail or require modification, referencing what VP and VE actually preserve/allow to grow.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Per §5's table, **VP** (variance preserving) keeps total variance at 1 throughout the forward
 process — signal shrinks as noise grows, governed by $\bar\alpha_t$, which is exactly the
@@ -346,7 +346,7 @@ get 2nd-order accuracy. Using the code and §6's discussion, explain in one or t
 this doesn't compromise correctness compared to a "true" 2nd-order method that evaluates the
 model twice per step.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 A true single-step 2nd-order method (like Heun's) needs two model evaluations *within the same
 step* because it has no other source of a second data point at a nearby noise level. But a

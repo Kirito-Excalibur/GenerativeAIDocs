@@ -383,7 +383,7 @@ spatial and total compression for a $512\times512$ RGB image compressed with dow
 $f{=}4$ into a 16-channel latent (rather than §1's $f{=}8$, 4-channel example). Is this more or
 less aggressive compression than the standard $f{=}8$ setup?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 Spatial compression: $f^2=16\times$ (vs $f{=}8$'s $64\times$).
 
@@ -406,7 +406,7 @@ $\epsilon_\theta(x_t,\varnothing)=0.2$ (unconditional prediction) and $\epsilon_
 using §3's formula. At which $w$ does the prediction start to look like *extrapolation beyond*
 the conditional prediction itself (i.e., further from $\varnothing$ than $c$ is)?
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 $\tilde\epsilon = \epsilon(\varnothing)+w(\epsilon(c)-\epsilon(\varnothing)) = 0.2+w(0.3)$.
 
@@ -433,7 +433,7 @@ behaviour." Using the general zero-init reasoning (also seen in RL's advantage-b
 and elsewhere in this wiki), explain specifically what would go wrong at step 0 of training if the
 zero-init convolutions were instead randomly initialized like normal layers.
 
-<details><summary>Solution</summary>
+<details markdown="1"><summary>Solution</summary>
 
 At step 0, a randomly-initialized added connection contributes a *random, untrained* signal to
 the frozen base model's forward pass — effectively corrupting the base model's carefully
