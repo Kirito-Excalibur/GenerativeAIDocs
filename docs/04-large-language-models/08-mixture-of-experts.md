@@ -52,6 +52,8 @@ at the same compute means lower loss. That is the entire argument, and it holds 
 
 ## 2. Active vs total parameters
 
+That capacity-per-compute argument is about training FLOPs. It says nothing about the other resource a model needs — memory — and MoE's story there is the opposite of flattering.
+
 The two numbers you must always distinguish:
 
 | Model | Total params | Active/token | Experts | Top-$k$ |
@@ -92,6 +94,8 @@ The two numbers you must always distinguish:
 ---
 
 ## 3. Load balancing: the core difficulty
+
+That memory bill assumes every expert actually gets used. Getting the router to spread tokens evenly across experts — rather than collapsing onto a favorite few — turns out to be the hardest part of making MoE work at all.
 
 > [!WARNING]
 > **The failure mode**: routing is learned, and it has a self-reinforcing bias. An expert that is
@@ -161,6 +165,8 @@ gradient term that fights the language-modelling objective.
 
 ## 4. Routing variants
 
+Balancing load is about making sure the router doesn't collapse. A separate design question is what the router and its experts actually look like architecturally — how many experts, how many chosen per token, and whether routing is even a hard, discrete choice at all.
+
 | Scheme | How it works | Notes |
 |---|---|---|
 | **Top-$k$ token choice** | each token picks its top $k$ experts | standard; needs balancing |
@@ -182,6 +188,8 @@ gradient term that fights the language-modelling objective.
 
 ## 5. What do experts specialize in?
 
+Fine-grained routing is motivated by the idea that more, smaller experts let the model specialize more precisely. Whether that specialization looks anything like what you'd intuitively expect — a "code expert," a "poetry expert" — turns out to have a surprising answer.
+
 **Not what you'd expect.** Mixtral's authors looked for topic specialization (one expert for
 biology, one for code) and **found almost none**. What they found instead:
 
@@ -202,6 +210,8 @@ argument for that design.
 ---
 
 ## 6. Systems: expert parallelism
+
+Specialization is a modeling question. Getting $E$ experts, scattered across many GPUs, to actually receive the right tokens fast enough is a completely separate, and often harder, systems question.
 
 At scale, experts live on different devices. Every MoE layer becomes an **all-to-all** communication.
 
@@ -235,6 +245,8 @@ per-expert matmuls efficient.
 ---
 
 ## 7. Implementation
+
+Every mechanism above — routing, balancing, expert parallelism — is describable in words and diagrams, but a router is, at the end of the day, just one more small network making a discrete choice. Seeing it in code is the fastest way to see exactly what "top-$k$ of $E$ experts" means in practice.
 
 A complete, correct MoE layer:
 

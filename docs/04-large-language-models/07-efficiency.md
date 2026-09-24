@@ -38,6 +38,8 @@ moved. This is a rare case where the same change improves memory, cost *and* lat
 
 ## 2. Quantization: the arithmetic
 
+That near-linear decode speedup comes from storing each weight in fewer bits. Before trusting the technique, it's worth seeing exactly how many bits you can remove before the rounding error actually starts to matter.
+
 Map floats to a small integer grid.
 
 **Symmetric (used for weights):**
@@ -66,6 +68,8 @@ weights** — as long as the range is well-behaved, which brings us to the probl
 ---
 
 ## 3. The outlier problem (why naive INT8 fails)
+
+That 0.4% error assumed a well-behaved weight range. Real Transformer activations aren't well-behaved — a small number of extreme values, if quantized naively along with everything else, blow the error budget wide open.
 
 > [!WARNING]
 > Transformer activations contain **massive outliers** — a few feature dimensions with magnitudes
@@ -134,6 +138,8 @@ Quantile-based 4-bit levels matched to the normal distribution of weights.
 
 ## 4. The quantization method table
 
+Outliers are the reason naive quantization fails; the methods that actually work are specifically designed around handling them. Comparing them side by side is more useful than reading about any one in isolation.
+
 Quality impact on standard benchmarks (approximate; varies by model):
 
 | Method | Bits (W/A) | Perplexity increase | Speedup | Use when |
@@ -183,6 +189,8 @@ cfg = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
 ---
 
 ## 5. Distillation
+
+Quantization keeps the same model and represents its numbers more compactly. Distillation is a different strategy entirely: train an actually smaller model to imitate a larger one's behavior, rather than compressing the large one's weights.
 
 Train a small **student** to match a large **teacher**.
 
@@ -239,6 +247,8 @@ $\tau = 2$–$5$.
 
 ## 6. Pruning and sparsity
 
+Distillation shrinks a model by training a new, smaller one from scratch. The third option skips training a new model at all and instead removes weights directly from the one you already have.
+
 Remove weights. Two kinds:
 
 ```
@@ -282,6 +292,8 @@ Remove weights. Two kinds:
 ---
 
 ## 7. Decision guide
+
+Quantization, distillation and pruning solve overlapping problems with very different reliability, and they're not mutually exclusive. Picking which one (or which combination) to reach for first is what the rest of this page is for.
 
 ```
   I need the model to be smaller/faster.

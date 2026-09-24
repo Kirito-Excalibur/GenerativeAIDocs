@@ -32,6 +32,8 @@ insight of this page.
 
 ## 2. The likelihood trap
 
+Deterministic decoding sounds like the safe choice — always pick the model's own best guess. It's worth checking that intuition against what "best guess, every single step" actually produces.
+
 > [!WARNING]
 > **Greedy and beam search produce degenerate text.** This is not a subtle effect:
 
@@ -94,6 +96,8 @@ predictable and repeats itself 100× more often than people do.*
 ---
 
 ## 3. The sampling methods
+
+Outside that constrained-task exception, the fix is to sample instead of maximize — and there are several genuinely different ways to do that, each truncating the distribution in a different place.
 
 ### Temperature
 
@@ -182,6 +186,8 @@ is now widely supported.
 
 ## 4. Beam search, and when it's right
 
+Every method in that table samples one token at a time. Beam search is the outlier — it keeps several candidate continuations alive at once, which is exactly the "search-based" branch from §1's diagram, and it deserves its own explanation of when that's actually worth the cost.
+
 Keep the $B$ highest-scoring *partial* sequences at each step.
 
 ```
@@ -205,6 +211,8 @@ constrained generation. **Where it fails**: open-ended text, where larger beams 
 ---
 
 ## 5. The KV cache
+
+Whichever strategy above picks the next token, generating it requires re-reading every previous token's key and value at every step — unless you cache them. That cache is what makes autoregressive generation fast enough to serve at all, and it comes with its own memory-management problem.
 
 At step $t$ you need attention over all previous keys and values. Recomputing them is $O(t)$ work
 per step, $O(T^2)$ overall. **Cache them.**
@@ -263,6 +271,8 @@ Reported gains: waste under 4%, 2–4× higher throughput from the larger batche
 ---
 
 ## 6. Speculative decoding
+
+PagedAttention makes the KV cache's memory efficient. It doesn't make generation itself any faster — decode is still one sequential forward pass per token. Speculative decoding attacks that sequential bottleneck directly.
 
 > [!TIP]
 > **The insight**: decoding is memory-bandwidth-bound, so verifying $k$ tokens costs nearly the
@@ -325,6 +335,8 @@ training data matter a lot).
 
 ## 7. Structured generation and constrained decoding
 
+Speculative decoding speeds up generating *whatever* text the model would produce anyway. A separate, often more valuable constraint is forcing that output into a specific format — valid JSON, a fixed grammar — regardless of speed.
+
 Force valid JSON, a regex match, or a grammar by **masking invalid tokens** before sampling.
 
 ```
@@ -350,6 +362,8 @@ close to zero.
 ---
 
 ## 8. Implementation
+
+All of these strategies — sampling, beam search, caching, speculation, grammars — are choices made at the API or serving layer, not inside the model. Seeing how a few of them actually get implemented on top of a plain generation loop ties the whole page together.
 
 A complete sampler with the standard knobs:
 
