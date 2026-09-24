@@ -357,7 +357,70 @@ class SimpleVLM(nn.Module):
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — patch count, a different resolution.** Using §1's method, compute the number of
+patches for a $384\times384$ image with patch size 16. How does attention cost (roughly
+quadratic in patch count) compare with §1's $224\times224$, patch-16 example (196 patches)?
+
+<details><summary>Solution</summary>
+
+$(384/16)^2 = 24^2 = 576$ patches (vs §1's 196 at $224\times224$).
+
+Attention cost scales roughly as (patch count)$^2$: $576^2/196^2 = 331776/38416 \approx8.6\times$
+more attention computation for the $384\times384$ image, even though the *linear* resolution only
+increased by $384/224\approx1.71\times$ — a direct illustration of why higher-resolution ViT
+inputs get expensive fast, and why §1's patch-size table frames the choice as a genuine
+resolution/cost trade-off rather than "always use small patches for detail."
+
+</details>
+
+**Problem 2 — InfoNCE's batch-size ceiling, applied.** Using §2's $\log N$ mutual-information
+bound, compare the maximum certifiable MI (in nats) for CLIP-style training at batch size
+$N{=}1024$ versus $N{=}65{,}536$ (CLIP's actual batch size, per §2). Roughly how many *times*
+larger a batch would you need beyond 65,536 to double the certifiable-MI ceiling?
+
+<details><summary>Solution</summary>
+
+$\log(1024)=6.93$ nats; $\log(65536)=11.09$ nats — batch size 64× larger yields a ceiling only
+$11.09/6.93=1.60\times$ higher, because the bound grows **logarithmically**, not linearly, in $N$.
+
+To *double* the ceiling from 11.09 to 22.18 nats, you'd need $N=e^{22.18}\approx4.3\times10^9$ —
+**over 65,000× larger** than CLIP's actual batch size. This is a sharp illustration of why §2's
+"→ [Probability & information theory §6]" cross-reference matters: batch size has rapidly
+diminishing returns on the MI ceiling, which is part of why practical contrastive training
+settled on batch sizes in the tens of thousands rather than continuing to scale batch size
+indefinitely — the ceiling moves too slowly to justify the cost past a point.
+
+</details>
+
+**Problem 3 — the three VLM patterns, applied.** A startup wants to add basic image
+understanding to an existing, well-tuned 70B chat LLM, with a total compute budget of roughly one
+GPU-day and a strong preference not to touch the LLM's existing weights or degrade its language
+quality. Using §3's three patterns, which should they choose, and what's the specific mechanism
+that satisfies "don't touch/degrade the existing weights"?
+
+<details><summary>Solution</summary>
+
+**Pattern 2 (cross-attention, Flamingo-style)** is the best match specifically for the "don't
+touch or degrade the LLM" requirement: §3 states this pattern "preserves language ability
+perfectly" because the gated cross-attention layers are zero-tanh-initialized, so at the start of
+training the augmented model is mathematically identical to the original frozen LLM, and training
+only ever *adds* new capability rather than risking disruption of existing weights (the LLM's own
+parameters stay frozen throughout).
+
+Pattern 1 (projection, LLaVA-style) is cheaper (§3: "~1 GPU-day" matches the stated budget almost
+exactly, referencing → [multimodal §3](05-multimodal.md#3-vision-language-models-the-three-patterns)'s
+own LLaVA-1.5 citation) but its second stage typically *unfreezes the LLM*, which risks exactly
+the language-quality degradation the team wants to avoid. Given the explicit "strong preference"
+stated, pattern 2's frozen-LLM guarantee is worth its added complexity over pattern 1's raw cost
+advantage — though if the 1-GPU-day budget is a hard constraint (not just a rough target) and
+some quality risk is tolerable, pattern 1 with the LLM kept frozen throughout (not just in stage
+1) would be the practical fallback.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

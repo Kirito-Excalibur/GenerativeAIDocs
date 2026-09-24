@@ -226,7 +226,75 @@ Mitigations used in practice:
 
 ---
 
-## 10. Key takeaways
+## 10. Exercises
+
+**Problem 1 — mel frame rate, a different setup.** Using §2's method, compute the frame rate for
+16 kHz audio with a hop of 200 samples. How does this compare with §2's own 24 kHz/256-hop
+example (93.75 fps), and does a *lower* sample rate with a *smaller* hop necessarily mean a
+higher or lower frame rate?
+
+<details><summary>Solution</summary>
+
+$16000/200 = 80.0$ fps — **lower** than §2's 93.75 fps example, even though the hop is smaller
+(200 vs 256, which alone would push frame rate *up*). The reason: sample rate dropped
+proportionally *more* (16000/24000$=0.667\times$) than hop dropped (200/256$=0.781\times$), and
+frame rate is the *ratio* of these two, so the net effect is a lower frame rate here
+($0.667/0.781=0.854\times$ the original, matching $80/93.75=0.853$ ✓). There's no fixed
+directional rule — frame rate depends on the *ratio* of sample rate to hop size, so you have to
+compute it, not guess from either number in isolation.
+
+</details>
+
+**Problem 2 — codec bitrate, a smaller setup.** Using §4's RVQ bitrate formula, compute the
+bitrate for a codec at 50 fps with 6 codebooks of size 1024 each. Compare the resulting
+compression ratio against raw 16-bit, 16kHz audio (256 kbps) with §4's own EnCodec example (64×
+at 24kHz/6kbps).
+
+<details><summary>Solution</summary>
+
+Bits/code $=\log_2(1024)=10$. Bitrate $=50\times6\times10=3000$ bits/s $=3.0$ kbps.
+
+Raw 16-bit, 16kHz: $16000\times16=256{,}000$ bps $=256$ kbps.
+
+Compression ratio: $256/3=85.3\times$ — **higher** compression than §4's EnCodec example (64×),
+mainly because this setup uses fewer codebooks (6 vs 8) at a lower frame rate (50 vs 75 fps) while
+also compressing from a lower raw bitrate (256 vs 384 kbps for 24kHz) — fewer bits spent per
+second of *encoded* audio, applied to a *smaller* amount of raw information to begin with,
+compounding into a higher ratio. This illustrates that "compression ratio" depends on the raw
+format you're comparing against, not just the codec's own bitrate — always state both sides of
+the ratio explicitly, exactly as §4's worked example does.
+
+</details>
+
+**Problem 3 — why codec LMs need no KV-cache-breaking innovation, reasoned.** §5 explains the
+delay pattern lets one Transformer handle $K$ codebooks without multiplying sequence length by
+$K$. Using that mechanism, explain why a codec-token language model (like the TTS architecture in
+§5) *can* still use a standard KV cache during generation — unlike the diffusion language model
+described elsewhere in this wiki
+(→ [Diffusion LMs §5](../04-large-language-models/11-diffusion-language-models.md#5-sampling)),
+which explicitly cannot.
+
+<details><summary>Solution</summary>
+
+A codec-token LM (even with the delay pattern interleaving multiple codebook streams) is still
+fundamentally **autoregressive left-to-right**: once a codebook's code is emitted at a given
+position, it is *never revised* — exactly the property that makes KV caching valid (per
+→ [Attention §7](../03-sequence-models/03-attention.md#7-mqa-and-gqa-shrinking-the-kv-cache) and
+→ [Diffusion LMs §5](../04-large-language-models/11-diffusion-language-models.md#5-sampling)'s
+own contrast): the keys and values for already-generated positions never need to be recomputed,
+because the tokens at those positions are permanently fixed the moment they're generated. The
+delay pattern only changes *which* codebook's code is being predicted at each step, not the
+fact that generation still proceeds strictly forward through time with no revision.
+
+A masked diffusion LM, by contrast, can change *any* previously-masked or even previously-filled
+position at a later denoising step (per its own §5) — so the keys/values computed for a position
+at one step may no longer be valid once that position's value changes at a later step, which is
+exactly why standard KV caching doesn't carry over and why caching schemes for diffusion LMs
+remain "an active research area" as that page notes.
+
+</details>
+
+## 11. Key takeaways
 
 | # | Takeaway |
 |---|---|

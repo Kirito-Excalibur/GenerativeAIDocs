@@ -327,7 +327,71 @@ creative tooling.**
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — the closed-form jump, new timesteps.** Using the same linear schedule as §2's
+table ($\beta$ from $10^{-4}$ to $0.02$ over $T{=}1000$), compute $\bar\alpha_t$,
+$\sqrt{\bar\alpha_t}$, and $\sqrt{1-\bar\alpha_t}$ at $t=200$ and $t=600$ (values not in the
+page's own table). Where does $t=600$ fall relative to the "image is essentially destroyed"
+observation §2 makes about $t\approx700$?
+
+<details><summary>Solution</summary>
+
+| $t$ | $\bar\alpha_t$ | $\sqrt{\bar\alpha_t}$ (signal) | $\sqrt{1-\bar\alpha_t}$ (noise) |
+|---|---|---|---|
+| 200 | 0.659 | 0.812 | 0.584 |
+| 600 | 0.0259 | 0.161 | 0.987 |
+
+At $t{=}200$, signal still dominates (0.812 vs 0.584 noise) — comparable to §2's $t{=}100$ row
+(0.947 signal), just further along. At $t{=}600$, signal has collapsed to 0.161 — already
+close to §2's $t{=}700$ row (0.083 signal) — confirming that most of the destructive action on
+the linear schedule happens in the $t\in[300,700]$ range, exactly the "wastes the last 30%"
+critique §2 makes of the linear schedule (the *useful* discriminative range is compressed into
+roughly the first half of the timesteps).
+
+</details>
+
+**Problem 2 — $v$-prediction, computed.** At $t=600$ (using $\bar\alpha_{600}=0.0259$ from
+Problem 1), with clean value $x_0=1.0$ and noise $\epsilon=0.5$, compute the $v$-prediction
+target using §6's formula $v=\sqrt{\bar\alpha_t}\epsilon-\sqrt{1-\bar\alpha_t}x_0$. At this late
+timestep (mostly noise), does $v$ end up closer to $-x_0$ or to $\epsilon$, and does that match
+§6's claim that $v$-prediction "interpolates between the two targets"?
+
+<details><summary>Solution</summary>
+
+$$v = \sqrt{0.0259}\times0.5 - \sqrt{1-0.0259}\times1.0 = 0.161\times0.5 - 0.987\times1.0
+= 0.0805-0.987=-0.906$$
+
+Since $-x_0=-1.0$, $v{=}-0.906$ sits **much closer to $-x_0$** than to $\epsilon(=0.5)$ — makes
+sense at this noise-heavy timestep ($\bar\alpha_t$ small means $\sqrt{1-\bar\alpha_t}\approx1$
+dominates the formula, while $\sqrt{\bar\alpha_t}\approx0.16$ nearly zeroes out the $\epsilon$
+term). This confirms §6's interpolation claim directionally: near $t{=}0$ (clean data,
+$\bar\alpha_t\to1$), $v\to\epsilon$; near $t{=}T$ (pure noise, $\bar\alpha_t\to0$), $v\to-x_0$ —
+and $t{=}600$, being fairly deep into the noising process, already leans heavily toward the
+$-x_0$ end of that spectrum.
+
+</details>
+
+**Problem 3 — inpainting mechanics, applied.** Using §7's no-retraining inpainting recipe (paste
+a correctly-noised version of the known region at every step), explain what would go wrong if you
+instead pasted the *clean, unnoised* known region at every step (skipping the re-noising).
+
+<details><summary>Solution</summary>
+
+The reverse process at any intermediate step $t$ expects its *entire* input $x_t$ to be at a
+consistent noise level $t$ — that's what the denoiser $\epsilon_\theta(x_t,t)$ is conditioned on
+and trained to expect. If you paste the clean region in unnoised, you create a sequence where
+part of the tensor is at noise level $t$ (the generated region, correctly following the reverse
+chain) and part is at noise level 0 (the pasted-in clean region) — a distribution the model never
+saw during training. Per the mechanism described in §7, the model would likely produce visible
+seams or artifacts at the boundary, because the denoiser's prediction for the generated region is
+implicitly informed by (attends to, in a U-Net's receptive field) neighboring pixels that are
+supposed to share its noise level but don't — this noise-level mismatch is exactly what the
+correct recipe's re-noising step ("re-noise the original to level $t$") is designed to prevent.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

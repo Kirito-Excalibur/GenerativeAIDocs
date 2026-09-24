@@ -376,7 +376,81 @@ def txt2img(unet, vae, text_encoder, tokenizer, scheduler, prompt,
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — compression, a different downsample factor.** Using §1's method, compute the
+spatial and total compression for a $512\times512$ RGB image compressed with downsample factor
+$f{=}4$ into a 16-channel latent (rather than §1's $f{=}8$, 4-channel example). Is this more or
+less aggressive compression than the standard $f{=}8$ setup?
+
+<details><summary>Solution</summary>
+
+Spatial compression: $f^2=16\times$ (vs $f{=}8$'s $64\times$).
+
+Pixel dims: $512\times512\times3=786{,}432$. Latent dims:
+$(512/4)\times(512/4)\times16=128\times128\times16=262{,}144$.
+
+Total compression: $786432/262144=3.0\times$ — **far less aggressive** than the $f{=}8$,
+4-channel setup's 48× reduction (§1). Even though $f{=}4$ vs $f{=}8$ only halves the *linear*
+downsample, spatial compression is quartered ($16\times$ vs $64\times$, since it's $f^2$); and
+using 16 channels instead of 4 partially offsets that (more channels per spatial location means
+less compression per location), compounding into a much smaller overall ratio. This is a
+worked illustration of §1's downsample-factor table: $f{=}4$ trades "better quality, slower" for
+giving up most of the compute savings that make latent diffusion fast in the first place.
+
+</details>
+
+**Problem 2 — classifier-free guidance, a numeric case.** Suppose at some pixel/channel,
+$\epsilon_\theta(x_t,\varnothing)=0.2$ (unconditional prediction) and $\epsilon_\theta(x_t,c)=0.5$
+(conditional, given the prompt). Compute the guided noise prediction at $w=1$, $w=7$, and $w=15$
+using §3's formula. At which $w$ does the prediction start to look like *extrapolation beyond*
+the conditional prediction itself (i.e., further from $\varnothing$ than $c$ is)?
+
+<details><summary>Solution</summary>
+
+$\tilde\epsilon = \epsilon(\varnothing)+w(\epsilon(c)-\epsilon(\varnothing)) = 0.2+w(0.3)$.
+
+$w{=}1$: $0.2+0.3=0.5$ — exactly recovers $\epsilon(c)$ (the true conditional prediction),
+matching §3's note that "$w{=}1$: the true conditional."
+
+$w{=}7$: $0.2+7(0.3)=0.2+2.1=2.3$.
+
+$w{=}15$: $0.2+15(0.3)=0.2+4.5=4.7$.
+
+Already at $w{=}7$ (§3's stated typical value for SD-family models), $2.3$ is well beyond
+$\epsilon(c){=}0.5$ — this is **extrapolation past the conditional prediction itself**, starting
+immediately for any $w>1$, not just at large $w$. This matches §3's framing precisely: "guidance
+is extrapolation, not interpolation" — even the "standard" $w{\approx}7$ setting is already
+pushing the prediction several multiples past where the model's honest conditional estimate
+sits, which is exactly the mechanism behind CFG's oversaturation and reduced-diversity effects
+at high $w$.
+
+</details>
+
+**Problem 3 — ControlNet's zero-init, why it matters mechanically.** §4 states ControlNet's
+added connections are zero-initialized so training "starts from the unmodified base model's
+behaviour." Using the general zero-init reasoning (also seen in RL's advantage-baseline problem
+and elsewhere in this wiki), explain specifically what would go wrong at step 0 of training if the
+zero-init convolutions were instead randomly initialized like normal layers.
+
+<details><summary>Solution</summary>
+
+At step 0, a randomly-initialized added connection contributes a *random, untrained* signal to
+the frozen base model's forward pass — effectively corrupting the base model's carefully
+pretrained representations with noise from day one, before the ControlNet branch has learned
+anything useful about the control signal (depth map, pose, etc.). Per §4's explanation, this
+would "destroy the base model's predictions before it could learn anything useful": early
+training would have to first *undo* the damage from the random injection before it could start
+extracting a useful gradient signal about the actual control task, likely making training slower,
+less stable, and at risk of permanently degrading the base model's quality if the corruption is
+severe enough early on. Zero-initializing sidesteps this entirely: at step 0 the ControlNet branch
+contributes exactly nothing (mathematically identical to the unmodified base model), so training
+can smoothly *introduce* the control signal's influence rather than having to *repair* damage
+from an uninformed random one.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

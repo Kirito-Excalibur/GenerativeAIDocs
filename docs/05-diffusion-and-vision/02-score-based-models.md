@@ -296,7 +296,71 @@ def karras_sigmas(n, sigma_min=0.03, sigma_max=14.6, rho=7.0):
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — score from noise prediction.** Using §4's boxed identity
+$s_\theta(x_t,t)=-\epsilon_\theta(x_t,t)/\sqrt{1-\bar\alpha_t}$, if a trained model predicts
+$\epsilon_\theta=0.6$ at a timestep where $\sqrt{1-\bar\alpha_t}=0.3$, what is the implied score?
+What does the *sign* of the score tell you about which direction increases $\log p(x_t)$?
+
+<details><summary>Solution</summary>
+
+$$s_\theta = -0.6/0.3 = -2.0$$
+
+The score is $\nabla_x\log p(x)$ — it points in the direction that *increases* log-probability. A
+score of $-2.0$ (negative) means moving $x$ in the *negative* direction (of whichever coordinate
+this represents) increases $\log p(x_t)$ locally — i.e., Langevin dynamics (§2's update rule)
+would nudge $x$ *downward* along this component. The specific sign here is a direct, deterministic
+consequence of the noise prediction's sign: a positive $\epsilon_\theta$ always yields a negative
+score (and vice versa), since the noise-to-score conversion is just a negative scalar multiple.
+
+</details>
+
+**Problem 2 — VP vs VE, applied.** A colleague trains a score model using the VE
+(variance-exploding) SDE, then tries to sample using a DDIM-style update rule (which assumes the
+VP parameterization's $\bar\alpha_t$ schedule). Using §5's table, explain why this is likely to
+fail or require modification, referencing what VP and VE actually preserve/allow to grow.
+
+<details><summary>Solution</summary>
+
+Per §5's table, **VP** (variance preserving) keeps total variance at 1 throughout the forward
+process — signal shrinks as noise grows, governed by $\bar\alpha_t$, which is exactly the
+quantity DDIM's update rule (§5, borrowed from → [Diffusion models
+§6](01-diffusion-models.md#6-parameterization-choices)) is built around. **VE** (variance
+exploding) instead keeps the *signal* fixed and lets total variance grow via $\sigma(t)$, with no
+$\bar\alpha_t$-style shrinking schedule at all.
+
+Using a DDIM update (which reads off $\sqrt{\bar\alpha_t}$ and $\sqrt{1-\bar\alpha_t}$ from a VP
+schedule) on a VE-trained model is a category error: the VE model's score network was trained
+under an entirely different noise-injection convention, and the DDIM formula's implicit
+assumptions about signal-to-noise ratio at each $t$ simply don't hold. §5 notes VP and VE are
+related "by a simple rescaling of $x$ and $t$" — so the fix is to apply that rescaling
+explicitly (or use a sampler written for the VE convention, such as the annealed Langevin
+approach the VE formulation was originally paired with) rather than mixing conventions.
+
+</details>
+
+**Problem 3 — DPM-Solver's multistep trick, why it's free.** §8's DPM-Solver++(2M) implementation
+reuses the *previous* step's denoised estimate rather than calling the model twice per step to
+get 2nd-order accuracy. Using the code and §6's discussion, explain in one or two sentences why
+this doesn't compromise correctness compared to a "true" 2nd-order method that evaluates the
+model twice per step.
+
+<details><summary>Solution</summary>
+
+A true single-step 2nd-order method (like Heun's) needs two model evaluations *within the same
+step* because it has no other source of a second data point at a nearby noise level. But a
+multistep solver, running many steps in sequence, has already computed the denoised estimate at
+the *previous* step as a byproduct of normal operation — that stored value is itself a valid
+data point near the current one (at an adjacent, already-visited noise level), so reusing it for
+the 2nd-order correction costs nothing extra: it's "free" information that a single-step method
+would have to purchase with a second network call. This is exactly why §8 notes "2nd-order
+accuracy at 1st-order cost" — the trick doesn't reduce accuracy, it just relocates where the
+second data point comes from (history instead of an extra forward pass).
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|
