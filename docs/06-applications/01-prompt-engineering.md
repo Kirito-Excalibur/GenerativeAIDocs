@@ -309,7 +309,72 @@ Since prompts are just text, they can be optimized:
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — the three mechanisms, diagnosed.** For each of the following prompt changes, say
+which of §1's three mechanisms (distribution selection, computation allocation, information
+provision) it primarily uses: (a) adding "Cite the exact paragraph you're quoting from" to a RAG
+prompt; (b) adding "First list every constraint, then check your answer against each one" to a
+scheduling prompt; (c) adding three worked examples of the desired output format.
+
+<details><summary>Solution</summary>
+
+(a) **Distribution selection.** It doesn't add new facts to the context (the source text is
+already there); it constrains *how* the model must use what's already available, shaping which
+region of the output distribution (citation-grounded vs free-form) gets selected.
+
+(b) **Computation allocation** — per §1, this asks the model to do more serial work (enumerate
+constraints, then verify) before producing the final answer, exactly the mechanism behind
+chain-of-thought's effectiveness (§2's "reasoning must come before the answer" point).
+
+(c) **Distribution selection** — per §2, few-shot examples convey "the label set, the output
+format, the decision boundary... more precisely than any description," steering toward the
+region of output-space matching the demonstrated format, without adding any new facts about the
+task's subject matter.
+
+</details>
+
+**Problem 2 — few-shot ordering, applied.** Using §2's finding that format matters more than
+label correctness and that order can swing accuracy substantially on small models, a colleague
+proposes always putting the *easiest* example first in a few-shot prompt "so the model warms up
+gradually." Using §2's "recency bias" note, is this the right call?
+
+<details><summary>Solution</summary>
+
+§2 states explicitly: "put the hardest examples last — recency bias makes them more
+influential." Putting the *easiest* example first (and, implicitly, harder ones later or last)
+actually aligns with this — if "warms up gradually" means easy-to-hard ordering, that's the
+*correct* strategy per §2, since it puts the hardest, most informative example in the
+highest-influence (last) position. The colleague's instinct happens to be right, though for a
+different reason than "warming up": it's not that the model needs gradual exposure, it's that
+recency bias means whatever appears last gets weighted more heavily in shaping the immediate
+continuation — so you want your *most representative/hardest* example there, which for a
+graduated easy→hard ordering happens to be the last one anyway.
+
+</details>
+
+**Problem 3 — evaluating a prompt change, is it real?** Using §6's bootstrap-style statistical
+reasoning, two prompts are compared on 80 test cases: Prompt A scores 71%, Prompt B scores 76%.
+Using the rule of thumb from → [Evaluation metrics §6](../07-evaluation/01-metrics.md#6-statistical-significance)
+(standard error $\approx\sqrt{p(1-p)/n}$), is a 5-point gap on 80 examples likely to be
+statistically meaningful, or likely noise?
+
+<details><summary>Solution</summary>
+
+Using $p\approx0.735$ (roughly the average of 0.71 and 0.76) and $n{=}80$:
+
+$$SE \approx \sqrt{0.735(1-0.735)/80} = \sqrt{0.00244}=0.0494 \approx 4.9\text{ points}$$
+
+A 5-point observed gap is only about **1 standard error** — well short of the conventional
+~2-SE threshold for statistical significance. Per §6's warning ("a 2-point difference on 200
+examples is noise"), this is an even smaller sample (80 vs 200) with a bigger nominal gap (5 vs
+2 points), but the math still says this is **not distinguishable from noise** at typical
+confidence levels — the honest conclusion is "run more test cases before trusting this
+5-point improvement," not "Prompt B is better."
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

@@ -268,7 +268,75 @@ without any special inference support.
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — the three levels, applied.** A team currently uses Level 1 ("ask nicely") for
+extracting structured data from invoices and observes a 91% valid-JSON rate. Using §1's level
+descriptions, roughly how much improvement would moving to Level 2 (ask + parse + retry) versus
+Level 3 (constrained decoding) buy them, and which level *guarantees* zero malformed-JSON
+failures downstream?
+
+<details><summary>Solution</summary>
+
+Per §1: Level 1 sits at "~85–95%" (their 91% fits squarely in this range). Level 2 reaches
+"~99%" — a meaningful jump, cutting the failure rate roughly from ~9% to ~1% (about a 9× 
+reduction in the specific case of 91%→99%). Level 3 reaches "100%, by construction" — not "very
+close to 100%," but an actual guarantee, because invalid strings are *structurally unreachable*
+(§2), not merely made improbable.
+
+**Only Level 3** guarantees zero malformed-JSON failures downstream — Level 2's 99% still means
+roughly 1-in-100 requests could hit a parsing failure that either needs a fallback path or causes
+a visible error, which matters for a fully automated invoice pipeline with no human review step.
+
+</details>
+
+**Problem 2 — schema design, spot the problem.** A schema for extracting contract terms has:
+`{"party_a": string, "party_b": string, "effective_date": string, "termination_date": string}`,
+all marked required. Using §5's principles, identify two design flaws and their likely
+consequence.
+
+<details><summary>Solution</summary>
+
+**Flaw 1 — no "not found" option** (§5: "provide a 'not found' / 'unknown' value"). Not every
+contract has an explicit termination date (some are open-ended); marking `termination_date` as
+required forces the model to invent a plausible-sounding date when none exists in the source
+document — a direct hallucination risk that §5 calls "the most commonly missed" schema mistake.
+
+**Flaw 2 — no reasoning field, and it's positioned wrong even if added naively** (§4: "put the
+reasoning/explanation field **first**"). Extracting `effective_date` vs `termination_date`
+correctly from a contract that mentions multiple dates in different clauses is exactly the kind
+of task that benefits from the model working through *which* date is which before committing to
+an answer — without a first-positioned reasoning field, the schema forces the model straight into
+extraction with no room to disambiguate, which is likely to increase the error rate on contracts
+with several candidate dates.
+
+</details>
+
+**Problem 3 — field order and autoregressive conditioning, why it matters here specifically.**
+§4 says field order matters because of autoregressive generation. A colleague argues "the model
+sees the whole schema up front anyway (it's in the prompt), so by the time it starts generating
+the `risk` field, it already 'knows' what `reasoning` will eventually say, regardless of which
+field comes first in the *output*." What's wrong with this argument?
+
+<details><summary>Solution</summary>
+
+The colleague conflates *seeing the schema* (which is indeed available up front, in the prompt)
+with *having already computed the reasoning's content*. The schema only specifies field
+**names** and types — it doesn't contain the actual reasoning text, which the model must
+generate token-by-token as part of its output. Per §4's "autoregressive order determines what
+conditions what": if `risk` is generated *before* `reasoning` in the output sequence, then when
+the model is producing the `risk` value, the specific words of the (not-yet-written) reasoning
+don't exist yet as tokens the model can condition on — only the abstract fact that a reasoning
+field *will* follow is "known" (from the schema), not its content. The classification is
+therefore made without the benefit of having worked through the reasoning, exactly the same
+issue as putting a chain-of-thought *after* the final answer in ordinary prompting
+(→ [Prompt engineering, "reasoning before the
+answer"](01-prompt-engineering.md#ask-for-reasoning-before-the-answer)) — knowing a scratchpad
+section will eventually be filled in is not the same as having its contents to condition on.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

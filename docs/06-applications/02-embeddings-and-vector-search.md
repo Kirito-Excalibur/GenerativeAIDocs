@@ -376,7 +376,82 @@ class HybridSearch:
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — nDCG, new relevance grades.** Retrieved relevance grades (in order): $(2,3,0,1)$.
+Using §4's DCG formula, compute DCG, IDCG (the ideal ordering), and nDCG. What's the ideal order
+here, and how much does the actual retrieval order cost you relative to ideal?
+
+<details><summary>Solution</summary>
+
+Ideal order (sorted descending): $(3,2,1,0)$.
+
+$$\text{DCG} = \frac{2}{\log_2 2}+\frac{3}{\log_2 3}+\frac{0}{\log_2 4}+\frac{1}{\log_2 5}
+= 2+1.893+0+0.431=4.323$$
+$$\text{IDCG} = \frac{3}{\log_2 2}+\frac{2}{\log_2 3}+\frac{1}{\log_2 4}+\frac{0}{\log_2 5}
+=3+1.262+0.5+0=4.762$$
+$$\text{nDCG} = 4.323/4.762=0.908$$
+
+Similar to §4's own worked example (0.931) but slightly lower — makes sense: here the
+*most*-relevant item (grade 3) is ranked 2nd rather than 1st, a costlier ordering mistake (higher
+position, heavier $\log_2$ discount penalty) than §4's example, where the top-ranked item already
+had the highest grade.
+
+</details>
+
+**Problem 2 — RRF, a case where dense and sparse disagree.** BM25 ranks $(D_3,D_1,D_5,D_2)$;
+dense search ranks $(D_1,D_2,D_3,D_4)$. Using §6's RRF formula ($k{=}60$), compute the fused
+score for each document and give the final ranking. Which document benefits most from
+appearing in *both* lists even at a moderate rank in each, versus a document that ranks #1 in
+only one list?
+
+<details><summary>Solution</summary>
+
+Using $1/(60+\text{rank})$ per list and summing:
+
+| Doc | BM25 rank | Dense rank | RRF score |
+|---|---|---|---|
+| $D_1$ | 2 | 1 | $1/62+1/61=0.0325$ |
+| $D_3$ | 1 | 3 | $1/61+1/63=0.0323$ |
+| $D_2$ | 4 | 2 | $1/64+1/62=0.0318$ |
+| $D_5$ | 3 | — | $1/63=0.0159$ |
+| $D_4$ | — | 4 | $1/64=0.0156$ |
+
+Final ranking: **$D_1 > D_3 > D_2 > D_5 > D_4$**.
+
+$D_1$ (ranked #2 and #1) narrowly beats $D_3$ (ranked #1 and #3) — appearing near the top of
+*both* lists edges out being #1 in just one and mediocre in the other, since RRF sums
+contributions from every list a document appears in. Documents appearing in only one list
+($D_5, D_4$) score far lower than any document appearing in both, even though $D_5$ was ranked
+#3 by BM25 — a clean illustration of why hybrid retrieval (§6) tends to reward *robust,
+cross-method* relevance over a strong showing in just one retriever.
+
+</details>
+
+**Problem 3 — cosine threshold miscalibration, a concrete failure.** A team built a semantic
+deduplication pipeline using Model A's embeddings and calibrated a "near-duplicate" threshold of
+$\text{cosine}>0.85$ by inspecting examples. They later swap in Model B for a routine upgrade
+without re-calibrating. Using §3's warning about model-specific thresholds, what's the likely
+failure mode, and what's the correct fix?
+
+<details><summary>Solution</summary>
+
+Per §3, cosine thresholds are **not transferable between models** — the example table shows
+"unrelated" pairs scoring 0.10 under Model A but 0.70 under Model B (different anisotropy). If
+Model B's embedding space is more like the "Model B" row in §3's table (higher baseline
+similarity for unrelated text), reusing the 0.85 threshold calibrated on Model A could now flag
+many genuinely *unrelated* documents as near-duplicates under Model B, silently and
+catastrophically over-merging content that shouldn't be deduplicated.
+
+The correct fix, per §3's explicit instruction: "always calibrate on your own data" — re-run the
+same calibration procedure (embed a set of known-unrelated and known-related pairs, inspect the
+distribution) using Model B's actual embeddings, and pick a new threshold from that distribution
+rather than assuming any number carries over across a model swap, even for what looks like a
+routine upgrade.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

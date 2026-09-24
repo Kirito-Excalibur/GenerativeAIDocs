@@ -335,7 +335,73 @@ class RAGPipeline:
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — the failure taxonomy, diagnosed.** A RAG system correctly retrieves the right
+chunk into the top-5, and it survives reranking into the top-3, but the final answer still
+omits a key fact that *was* in the retrieved context. Using §4's 8-point taxonomy, which failure
+number does this match, and what's the recommended fix?
+
+<details><summary>Solution</summary>
+
+This matches **failure #4, "Not extracted"**: "the chunk is in context but the LLM missed it."
+Retrieval (failures #1–2) and reranking/ordering (failure #3) are both ruled out by the problem
+statement (the chunk made it to top-3, presumably within the context sent to the model). Per §4's
+fix column: "better prompt, stronger model, less distraction" — concretely, check whether the
+context has too many *other* chunks competing for attention (per the → [Long
+context](../04-large-language-models/09-long-context.md) "lost in the middle" effect), try
+moving the critical chunk to the start or end of the context (§5's reordering trick), or make the
+prompt more explicit about needing to use *all* provided facts, not just the most salient one.
+
+</details>
+
+**Problem 2 — contextual retrieval's cost, worked.** A corpus has 50,000 chunks. Using §2's
+contextual-retrieval technique (one LLM call per chunk at index time to generate a situating
+sentence), and assuming each call costs \$0.0003 (a small/cheap model) and takes 0.5 seconds
+(assume full parallelism across many concurrent calls, so wall-clock isn't simply $50000\times0.5$s),
+what's the one-time indexing cost in dollars? Per §2, is this a recurring cost or a one-off?
+
+<details><summary>Solution</summary>
+
+$50{,}000\times\$0.0003=\$15.00$ — a modest one-time cost.
+
+Per §2: "it costs one cheap LLM call per chunk **at index time** — a one-off expense for a
+permanent gain." This is **not recurring** for existing chunks — it only needs to run once per
+chunk, at the time that chunk is first indexed. It *does* recur incrementally as new documents
+are added to the corpus (each new chunk needs its own contextualizing call), but re-indexing the
+same 50,000 chunks repeatedly would be unnecessary and wasteful — the cost structure is "pay
+once per chunk, forever," not "pay per query" or "pay per re-index."
+
+</details>
+
+**Problem 3 — abstention floor, calibrating it.** Using §8's `RELEVANCE_FLOOR` mechanism,
+suppose you test your system on 30 deliberately-unanswerable queries (questions with no answer
+in the corpus) and 30 answerable ones, and plot the reranker's top-1 score for each group. The
+unanswerable group's scores cluster around 0.15–0.35; the answerable group clusters around
+0.55–0.95, with some overlap around 0.4–0.5. Where would you set `RELEVANCE_FLOOR`, and what's
+the trade-off at each end of that overlap range?
+
+<details><summary>Solution</summary>
+
+Somewhere in the **0.4–0.5 overlap band** is the right zone — exactly matching §8's instruction
+to "calibrate the floor on known-unanswerable queries."
+
+Setting the floor near **0.4** (the low end of the overlap): fewer answerable queries get
+wrongly abstained-on (higher recall of real answers), but more unanswerable queries slip through
+and get a hallucinated-sounding "answer" from irrelevant context (worse precision on
+abstention) — riskier for trustworthiness.
+
+Setting the floor near **0.5** (the high end): more unanswerable queries correctly trigger "I
+don't have enough information" (safer), but some genuinely answerable queries with weaker
+retrieval scores get incorrectly abstained-on too (lower recall, more frustrating false
+negatives for real users). Per §8's framing of the floor as "the single most important line for
+trustworthiness," the right choice depends on which failure mode is more costly in your specific
+application — a medical or legal RAG system would likely lean toward 0.5 (favor safety over
+recall), while a casual internal search tool might lean toward 0.4.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

@@ -382,7 +382,84 @@ class Agent:
 
 ---
 
-## 10. Key takeaways
+## 10. Exercises
+
+**Problem 1 — compounding errors, a new reliability.** Using §4's $p^k$ formula, compute success
+probability for a 12-step task at per-step reliability $p=0.92$. How does this compare with
+§4's own $p{=}0.95$, 20-step row (36%)? Which lever — more steps at higher reliability, or fewer
+steps at lower reliability — gives the better overall success rate here?
+
+<details><summary>Solution</summary>
+
+$0.92^{12} = 0.368$ — **36.8%**, essentially identical to §4's $p{=}0.95$, $k{=}20$ row (36%),
+despite this task having *fewer* steps (12 vs 20) but a noticeably *lower* per-step reliability
+(0.92 vs 0.95).
+
+This demonstrates §4's central claim quantitatively: **per-step reliability dominates step
+count** in a task's overall success probability. A modest reliability drop (0.95→0.92, just 3
+points) here almost exactly cancels out a substantial reduction in step count (20→12, a 40%
+cut) — reinforcing §4's advice to "optimize per-step reliability, not planning cleverness":
+shortening a plan by removing steps buys you far less than the same numeric improvement in how
+reliably each remaining step succeeds.
+
+</details>
+
+**Problem 2 — tool description quality, applied.** Two tool descriptions for the same function:
+(A) `"query_db(sql)"`; (B) `"Run a read-only SQL query against the customer orders table.
+Columns: order_id, customer_id, total_usd, status (one of: pending/shipped/cancelled),
+created_at. Use for questions about order history, totals, or status — NOT for modifying data
+(this tool is read-only and will reject writes)."` Using §2's tool-description guidance, list
+three concrete failure modes description (A) invites that (B) prevents.
+
+<details><summary>Solution</summary>
+
+Per §2's checklist ("what it does, when to use it, when **not** to use it, parameter formats with
+examples, and what the output looks like"), description (A) is missing nearly everything B
+provides:
+
+1. **Wrong column names or nonexistent fields**: (A) gives no schema, so the model may guess
+   plausible-sounding but incorrect column names (e.g. `amount` instead of `total_usd`),
+   producing SQL that fails or silently returns wrong results.
+2. **Attempting writes**: (A) doesn't say the tool is read-only, so the model might generate an
+   `UPDATE` or `DELETE` statement for a request like "cancel this order," which (B) explicitly
+   heads off by stating the tool "will reject writes" and directing that kind of request
+   elsewhere.
+3. **Using it for the wrong purpose**: (A) gives no guidance on *when* to use this tool versus
+   another available tool, risking mis-selection in a multi-tool setup — a failure mode §2 flags
+   directly ("too many tools degrades selection... group or retrieve tool definitions") that
+   good descriptions (like B's explicit "use for... NOT for...") help mitigate even before tool
+   *count* becomes the issue.
+
+</details>
+
+**Problem 3 — multi-agent vs single-agent, a judgment call.** A team is building an agent to
+research a competitor's product, summarizing findings from web search, the company's public
+filings, and app-store reviews. Using §6's guidance ("try a single agent with good tools first"),
+would you recommend starting with a single agent or an orchestrator-worker setup, and which of
+§6's three "genuinely helps" criteria (if any) applies here?
+
+<details><summary>Solution</summary>
+
+Start with a **single agent** first, per §6's default recommendation — but this task actually
+has a reasonable case for the orchestrator-worker pattern once you test the single-agent version
+and find it insufficient, because it satisfies one of §6's three criteria directly:
+**"subtasks are parallelizable"** — searching the web, reading filings, and scanning app reviews
+are three independent information-gathering tasks with no dependency on each other's results, so
+running them concurrently via separate worker sub-agents would give a real latency win (§6:
+"parallelizable... big latency win") rather than the sequential latency of one agent working
+through all three source types in turn.
+
+The other two "genuinely helps" criteria are weaker matches here: the sources likely don't need
+*different tool sets or prompts* in a way that would confuse a single agent (they're all
+"search and read" style tasks), and the combined context (web results + filing excerpts + review
+snippets) probably fits within one context window for a typical research summary, so it's not a
+clear case of *exceeding one window*. Given the ambiguity, §6's advice to test the simple version
+first before adding orchestration complexity is the right starting point, with parallelization as
+the most likely upgrade if latency becomes the bottleneck.
+
+</details>
+
+## 11. Key takeaways
 
 | # | Takeaway |
 |---|---|
