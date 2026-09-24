@@ -447,11 +447,11 @@ Good starting points by task:
 
 ## Further reading
 
-- Holtzman et al., *The Curious Case of Neural Text Degeneration* (2019) — introduces nucleus sampling.
-- Leviathan et al., *Fast Inference from Transformers via Speculative Decoding* (2023); Chen et al., *Accelerating LLM Decoding with Speculative Sampling* (2023).
-- Kwon et al., *Efficient Memory Management for LLM Serving with PagedAttention* (vLLM, 2023).
-- Cai et al., *Medusa* (2024); Li et al., *EAGLE* (2024).
-- Willard & Louf, *Efficient Guided Generation for LLMs* (Outlines, 2023).
-- Meister et al., *Locally Typical Sampling* (2022) — the entropy-matching view of decoding.
+- Holtzman et al., [*The Curious Case of Neural Text Degeneration*](https://arxiv.org/abs/1904.09751) (2019) — introduces nucleus sampling.
+- Leviathan et al., [*Fast Inference from Transformers via Speculative Decoding*](https://arxiv.org/abs/2211.17192) (2023); Chen et al., [*Accelerating LLM Decoding with Speculative Sampling*](https://arxiv.org/abs/2302.01318) (2023).
+- Kwon et al., [*Efficient Memory Management for LLM Serving with PagedAttention*](https://arxiv.org/abs/2309.06180) (vLLM, 2023).
+- Cai et al., [*Medusa*](https://arxiv.org/abs/2401.10774) (2024); Li et al., [*EAGLE*](https://arxiv.org/abs/2401.15077) (2024).
+- Willard & Louf, [*Efficient Guided Generation for LLMs*](https://arxiv.org/abs/2307.09702) (Outlines, 2023).
+- Meister et al., [*Locally Typical Sampling*](https://arxiv.org/abs/2202.00666) (2022) — the entropy-matching view of decoding.
 
 **Next** → [Efficiency: quantization, distillation, sparsity](07-efficiency.md)

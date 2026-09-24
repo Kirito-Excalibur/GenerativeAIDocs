@@ -337,10 +337,10 @@ Remove weights. Two kinds:
 ## Further reading
 
 - Dettmers et al., *LLM.int8()* (2022) — the outlier discovery.
-- Xiao et al., *SmoothQuant* (2022); Lin et al., *AWQ* (2023); Frantar et al., *GPTQ* (2022).
-- Hinton, Vinyals & Dean, *Distilling the Knowledge in a Neural Network* (2015).
-- Agarwal et al., *GKD: Generalized Knowledge Distillation* (2023) — on-policy distillation.
-- Frantar & Alistarh, *SparseGPT* (2023); Sun et al., *Wanda* (2023).
-- Ma et al., *The Era of 1-bit LLMs: BitNet b1.58* (2024).
+- Xiao et al., [*SmoothQuant*](https://arxiv.org/abs/2211.10438) (2022); Lin et al., *AWQ* (2023); Frantar et al., [*GPTQ*](https://arxiv.org/abs/2210.17323) (2022).
+- Hinton, Vinyals & Dean, [*Distilling the Knowledge in a Neural Network*](https://arxiv.org/abs/1503.02531) (2015).
+- Agarwal et al., [*GKD: Generalized Knowledge Distillation*](https://arxiv.org/abs/2306.13649) (2023) — on-policy distillation.
+- Frantar & Alistarh, [*SparseGPT*](https://arxiv.org/abs/2301.00774) (2023); Sun et al., [*Wanda*](https://arxiv.org/abs/2306.11695) (2023).
+- Ma et al., [*The Era of 1-bit LLMs: BitNet b1.58*](https://arxiv.org/abs/2402.17764) (2024).
 
 **Next** → [Mixture of Experts](08-mixture-of-experts.md)

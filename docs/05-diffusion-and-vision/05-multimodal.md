@@ -5,7 +5,7 @@
 > architectural patterns for vision-language models, and how video and audio generation extend
 > the same machinery. Also: why multimodal models still fail at spatial reasoning and counting.
 
-**Prerequisites**: → [The Transformer](../03-sequence-models/04-transformer.md), → [Latent diffusion](03-latent-diffusion.md) · **Next**: Part VI → [Prompt engineering](../06-applications/01-prompt-engineering.md)
+**Prerequisites**: → [The Transformer](../03-sequence-models/04-transformer.md), → [Latent diffusion](03-latent-diffusion.md) · **Next**: → [Audio & speech generation](06-audio-and-speech.md)
 
 ---
 
@@ -376,13 +376,13 @@ class SimpleVLM(nn.Module):
 
 ## Further reading
 
-- Dosovitskiy et al., *An Image is Worth 16x16 Words* (ViT, 2020).
-- Radford et al., *Learning Transferable Visual Models From Natural Language Supervision* (CLIP, 2021).
-- Zhai et al., *Sigmoid Loss for Language Image Pre-Training* (SigLIP, 2023).
-- Liu et al., *Visual Instruction Tuning* (LLaVA, 2023); Li et al., *BLIP-2* (2023).
-- Alayrac et al., *Flamingo* (2022).
-- Yu et al., *SoundStream* (2021); Défossez et al., *EnCodec* (2022); Copet et al., *MusicGen* (2023).
-- Thrush et al., *Winoground* (2022) — the compositionality failure, measured.
-- Li et al., *Evaluating Object Hallucination in Large Vision-Language Models* (POPE, 2023).
+- Dosovitskiy et al., [*An Image is Worth 16x16 Words*](https://arxiv.org/abs/2010.11929) (ViT, 2020).
+- Radford et al., [*Learning Transferable Visual Models From Natural Language Supervision*](https://arxiv.org/abs/2103.00020) (CLIP, 2021).
+- Zhai et al., [*Sigmoid Loss for Language Image Pre-Training*](https://arxiv.org/abs/2303.15343) (SigLIP, 2023).
+- Liu et al., [*Visual Instruction Tuning*](https://arxiv.org/abs/2304.08485) (LLaVA, 2023); Li et al., [*BLIP-2*](https://arxiv.org/abs/2301.12597) (2023).
+- Alayrac et al., [*Flamingo*](https://arxiv.org/abs/2204.14198) (2022).
+- Yu et al., *SoundStream* (2021); Défossez et al., [*EnCodec*](https://arxiv.org/abs/2210.13438) (2022); Copet et al., [*MusicGen*](https://arxiv.org/abs/2306.05284) (2023).
+- Thrush et al., [*Winoground*](https://arxiv.org/abs/2204.03162) (2022) — the compositionality failure, measured.
+- Li et al., [*Evaluating Object Hallucination in Large Vision-Language Models*](https://arxiv.org/abs/2305.10355) (POPE, 2023).
 
-**Next** → Part VI: [Prompt engineering](../06-applications/01-prompt-engineering.md)
+**Next** → [Audio & speech generation](06-audio-and-speech.md)

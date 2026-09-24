@@ -321,9 +321,9 @@ request**. A thousand such requests costs \$30,000.
 
 - Greshake et al., *Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection* (2023).
 - Willison, *Prompt injection* series and *The Lethal Trifecta* — the clearest practical writing on this.
-- Nasr et al., *Scalable Extraction of Training Data from (Production) Language Models* (2023).
-- Hubinger et al., *Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training* (2024).
-- Carlini et al., *Poisoning Web-Scale Training Datasets is Practical* (2023).
+- Nasr et al., [*Scalable Extraction of Training Data from (Production) Language Models*](https://arxiv.org/abs/2311.17035) (2023).
+- Hubinger et al., [*Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training*](https://arxiv.org/abs/2401.05566) (2024).
+- Carlini et al., [*Poisoning Web-Scale Training Datasets is Practical*](https://arxiv.org/abs/2302.10149) (2023).
 - OWASP, *Top 10 for LLM Applications*.
 - NIST, *AI Risk Management Framework*.
 

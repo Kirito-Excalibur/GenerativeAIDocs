@@ -326,12 +326,12 @@ If you build with these systems, the concrete practices:
 
 - Bender et al., *On the Dangers of Stochastic Parrots* (2021).
 - Hofmann et al., *AI Generates Covertly Racist Decisions about People Based on Their Dialect* (2024).
-- Kleinberg, Mullainathan & Raghavan, *Inherent Trade-Offs in the Fair Determination of Risk Scores* (2016).
-- Strubell et al., *Energy and Policy Considerations for Deep Learning in NLP* (2019); Luccioni et al., *Estimating the Carbon Footprint of BLOOM* (2022).
-- Noy & Zhang, *Experimental Evidence on the Productivity Effects of Generative AI* (2023); Peng et al., *The Impact of AI on Developer Productivity* (2023).
-- Liang et al., *GPT Detectors Are Biased Against Non-Native English Writers* (2023).
+- Kleinberg, Mullainathan & Raghavan, [*Inherent Trade-Offs in the Fair Determination of Risk Scores*](https://arxiv.org/abs/1609.05807) (2016).
+- Strubell et al., [*Energy and Policy Considerations for Deep Learning in NLP*](https://arxiv.org/abs/1906.02243) (2019); Luccioni et al., [*Estimating the Carbon Footprint of BLOOM*](https://arxiv.org/abs/2211.02001) (2022).
+- Noy & Zhang, *Experimental Evidence on the Productivity Effects of Generative AI* (2023); Peng et al., [*The Impact of AI on Developer Productivity*](https://arxiv.org/abs/2302.06590) (2023).
+- Liang et al., [*GPT Detectors Are Biased Against Non-Native English Writers*](https://arxiv.org/abs/2304.02819) (2023).
 - Chesney & Citron, *Deep Fakes: A Looming Challenge for Privacy, Democracy, and National Security* (2019) — the liar's dividend.
-- Mitchell et al., *Model Cards for Model Reporting* (2019).
+- Mitchell et al., [*Model Cards for Model Reporting*](https://arxiv.org/abs/1810.03993) (2019).
 - The C2PA specification — `c2pa.org`.
 
 **Next** → Part IX: [Glossary](../09-reference/01-glossary.md)

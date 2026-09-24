@@ -395,13 +395,13 @@ def txt2img(unet, vae, text_encoder, tokenizer, scheduler, prompt,
 
 ## Further reading
 
-- Rombach et al., *High-Resolution Image Synthesis with Latent Diffusion Models* (2022) — Stable Diffusion.
-- Ho & Salimans, *Classifier-Free Diffusion Guidance* (2022).
-- Dhariwal & Nichol, *Diffusion Models Beat GANs on Image Synthesis* (2021) — classifier guidance.
-- Saharia et al., *Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding* (Imagen, 2022).
-- Zhang et al., *Adding Conditional Control to Text-to-Image Diffusion Models* (ControlNet, 2023).
-- Meng et al., *SDEdit* (2021); Hertz et al., *Prompt-to-Prompt* (2022).
-- Ruiz et al., *DreamBooth* (2022); Ye et al., *IP-Adapter* (2023).
-- Esser et al., *Scaling Rectified Flow Transformers* (SD3, 2024).
+- Rombach et al., [*High-Resolution Image Synthesis with Latent Diffusion Models*](https://arxiv.org/abs/2112.10752) (2022) — Stable Diffusion.
+- Ho & Salimans, [*Classifier-Free Diffusion Guidance*](https://arxiv.org/abs/2207.12598) (2022).
+- Dhariwal & Nichol, [*Diffusion Models Beat GANs on Image Synthesis*](https://arxiv.org/abs/2105.05233) (2021) — classifier guidance.
+- Saharia et al., [*Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding*](https://arxiv.org/abs/2205.11487) (Imagen, 2022).
+- Zhang et al., [*Adding Conditional Control to Text-to-Image Diffusion Models*](https://arxiv.org/abs/2302.05543) (ControlNet, 2023).
+- Meng et al., [*SDEdit*](https://arxiv.org/abs/2108.01073) (2021); Hertz et al., [*Prompt-to-Prompt*](https://arxiv.org/abs/2208.01626) (2022).
+- Ruiz et al., [*DreamBooth*](https://arxiv.org/abs/2208.12242) (2022); Ye et al., [*IP-Adapter*](https://arxiv.org/abs/2308.06721) (2023).
+- Esser et al., [*Scaling Rectified Flow Transformers*](https://arxiv.org/abs/2403.03206) (SD3, 2024).
 
 **Next** → [Flow matching & rectified flow](04-flow-matching.md)

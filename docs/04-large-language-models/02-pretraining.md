@@ -353,12 +353,12 @@ comparable to the original GPT-2 124M. Total electricity cost: a few dollars.
 
 ## Further reading
 
-- Brown et al., *Language Models are Few-Shot Learners* (GPT-3, 2020).
-- Grattafiori et al., *The Llama 3 Herd of Models* (2024) — the most detailed public account of a real run.
-- Rajbhandari et al., *ZeRO: Memory Optimizations Toward Training Trillion Parameter Models* (2020).
-- Narayanan et al., *Efficient Large-Scale Language Model Training on GPU Clusters* (Megatron-LM, 2021).
-- Lee et al., *Deduplicating Training Data Makes Language Models Better* (2022).
-- Penedo et al., *The FineWeb Datasets* (2024) — an open, well-documented filtering pipeline.
-- Zhang et al., *OPT: Open Pre-trained Transformer Language Models* (2022) — read the appendix logbook.
+- Brown et al., [*Language Models are Few-Shot Learners*](https://arxiv.org/abs/2005.14165) (GPT-3, 2020).
+- Grattafiori et al., [*The Llama 3 Herd of Models*](https://arxiv.org/abs/2407.21783) (2024) — the most detailed public account of a real run.
+- Rajbhandari et al., [*ZeRO: Memory Optimizations Toward Training Trillion Parameter Models*](https://arxiv.org/abs/1910.02054) (2020).
+- Narayanan et al., [*Efficient Large-Scale Language Model Training on GPU Clusters*](https://arxiv.org/abs/2104.04473) (Megatron-LM, 2021).
+- Lee et al., [*Deduplicating Training Data Makes Language Models Better*](https://arxiv.org/abs/2107.06499) (2022).
+- Penedo et al., [*The FineWeb Datasets*](https://arxiv.org/abs/2406.17557) (2024) — an open, well-documented filtering pipeline.
+- Zhang et al., [*OPT: Open Pre-trained Transformer Language Models*](https://arxiv.org/abs/2205.01068) (2022) — read the appendix logbook.
 
 **Next** → [Scaling laws](03-scaling-laws.md)

@@ -428,11 +428,11 @@ Lower $r$, add dropout, get more data, or stop earlier.
 
 ## Further reading
 
-- Hu et al., *LoRA: Low-Rank Adaptation of Large Language Models* (2021).
-- Dettmers et al., *QLoRA: Efficient Finetuning of Quantized LLMs* (2023).
-- Liu et al., *DoRA: Weight-Decomposed Low-Rank Adaptation* (2024).
-- Zhou et al., *LIMA: Less Is More for Alignment* (2023); Chen et al., *AlpaGasus* (2023).
-- Biderman et al., *LoRA Learns Less and Forgets Less* (2024) — an honest comparison with full FT.
-- Sheng et al., *S-LoRA: Serving Thousands of Concurrent LoRA Adapters* (2023).
+- Hu et al., [*LoRA: Low-Rank Adaptation of Large Language Models*](https://arxiv.org/abs/2106.09685) (2021).
+- Dettmers et al., [*QLoRA: Efficient Finetuning of Quantized LLMs*](https://arxiv.org/abs/2305.14314) (2023).
+- Liu et al., [*DoRA: Weight-Decomposed Low-Rank Adaptation*](https://arxiv.org/abs/2402.09353) (2024).
+- Zhou et al., [*LIMA: Less Is More for Alignment*](https://arxiv.org/abs/2305.11206) (2023); Chen et al., [*AlpaGasus*](https://arxiv.org/abs/2307.08701) (2023).
+- Biderman et al., [*LoRA Learns Less and Forgets Less*](https://arxiv.org/abs/2405.09673) (2024) — an honest comparison with full FT.
+- Sheng et al., [*S-LoRA: Serving Thousands of Concurrent LoRA Adapters*](https://arxiv.org/abs/2311.03285) (2023).
 
 **Next** → [Alignment: RLHF, DPO & friends](05-alignment.md)

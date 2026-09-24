@@ -7,7 +7,7 @@
 > that needs no retraining, and training models to use it well via RL on verifiable rewards is the
 > basis of reasoning models.
 
-**Prerequisites**: → [Alignment](05-alignment.md), → [Scaling laws](03-scaling-laws.md) · **Next**: Part V → [Diffusion models](../05-diffusion-and-vision/01-diffusion-models.md)
+**Prerequisites**: → [Alignment](05-alignment.md), → [RL basics](../01-foundations/07-reinforcement-learning.md), → [Scaling laws](03-scaling-laws.md) · **Next**: → [Diffusion language models](11-diffusion-language-models.md)
 
 ---
 
@@ -381,14 +381,14 @@ def code_best_of_n(model, spec, tests, n=16):
 
 ## Further reading
 
-- Wei et al., *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models* (2022).
-- Wang et al., *Self-Consistency Improves Chain of Thought Reasoning* (2022).
-- Lightman et al., *Let's Verify Step by Step* (2023) — process reward models.
-- Yao et al., *Tree of Thoughts* (2023); Chen et al., *Program of Thoughts* (2022).
-- Snell et al., *Scaling LLM Test-Time Compute Optimally* (2024).
-- DeepSeek-AI, *DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via RL* (2025).
-- Merrill & Sabharwal, *The Expressive Power of Transformers with Chain of Thought* (2024).
+- Wei et al., [*Chain-of-Thought Prompting Elicits Reasoning in Large Language Models*](https://arxiv.org/abs/2201.11903) (2022).
+- Wang et al., [*Self-Consistency Improves Chain of Thought Reasoning*](https://arxiv.org/abs/2203.11171) (2022).
+- Lightman et al., [*Let's Verify Step by Step*](https://arxiv.org/abs/2305.20050) (2023) — process reward models.
+- Yao et al., [*Tree of Thoughts*](https://arxiv.org/abs/2305.10601) (2023); Chen et al., [*Program of Thoughts*](https://arxiv.org/abs/2211.12588) (2022).
+- Snell et al., [*Scaling LLM Test-Time Compute Optimally*](https://arxiv.org/abs/2408.03314) (2024).
+- DeepSeek-AI, [*DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via RL*](https://arxiv.org/abs/2501.12948) (2025).
+- Merrill & Sabharwal, [*The Expressive Power of Transformers with Chain of Thought*](https://arxiv.org/abs/2310.07923) (2024).
 - Turpin et al., *Language Models Don't Always Say What They Think* (2023) — CoT unfaithfulness.
-- Mirzadeh et al., *GSM-Symbolic* (2024) — the brittleness evidence.
+- Mirzadeh et al., [*GSM-Symbolic*](https://arxiv.org/abs/2410.05229) (2024) — the brittleness evidence.
 
-**Next** → Part V: [Diffusion models](../05-diffusion-and-vision/01-diffusion-models.md)
+**Next** → [Diffusion language models](11-diffusion-language-models.md)

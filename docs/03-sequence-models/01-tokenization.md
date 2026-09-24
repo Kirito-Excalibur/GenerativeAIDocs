@@ -449,11 +449,11 @@ mysterious quality problems.
 
 ## Further reading
 
-- Sennrich et al., *Neural Machine Translation of Rare Words with Subword Units* (2016) — BPE for NMT.
-- Kudo, *Subword Regularization* (2018) — the Unigram LM model.
-- Kudo & Richardson, *SentencePiece* (2018).
+- Sennrich et al., [*Neural Machine Translation of Rare Words with Subword Units*](https://arxiv.org/abs/1508.07909) (2016) — BPE for NMT.
+- Kudo, [*Subword Regularization*](https://arxiv.org/abs/1804.10959) (2018) — the Unigram LM model.
+- Kudo & Richardson, [*SentencePiece*](https://arxiv.org/abs/1808.06226) (2018).
 - Radford et al., *Language Models are Unsupervised Multitask Learners* (GPT-2, 2019) — byte-level BPE.
-- Tao et al., *Scaling Laws with Vocabulary* (2024).
-- Ahia et al., *Do All Languages Cost the Same?* (2023) — the multilingual tokenization tax.
+- Tao et al., [*Scaling Laws with Vocabulary*](https://arxiv.org/abs/2407.13623) (2024).
+- Ahia et al., [*Do All Languages Cost the Same?*](https://arxiv.org/abs/2305.13707) (2023) — the multilingual tokenization tax.
 
 **Next** → [RNNs, LSTMs & GRUs](02-rnn-lstm-gru.md)

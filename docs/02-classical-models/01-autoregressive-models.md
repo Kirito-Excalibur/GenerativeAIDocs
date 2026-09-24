@@ -348,8 +348,8 @@ the numbers change.
 ## Further reading
 
 - Bengio et al., *A Neural Probabilistic Language Model* (2003) — where embeddings for LM began.
-- van den Oord et al., *Pixel Recurrent Neural Networks* (2016) and *WaveNet* (2016).
+- van den Oord et al., [*Pixel Recurrent Neural Networks*](https://arxiv.org/abs/1601.06759) (2016) and [*WaveNet*](https://arxiv.org/abs/1609.03499) (2016).
 - Radford et al., *Improving Language Understanding by Generative Pre-Training* (GPT-1, 2018).
-- Karpathy, *nanoGPT* — the clearest readable implementation in existence.
+- Karpathy, [*nanoGPT*](https://github.com/karpathy/nanoGPT) — the clearest readable implementation in existence.
 
 **Next** → [Variational autoencoders](02-vae.md)

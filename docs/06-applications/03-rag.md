@@ -354,12 +354,12 @@ class RAGPipeline:
 
 ## Further reading
 
-- Lewis et al., *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks* (2020) — the original.
-- Gao et al., *Retrieval-Augmented Generation for Large Language Models: A Survey* (2023).
-- Barnett et al., *Seven Failure Points When Engineering a RAG System* (2024).
-- Gao et al., *Precise Zero-Shot Dense Retrieval without Relevance Labels* (HyDE, 2022).
-- Es et al., *RAGAS: Automated Evaluation of Retrieval Augmented Generation* (2023).
-- Edge et al., *From Local to Global: A GraphRAG Approach to Query-Focused Summarization* (2024).
-- Sarthi et al., *RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval* (2024).
+- Lewis et al., [*Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*](https://arxiv.org/abs/2005.11401) (2020) — the original.
+- Gao et al., [*Retrieval-Augmented Generation for Large Language Models: A Survey*](https://arxiv.org/abs/2312.10997) (2023).
+- Barnett et al., [*Seven Failure Points When Engineering a RAG System*](https://arxiv.org/abs/2401.05856) (2024).
+- Gao et al., [*Precise Zero-Shot Dense Retrieval without Relevance Labels*](https://arxiv.org/abs/2212.10496) (HyDE, 2022).
+- Es et al., [*RAGAS: Automated Evaluation of Retrieval Augmented Generation*](https://arxiv.org/abs/2309.15217) (2023).
+- Edge et al., [*From Local to Global: A GraphRAG Approach to Query-Focused Summarization*](https://arxiv.org/abs/2404.16130) (2024).
+- Sarthi et al., [*RAPTOR: Recursive Abstractive Processing for Tree-Organized Retrieval*](https://arxiv.org/abs/2401.18059) (2024).
 
 **Next** → [Agents & tool use](04-agents-and-tool-use.md)

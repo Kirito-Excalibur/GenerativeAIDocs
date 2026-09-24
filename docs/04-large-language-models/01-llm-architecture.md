@@ -320,10 +320,10 @@ of pure compute (real runs take longer due to restarts, evals and data loading).
 
 ## Further reading
 
-- Touvron et al., *LLaMA 2* (2023); Grattafiori et al., *The Llama 3 Herd of Models* (2024) — unusually detailed.
-- Chowdhery et al., *PaLM* (2022) — thorough on architecture and training infrastructure.
-- Kwon et al., *Efficient Memory Management for LLM Serving with PagedAttention* (vLLM, 2023).
-- Zhou et al., *LIMA: Less Is More for Alignment* (2023).
-- Pope et al., *Efficiently Scaling Transformer Inference* (2022) — the arithmetic-intensity analysis.
+- Touvron et al., [*LLaMA 2*](https://arxiv.org/abs/2307.09288) (2023); Grattafiori et al., [*The Llama 3 Herd of Models*](https://arxiv.org/abs/2407.21783) (2024) — unusually detailed.
+- Chowdhery et al., [*PaLM*](https://arxiv.org/abs/2204.02311) (2022) — thorough on architecture and training infrastructure.
+- Kwon et al., [*Efficient Memory Management for LLM Serving with PagedAttention*](https://arxiv.org/abs/2309.06180) (vLLM, 2023).
+- Zhou et al., [*LIMA: Less Is More for Alignment*](https://arxiv.org/abs/2305.11206) (2023).
+- Pope et al., [*Efficiently Scaling Transformer Inference*](https://arxiv.org/abs/2211.05102) (2022) — the arithmetic-intensity analysis.
 
 **Next** → [Pretraining](02-pretraining.md)

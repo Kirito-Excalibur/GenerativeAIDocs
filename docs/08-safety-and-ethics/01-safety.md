@@ -320,15 +320,15 @@ What actually reduces harm in a deployed system, in priority order:
 
 ## Further reading
 
-- Ji et al., *Survey of Hallucination in Natural Language Generation* (2022).
-- Kalai & Vempala, *Calibrated Language Models Must Hallucinate* (2024).
-- Sharma et al., *Towards Understanding Sycophancy in Language Models* (2023).
-- Wei, Haghtalab & Steinhardt, *Jailbroken: How Does LLM Safety Training Fail?* (2023).
-- Anil et al., *Many-shot Jailbreaking* (2024); Zou et al., *Universal and Transferable Adversarial Attacks* (GCG, 2023).
+- Ji et al., [*Survey of Hallucination in Natural Language Generation*](https://arxiv.org/abs/2202.03629) (2022).
+- Kalai & Vempala, [*Calibrated Language Models Must Hallucinate*](https://arxiv.org/abs/2311.14648) (2024).
+- Sharma et al., [*Towards Understanding Sycophancy in Language Models*](https://arxiv.org/abs/2310.13548) (2023).
+- Wei, Haghtalab & Steinhardt, [*Jailbroken: How Does LLM Safety Training Fail?*](https://arxiv.org/abs/2307.02483) (2023).
+- Anil et al., *Many-shot Jailbreaking* (2024); Zou et al., [*Universal and Transferable Adversarial Attacks*](https://arxiv.org/abs/2307.15043) (GCG, 2023).
 - Turpin et al., *Language Models Don't Always Say What They Think* (2023).
-- Olsson et al., *In-context Learning and Induction Heads* (2022).
-- Templeton et al., *Scaling Monosemanticity* (2024); Elhage et al., *Toy Models of Superposition* (2022).
-- Carlini et al., *Quantifying Memorization Across Neural Language Models* (2022).
-- Gao, Schulman & Hilton, *Scaling Laws for Reward Model Overoptimization* (2022).
+- Olsson et al., [*In-context Learning and Induction Heads*](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) (2022).
+- Templeton et al., [*Scaling Monosemanticity*](https://transformer-circuits.pub/2024/scaling-monosemanticity/) (2024); Elhage et al., [*Toy Models of Superposition*](https://transformer-circuits.pub/2022/toy_model/index.html) (2022).
+- Carlini et al., [*Quantifying Memorization Across Neural Language Models*](https://arxiv.org/abs/2202.07646) (2022).
+- Gao, Schulman & Hilton, [*Scaling Laws for Reward Model Overoptimization*](https://arxiv.org/abs/2210.10760) (2022).
 
 **Next** → [Security](02-security.md)

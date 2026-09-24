@@ -402,11 +402,11 @@ Read this table alongside $N \approx 12Ld^2$:
 
 ## Further reading
 
-- Vaswani et al., *Attention Is All You Need* (2017).
+- Vaswani et al., [*Attention Is All You Need*](https://arxiv.org/abs/1706.03762) (2017).
 - Radford et al., *Language Models are Unsupervised Multitask Learners* (GPT-2, 2019).
-- Touvron et al., *LLaMA* (2023) and *LLaMA 2* (2023) — the modern reference architecture.
-- Xiong et al., *On Layer Normalization in the Transformer Architecture* (2020).
-- Elhage et al., *A Mathematical Framework for Transformer Circuits* (2021) — the residual stream view.
-- Karpathy, *Let's build GPT: from scratch, in code, spelled out* — the best video walkthrough.
+- Touvron et al., [*LLaMA*](https://arxiv.org/abs/2302.13971) (2023) and [*LLaMA 2*](https://arxiv.org/abs/2307.09288) (2023) — the modern reference architecture.
+- Xiong et al., [*On Layer Normalization in the Transformer Architecture*](https://arxiv.org/abs/2002.04745) (2020).
+- Elhage et al., [*A Mathematical Framework for Transformer Circuits*](https://transformer-circuits.pub/2021/framework/index.html) (2021) — the residual stream view.
+- Karpathy, [*Let's build GPT: from scratch, in code, spelled out*](https://github.com/karpathy/nanoGPT) — the best video walkthrough.
 
 **Next** → [Positional encoding](05-positional-encoding.md)

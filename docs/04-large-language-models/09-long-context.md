@@ -322,12 +322,12 @@ degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.
 
 ## Further reading
 
-- Dao et al., *FlashAttention* (2022); Liu et al., *Ring Attention with Blockwise Transformers* (2023).
-- Beltagy et al., *Longformer* (2020); Jiang et al., *Mistral 7B* (2023) — sliding window in practice.
-- Gu & Dao, *Mamba* (2023); Lieber et al., *Jamba* (2024).
-- Peng et al., *YaRN* (2023); Chen et al., *Position Interpolation* (2023).
-- Liu et al., *Lost in the Middle* (2023).
-- Hsieh et al., *RULER: What's the Real Context Size of Your Long-Context Language Models?* (2024).
-- Xiao et al., *Efficient Streaming Language Models with Attention Sinks* (2023).
+- Dao et al., [*FlashAttention*](https://arxiv.org/abs/2307.08691) (2022); Liu et al., [*Ring Attention with Blockwise Transformers*](https://arxiv.org/abs/2310.01889) (2023).
+- Beltagy et al., [*Longformer*](https://arxiv.org/abs/2004.05150) (2020); Jiang et al., [*Mistral 7B*](https://arxiv.org/abs/2310.06825) (2023) — sliding window in practice.
+- Gu & Dao, [*Mamba*](https://arxiv.org/abs/2312.00752) (2023); Lieber et al., [*Jamba*](https://arxiv.org/abs/2403.19887) (2024).
+- Peng et al., [*YaRN*](https://arxiv.org/abs/2309.00071) (2023); Chen et al., [*Position Interpolation*](https://arxiv.org/abs/2306.15595) (2023).
+- Liu et al., [*Lost in the Middle*](https://arxiv.org/abs/2307.03172) (2023).
+- Hsieh et al., [*RULER: What's the Real Context Size of Your Long-Context Language Models?*](https://arxiv.org/abs/2404.06654) (2024).
+- Xiao et al., [*Efficient Streaming Language Models with Attention Sinks*](https://arxiv.org/abs/2309.17453) (2023).
 
 **Next** → [Reasoning & test-time compute](10-reasoning.md)

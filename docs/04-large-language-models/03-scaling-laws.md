@@ -304,12 +304,12 @@ $100M commitment defensible.
 
 ## Further reading
 
-- Kaplan et al., *Scaling Laws for Neural Language Models* (2020).
-- Hoffmann et al., *Training Compute-Optimal Large Language Models* (Chinchilla, 2022).
-- Henighan et al., *Scaling Laws for Autoregressive Generative Modeling* (2020) — multimodal.
-- Muennighoff et al., *Scaling Data-Constrained Language Models* (2023).
-- Sardana et al., *Beyond Chinchilla-Optimal: Accounting for Inference in Language Model Scaling Laws* (2023).
-- Snell et al., *Scaling LLM Test-Time Compute Optimally* (2024).
-- Besiroglu et al., *Chinchilla Scaling: A Replication Attempt* (2024) — a careful re-analysis of the fit.
+- Kaplan et al., [*Scaling Laws for Neural Language Models*](https://arxiv.org/abs/2001.08361) (2020).
+- Hoffmann et al., [*Training Compute-Optimal Large Language Models*](https://arxiv.org/abs/2203.15556) (Chinchilla, 2022).
+- Henighan et al., [*Scaling Laws for Autoregressive Generative Modeling*](https://arxiv.org/abs/2010.14701) (2020) — multimodal.
+- Muennighoff et al., [*Scaling Data-Constrained Language Models*](https://arxiv.org/abs/2305.16264) (2023).
+- Sardana et al., [*Beyond Chinchilla-Optimal: Accounting for Inference in Language Model Scaling Laws*](https://arxiv.org/abs/2401.00448) (2023).
+- Snell et al., [*Scaling LLM Test-Time Compute Optimally*](https://arxiv.org/abs/2408.03314) (2024).
+- Besiroglu et al., [*Chinchilla Scaling: A Replication Attempt*](https://arxiv.org/abs/2404.10102) (2024) — a careful re-analysis of the fit.
 
 **Next** → [Fine-tuning & PEFT](04-finetuning-peft.md)

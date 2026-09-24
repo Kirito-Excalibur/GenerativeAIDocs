@@ -352,11 +352,11 @@ Diffusion won on quality **and** coverage **and** training stability. GANs retai
 
 ## Further reading
 
-- Goodfellow et al., *Generative Adversarial Networks* (2014).
-- Arjovsky et al., *Wasserstein GAN* (2017) and Gulrajani et al., *Improved Training of WGANs* (2017).
-- Miyato et al., *Spectral Normalization for GANs* (2018).
-- Karras et al., *A Style-Based Generator Architecture* (StyleGAN, 2018) and *Analyzing and Improving StyleGAN* (2019).
-- Dhariwal & Nichol, *Diffusion Models Beat GANs on Image Synthesis* (2021).
-- Sauer et al., *Adversarial Diffusion Distillation* (2023) — GANs' second life.
+- Goodfellow et al., [*Generative Adversarial Networks*](https://arxiv.org/abs/1406.2661) (2014).
+- Arjovsky et al., [*Wasserstein GAN*](https://arxiv.org/abs/1701.07875) (2017) and Gulrajani et al., [*Improved Training of WGANs*](https://arxiv.org/abs/1704.00028) (2017).
+- Miyato et al., [*Spectral Normalization for GANs*](https://arxiv.org/abs/1802.05957) (2018).
+- Karras et al., [*A Style-Based Generator Architecture*](https://arxiv.org/abs/1812.04948) (StyleGAN, 2018) and [*Analyzing and Improving StyleGAN*](https://arxiv.org/abs/1912.04958) (2019).
+- Dhariwal & Nichol, [*Diffusion Models Beat GANs on Image Synthesis*](https://arxiv.org/abs/2105.05233) (2021).
+- Sauer et al., [*Adversarial Diffusion Distillation*](https://arxiv.org/abs/2311.17042) (2023) — GANs' second life.
 
 **Next** → [Normalizing flows](04-normalizing-flows.md)

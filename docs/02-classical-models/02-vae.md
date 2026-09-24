@@ -388,11 +388,11 @@ have posterior collapse. If it is near the reconstruction loss, $\beta$ is too l
 
 ## Further reading
 
-- Kingma & Welling, *Auto-Encoding Variational Bayes* (2013) — the original.
-- Kingma & Welling, *An Introduction to Variational Autoencoders* (2019) — the better tutorial.
-- van den Oord et al., *Neural Discrete Representation Learning* (VQ-VAE, 2017).
-- Esser et al., *Taming Transformers for High-Resolution Image Synthesis* (VQGAN, 2020).
-- Higgins et al., *β-VAE* (2017); Locatello et al., *Challenging Common Assumptions…* (2019) — read both.
-- Alemi et al., *Fixing a Broken ELBO* (2018) — the rate–distortion view.
+- Kingma & Welling, [*Auto-Encoding Variational Bayes*](https://arxiv.org/abs/1312.6114) (2013) — the original.
+- Kingma & Welling, [*An Introduction to Variational Autoencoders*](https://arxiv.org/abs/1906.02691) (2019) — the better tutorial.
+- van den Oord et al., [*Neural Discrete Representation Learning*](https://arxiv.org/abs/1711.00937) (VQ-VAE, 2017).
+- Esser et al., [*Taming Transformers for High-Resolution Image Synthesis*](https://arxiv.org/abs/2012.09841) (VQGAN, 2020).
+- Higgins et al., *β-VAE* (2017); Locatello et al., [*Challenging Common Assumptions…*](https://arxiv.org/abs/1811.12359) (2019) — read both.
+- Alemi et al., [*Fixing a Broken ELBO*](https://arxiv.org/abs/1711.00464) (2018) — the rate–distortion view.
 
 **Next** → [Generative adversarial networks](03-gan.md)

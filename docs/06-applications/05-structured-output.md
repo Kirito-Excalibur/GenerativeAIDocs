@@ -287,10 +287,10 @@ without any special inference support.
 
 ## Further reading
 
-- Willard & Louf, *Efficient Guided Generation for Large Language Models* (Outlines, 2023).
-- Dong et al., *XGrammar: Flexible and Efficient Structured Generation* (2024).
-- Geng et al., *Grammar-Constrained Decoding for Structured NLP Tasks* (2023).
-- Tam et al., *Let Me Speak Freely? A Study on the Impact of Format Restrictions on LLM Performance* (2024) — the quality trade-off, measured.
+- Willard & Louf, [*Efficient Guided Generation for Large Language Models*](https://arxiv.org/abs/2307.09702) (Outlines, 2023).
+- Dong et al., [*XGrammar: Flexible and Efficient Structured Generation*](https://arxiv.org/abs/2411.15100) (2024).
+- Geng et al., [*Grammar-Constrained Decoding for Structured NLP Tasks*](https://arxiv.org/abs/2305.13971) (2023).
+- Tam et al., [*Let Me Speak Freely? A Study on the Impact of Format Restrictions on LLM Performance*](https://arxiv.org/abs/2408.02442) (2024) — the quality trade-off, measured.
 - The JSON Schema specification — `json-schema.org`.
 
 **Next** → Part VII: [Evaluation metrics](../07-evaluation/01-metrics.md)

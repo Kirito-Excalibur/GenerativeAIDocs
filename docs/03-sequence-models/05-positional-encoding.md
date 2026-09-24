@@ -347,12 +347,12 @@ For images and video, position is not a scalar.
 
 ## Further reading
 
-- Vaswani et al., *Attention Is All You Need* (2017), §3.5 — sinusoidal encoding.
-- Shaw et al., *Self-Attention with Relative Position Representations* (2018).
-- Press et al., *Train Short, Test Long: Attention with Linear Biases* (ALiBi, 2021).
-- Su et al., *RoFormer: Enhanced Transformer with Rotary Position Embedding* (2021).
-- Chen et al., *Extending Context Window of LLMs via Position Interpolation* (2023).
-- Peng et al., *YaRN: Efficient Context Window Extension of Large Language Models* (2023).
-- Kazemnejad et al., *The Impact of Positional Encoding on Length Generalization* (2023) — the NoPE result.
+- Vaswani et al., [*Attention Is All You Need*](https://arxiv.org/abs/1706.03762) (2017), §3.5 — sinusoidal encoding.
+- Shaw et al., [*Self-Attention with Relative Position Representations*](https://arxiv.org/abs/1803.02155) (2018).
+- Press et al., [*Train Short, Test Long: Attention with Linear Biases*](https://arxiv.org/abs/2108.12409) (ALiBi, 2021).
+- Su et al., [*RoFormer: Enhanced Transformer with Rotary Position Embedding*](https://arxiv.org/abs/2104.09864) (2021).
+- Chen et al., [*Extending Context Window of LLMs via Position Interpolation*](https://arxiv.org/abs/2306.15595) (2023).
+- Peng et al., [*YaRN: Efficient Context Window Extension of Large Language Models*](https://arxiv.org/abs/2309.00071) (2023).
+- Kazemnejad et al., [*The Impact of Positional Encoding on Length Generalization*](https://arxiv.org/abs/2305.19466) (2023) — the NoPE result.
 
 **Next** → Part IV: [LLM architecture](../04-large-language-models/01-llm-architecture.md)

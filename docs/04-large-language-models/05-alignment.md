@@ -6,7 +6,7 @@
 > that eliminated the reward model — plus RLVR (RL on verifiable rewards), which is how reasoning
 > models are trained, and the well-documented failure modes of each.
 
-**Prerequisites**: → [Fine-tuning & PEFT](04-finetuning-peft.md) · **Next**: → [Inference & decoding](06-inference-and-decoding.md)
+**Prerequisites**: → [Fine-tuning & PEFT](04-finetuning-peft.md), → [Reinforcement learning basics](../01-foundations/07-reinforcement-learning.md) · **Next**: → [Inference & decoding](06-inference-and-decoding.md)
 
 ---
 
@@ -391,13 +391,13 @@ scales predictably with reward model size — a scaling law for reward over-opti
 
 ## Further reading
 
-- Ouyang et al., *Training Language Models to Follow Instructions with Human Feedback* (InstructGPT, 2022).
-- Rafailov et al., *Direct Preference Optimization* (2023) — read the derivation in the appendix.
-- Bai et al., *Constitutional AI: Harmlessness from AI Feedback* (2022).
-- Shao et al., *DeepSeekMath* (2024) — introduces GRPO.
-- DeepSeek-AI, *DeepSeek-R1* (2025) — pure RL producing emergent reasoning.
-- Gao, Schulman & Hilton, *Scaling Laws for Reward Model Overoptimization* (2022).
-- Sharma et al., *Towards Understanding Sycophancy in Language Models* (2023).
-- Casper et al., *Open Problems and Fundamental Limitations of RLHF* (2023) — the honest critique.
+- Ouyang et al., [*Training Language Models to Follow Instructions with Human Feedback*](https://arxiv.org/abs/2203.02155) (InstructGPT, 2022).
+- Rafailov et al., [*Direct Preference Optimization*](https://arxiv.org/abs/2403.19159) (2023) — read the derivation in the appendix.
+- Bai et al., [*Constitutional AI: Harmlessness from AI Feedback*](https://arxiv.org/abs/2212.08073) (2022).
+- Shao et al., [*DeepSeekMath*](https://arxiv.org/abs/2511.22570) (2024) — introduces GRPO.
+- DeepSeek-AI, [*DeepSeek-R1*](https://arxiv.org/abs/2501.12948) (2025) — pure RL producing emergent reasoning.
+- Gao, Schulman & Hilton, [*Scaling Laws for Reward Model Overoptimization*](https://arxiv.org/abs/2210.10760) (2022).
+- Sharma et al., [*Towards Understanding Sycophancy in Language Models*](https://arxiv.org/abs/2310.13548) (2023).
+- Casper et al., [*Open Problems and Fundamental Limitations of RLHF*](https://arxiv.org/abs/2307.15217) (2023) — the honest critique.
 
 **Next** → [Inference & decoding](06-inference-and-decoding.md)

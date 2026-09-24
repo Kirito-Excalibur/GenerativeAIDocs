@@ -338,11 +338,11 @@ total_loss = ce_loss + sum(m.aux_loss for m in model.modules() if isinstance(m, 
 
 ## Further reading
 
-- Shazeer et al., *Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer* (2017).
-- Fedus et al., *Switch Transformers* (2021) — top-1 routing at scale.
-- Jiang et al., *Mixtral of Experts* (2024) — including the expert-specialization analysis.
-- DeepSeek-AI, *DeepSeek-V3 Technical Report* (2024) — fine-grained experts, shared experts, loss-free balancing.
-- Zhou et al., *Mixture-of-Experts with Expert Choice Routing* (2022).
-- Gale et al., *MegaBlocks: Efficient Sparse Training with Mixture-of-Experts* (2022).
+- Shazeer et al., [*Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer*](https://arxiv.org/abs/1701.06538) (2017).
+- Fedus et al., [*Switch Transformers*](https://arxiv.org/abs/2101.03961) (2021) — top-1 routing at scale.
+- Jiang et al., [*Mixtral of Experts*](https://arxiv.org/abs/2401.04088) (2024) — including the expert-specialization analysis.
+- DeepSeek-AI, [*DeepSeek-V3 Technical Report*](https://arxiv.org/abs/2412.19437) (2024) — fine-grained experts, shared experts, loss-free balancing.
+- Zhou et al., [*Mixture-of-Experts with Expert Choice Routing*](https://arxiv.org/abs/2202.09368) (2022).
+- Gale et al., [*MegaBlocks: Efficient Sparse Training with Mixture-of-Experts*](https://arxiv.org/abs/2211.15841) (2022).
 
 **Next** → [Long context](09-long-context.md)

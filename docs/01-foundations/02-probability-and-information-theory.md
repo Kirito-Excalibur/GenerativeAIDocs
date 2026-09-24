@@ -421,7 +421,7 @@ discrete latents need special handling (→ Gumbel-softmax, straight-through, VQ
 
 - Cover & Thomas, *Elements of Information Theory*, ch. 2 — the canonical treatment.
 - MacKay, *Information Theory, Inference, and Learning Algorithms* — free online, unusually intuitive.
-- Kingma & Welling, *An Introduction to Variational Autoencoders* (2019) — the ELBO done properly.
-- Blei, Kucukelbir & McAuliffe, *Variational Inference: A Review for Statisticians* (2017).
+- Kingma & Welling, [*An Introduction to Variational Autoencoders*](https://arxiv.org/abs/1906.02691) (2019) — the ELBO done properly.
+- Blei, Kucukelbir & McAuliffe, [*Variational Inference: A Review for Statisticians*](https://arxiv.org/abs/1601.00670) (2017).
 
 **Next** → [Math toolkit](03-math-toolkit.md)

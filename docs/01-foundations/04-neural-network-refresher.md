@@ -330,10 +330,10 @@ for name, p in model.named_parameters():
 
 ## Further reading
 
-- Goodfellow, Bengio & Courville, *Deep Learning*, ch. 6–8.
-- He et al., *Deep Residual Learning* (2015); Veit et al., *Residual Networks Behave Like Ensembles* (2016).
-- Xiong et al., *On Layer Normalization in the Transformer Architecture* (2020) — the pre/post-norm analysis.
-- Shazeer, *GLU Variants Improve Transformer* (2020).
-- Zhang & Sennrich, *Root Mean Square Layer Normalization* (2019).
+- Goodfellow, Bengio & Courville, [*Deep Learning*](https://arxiv.org/abs/1607.00133), ch. 6–8.
+- He et al., [*Deep Residual Learning*](https://arxiv.org/abs/1512.03385) (2015); Veit et al., [*Residual Networks Behave Like Ensembles*](https://arxiv.org/abs/1605.06431) (2016).
+- Xiong et al., [*On Layer Normalization in the Transformer Architecture*](https://arxiv.org/abs/2002.04745) (2020) — the pre/post-norm analysis.
+- Shazeer, [*GLU Variants Improve Transformer*](https://arxiv.org/abs/2002.05202) (2020).
+- Zhang & Sennrich, [*Root Mean Square Layer Normalization*](https://arxiv.org/abs/1910.07467) (2019).
 
 **Next** → [Optimization & training dynamics](05-optimization.md)

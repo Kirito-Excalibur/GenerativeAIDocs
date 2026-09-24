@@ -318,11 +318,11 @@ page next if you care about modern image generation.
 
 ## Further reading
 
-- Dinh et al., *Density Estimation using Real NVP* (2016).
-- Kingma & Dhariwal, *Glow* (2018).
-- Papamakarios et al., *Normalizing Flows for Probabilistic Modeling and Inference* (2021) — the definitive survey.
-- Chen et al., *Neural Ordinary Differential Equations* (2018); Grathwohl et al., *FFJORD* (2018).
+- Dinh et al., [*Density Estimation using Real NVP*](https://arxiv.org/abs/1605.08803) (2016).
+- Kingma & Dhariwal, [*Glow*](https://arxiv.org/abs/1807.03039) (2018).
+- Papamakarios et al., [*Normalizing Flows for Probabilistic Modeling and Inference*](https://arxiv.org/abs/1912.02762) (2021) — the definitive survey.
+- Chen et al., [*Neural Ordinary Differential Equations*](https://arxiv.org/abs/1806.07366) (2018); Grathwohl et al., [*FFJORD*](https://arxiv.org/abs/1810.01367) (2018).
 - Nalisnick et al., *Do Deep Generative Models Know What They Don't Know?* (2018).
-- Lipman et al., *Flow Matching for Generative Modeling* (2023).
+- Lipman et al., [*Flow Matching for Generative Modeling*](https://arxiv.org/abs/2210.02747) (2023).
 
 **Next** → [Energy-based models](05-energy-based-models.md)

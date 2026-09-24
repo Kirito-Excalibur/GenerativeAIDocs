@@ -5,7 +5,7 @@
 > comparison table, the deep connections between families (diffusion ⊂ hierarchical VAE ⊂ …), and
 > a decision guide for picking a model for a new problem.
 
-**Prerequisites**: → [Probability & information theory](02-probability-and-information-theory.md) · **Next**: Part II → [Autoregressive models](../02-classical-models/01-autoregressive-models.md)
+**Prerequisites**: → [Probability & information theory](02-probability-and-information-theory.md) · **Next**: → [Reinforcement learning basics](07-reinforcement-learning.md)
 
 ---
 
@@ -266,9 +266,9 @@ START: what do you need?
 ## Further reading
 
 - Bond-Taylor et al., *Deep Generative Modelling: A Comparative Review* (2021) — the best survey.
-- Luo, *Understanding Diffusion Models: A Unified Perspective* (2022) — the VAE↔diffusion bridge, done carefully.
-- Song et al., *Score-Based Generative Modeling through SDEs* (2021) — the unification.
-- Lipman et al., *Flow Matching for Generative Modeling* (2023).
+- Luo, [*Understanding Diffusion Models: A Unified Perspective*](https://arxiv.org/abs/2208.11970) (2022) — the VAE↔diffusion bridge, done carefully.
+- Song et al., [*Score-Based Generative Modeling through SDEs*](https://arxiv.org/abs/2011.13456) (2021) — the unification.
+- Lipman et al., [*Flow Matching for Generative Modeling*](https://arxiv.org/abs/2210.02747) (2023).
 - Tomczak, *Deep Generative Modeling* (Springer, 2nd ed. 2024) — textbook coverage of all families.
 
-**Next** → Part II: [Autoregressive models](../02-classical-models/01-autoregressive-models.md)
+**Next** → [Reinforcement learning basics](07-reinforcement-learning.md)

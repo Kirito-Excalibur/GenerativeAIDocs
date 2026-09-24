@@ -312,12 +312,12 @@ class FlowMatching:
 
 ## Further reading
 
-- Lipman et al., *Flow Matching for Generative Modeling* (2023) — the foundational paper.
-- Liu, Gong & Liu, *Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow* (2022).
-- Albergo & Vanden-Eijnden, *Building Normalizing Flows with Stochastic Interpolants* (2023) — the same idea, developed independently.
-- Esser et al., *Scaling Rectified Flow Transformers for High-Resolution Image Synthesis* (SD3, 2024) — the practical details.
-- Tong et al., *Improving and Generalizing Flow-Based Generative Models* (2023) — optimal-transport couplings.
-- Chen & Lipman, *Flow Matching on General Geometries* (2024) — the manifold extension.
-- Lipman et al., *Flow Matching Guide and Code* (2024) — an unusually good tutorial with reference implementations.
+- Lipman et al., [*Flow Matching for Generative Modeling*](https://arxiv.org/abs/2210.02747) (2023) — the foundational paper.
+- Liu, Gong & Liu, [*Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow*](https://arxiv.org/abs/2209.03003) (2022).
+- Albergo & Vanden-Eijnden, [*Building Normalizing Flows with Stochastic Interpolants*](https://arxiv.org/abs/2209.15571) (2023) — the same idea, developed independently.
+- Esser et al., [*Scaling Rectified Flow Transformers for High-Resolution Image Synthesis*](https://arxiv.org/abs/2403.03206) (SD3, 2024) — the practical details.
+- Tong et al., [*Improving and Generalizing Flow-Based Generative Models*](https://arxiv.org/abs/2302.00482) (2023) — optimal-transport couplings.
+- Chen & Lipman, [*Flow Matching on General Geometries*](https://arxiv.org/abs/2302.03660) (2024) — the manifold extension.
+- Lipman et al., [*Flow Matching Guide and Code*](https://arxiv.org/abs/2412.06264) (2024) — an unusually good tutorial with reference implementations.
 
 **Next** → [Vision & multimodal models](05-multimodal.md)

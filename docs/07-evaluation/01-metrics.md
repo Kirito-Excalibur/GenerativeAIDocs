@@ -411,13 +411,13 @@ A practical structure:
 
 ## Further reading
 
-- Papineni et al., *BLEU* (2002); Lin, *ROUGE* (2004) — read them to see what they actually claim.
-- Zhang et al., *BERTScore* (2019); Rei et al., *COMET* (2020).
-- Heusel et al., *GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium* (FID, 2017).
-- Kynkäänniemi et al., *Improved Precision and Recall Metric for Assessing Generative Models* (2019).
-- Zheng et al., *Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena* (2023).
-- Chen et al., *Evaluating Large Language Models Trained on Code* (2021) — the pass@k estimator.
-- Guo et al., *On Calibration of Modern Neural Networks* (2017).
-- Chaganty et al., *The Price of Debiasing Automatic Metrics* (2018).
+- Papineni et al., [*BLEU*](https://aclanthology.org/P02-1040/) (2002); Lin, *ROUGE* (2004) — read them to see what they actually claim.
+- Zhang et al., [*BERTScore*](https://arxiv.org/abs/1904.09675) (2019); Rei et al., [*COMET*](https://arxiv.org/abs/2009.09025) (2020).
+- Heusel et al., [*GANs Trained by a Two Time-Scale Update Rule Converge to a Local Nash Equilibrium*](https://arxiv.org/abs/1706.08500) (FID, 2017).
+- Kynkäänniemi et al., [*Improved Precision and Recall Metric for Assessing Generative Models*](https://arxiv.org/abs/1904.06991) (2019).
+- Zheng et al., [*Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena*](https://arxiv.org/abs/2306.05685) (2023).
+- Chen et al., [*Evaluating Large Language Models Trained on Code*](https://arxiv.org/abs/2107.03374) (2021) — the pass@k estimator.
+- Guo et al., [*On Calibration of Modern Neural Networks*](https://arxiv.org/abs/1706.04599) (2017).
+- Chaganty et al., [*The Price of Debiasing Automatic Metrics*](https://arxiv.org/abs/1807.02202) (2018).
 
 **Next** → [Benchmarks](02-benchmarks.md)

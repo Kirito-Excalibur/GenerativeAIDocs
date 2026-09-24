@@ -314,12 +314,12 @@ def karras_sigmas(n, sigma_min=0.03, sigma_max=14.6, rho=7.0):
 
 ## Further reading
 
-- Song & Ermon, *Generative Modeling by Estimating Gradients of the Data Distribution* (2019).
-- Song et al., *Score-Based Generative Modeling through Stochastic Differential Equations* (2021) — the unification.
-- Song et al., *Denoising Diffusion Implicit Models* (DDIM, 2020).
-- Karras et al., *Elucidating the Design Space of Diffusion-Based Generative Models* (EDM, 2022) — the best systematic study.
-- Lu et al., *DPM-Solver++* (2022).
-- Song et al., *Consistency Models* (2023).
+- Song & Ermon, [*Generative Modeling by Estimating Gradients of the Data Distribution*](https://arxiv.org/abs/1907.05600) (2019).
+- Song et al., [*Score-Based Generative Modeling through Stochastic Differential Equations*](https://arxiv.org/abs/2011.13456) (2021) — the unification.
+- Song et al., [*Denoising Diffusion Implicit Models*](https://arxiv.org/abs/2010.02502) (DDIM, 2020).
+- Karras et al., [*Elucidating the Design Space of Diffusion-Based Generative Models*](https://arxiv.org/abs/2206.00364) (EDM, 2022) — the best systematic study.
+- Lu et al., [*DPM-Solver++*](https://arxiv.org/abs/2211.01095) (2022).
+- Song et al., [*Consistency Models*](https://arxiv.org/abs/2303.01469) (2023).
 - Anderson, *Reverse-time diffusion equation models* (1982) — the 40-year-old theorem it all rests on.
 
 **Next** → [Latent diffusion & conditioning](03-latent-diffusion.md)

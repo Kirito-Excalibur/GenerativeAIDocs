@@ -85,6 +85,7 @@ nav:
       - Neural Networks Refresher: 01-foundations/04-neural-network-refresher.md
       - Optimization: 01-foundations/05-optimization.md
       - Taxonomy: 01-foundations/06-taxonomy.md
+      - Reinforcement Learning Basics: 01-foundations/07-reinforcement-learning.md
   - II · Classical Models:
       - Autoregressive Models: 02-classical-models/01-autoregressive-models.md
       - Variational Autoencoders: 02-classical-models/02-vae.md
@@ -108,12 +109,14 @@ nav:
       - Mixture of Experts: 04-large-language-models/08-mixture-of-experts.md
       - Long Context: 04-large-language-models/09-long-context.md
       - Reasoning: 04-large-language-models/10-reasoning.md
+      - Diffusion Language Models: 04-large-language-models/11-diffusion-language-models.md
   - V · Diffusion & Vision:
       - Diffusion Models: 05-diffusion-and-vision/01-diffusion-models.md
       - Score-Based Models & SDEs: 05-diffusion-and-vision/02-score-based-models.md
       - Latent Diffusion: 05-diffusion-and-vision/03-latent-diffusion.md
       - Flow Matching: 05-diffusion-and-vision/04-flow-matching.md
       - Vision & Multimodal: 05-diffusion-and-vision/05-multimodal.md
+      - Audio & Speech Generation: 05-diffusion-and-vision/06-audio-and-speech.md
   - VI · Applications:
       - Prompt Engineering: 06-applications/01-prompt-engineering.md
       - Embeddings & Vector Search: 06-applications/02-embeddings-and-vector-search.md

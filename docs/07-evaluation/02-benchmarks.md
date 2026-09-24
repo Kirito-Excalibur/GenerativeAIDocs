@@ -296,13 +296,13 @@ def run_eval(system, cases, scorer, n_repeats=3):
 
 ## Further reading
 
-- Hendrycks et al., *Measuring Massive Multitask Language Understanding* (MMLU, 2020).
-- Rein et al., *GPQA: A Graduate-Level Google-Proof Q&A Benchmark* (2023).
-- Jimenez et al., *SWE-bench* (2023); Jain et al., *LiveCodeBench* (2024).
-- Zhang et al., *A Careful Examination of Large Language Model Performance on Grade School Arithmetic* (GSM1k, 2024).
-- Chiang et al., *Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference* (2024).
-- Liang et al., *Holistic Evaluation of Language Models* (HELM, 2022) — the most thorough evaluation framework.
-- Chollet, *On the Measure of Intelligence* (2019) — the ARC motivation.
-- Alzahrani et al., *When Benchmarks are Targets* (2024) — how fragile leaderboard rankings are.
+- Hendrycks et al., [*Measuring Massive Multitask Language Understanding*](https://arxiv.org/abs/2009.03300) (MMLU, 2020).
+- Rein et al., [*GPQA: A Graduate-Level Google-Proof Q&A Benchmark*](https://arxiv.org/abs/2311.12022) (2023).
+- Jimenez et al., [*SWE-bench*](https://arxiv.org/abs/2310.06770) (2023); Jain et al., [*LiveCodeBench*](https://arxiv.org/abs/2403.07974) (2024).
+- Zhang et al., [*A Careful Examination of Large Language Model Performance on Grade School Arithmetic*](https://arxiv.org/abs/2405.00332) (GSM1k, 2024).
+- Chiang et al., [*Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference*](https://arxiv.org/abs/2403.04132) (2024).
+- Liang et al., [*Holistic Evaluation of Language Models*](https://arxiv.org/abs/2211.09110) (HELM, 2022) — the most thorough evaluation framework.
+- Chollet, [*On the Measure of Intelligence*](https://arxiv.org/abs/1911.01547) (2019) — the ARC motivation.
+- Alzahrani et al., [*When Benchmarks are Targets*](https://arxiv.org/abs/2402.01781) (2024) — how fragile leaderboard rankings are.
 
 **Next** → Part VIII: [Alignment & safety](../08-safety-and-ethics/01-safety.md)

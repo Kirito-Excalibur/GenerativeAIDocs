@@ -374,10 +374,10 @@ Sensible defaults for a decoder-only LM. Start here, then tune the LR.
 
 ## Further reading
 
-- Kingma & Ba, *Adam* (2014); Loshchilov & Hutter, *Decoupled Weight Decay Regularization* (2017).
-- McCandlish et al., *An Empirical Model of Large-Batch Training* (2018) — the critical batch size.
-- Yang et al., *Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer* (2022) — μP.
-- Chowdhery et al., *PaLM* (2022), §5 — an honest account of training instabilities.
-- Hu et al., *MiniCPM* (2024) — the WSD schedule.
+- Kingma & Ba, [*Adam*](https://arxiv.org/abs/1412.6980) (2014); Loshchilov & Hutter, [*Decoupled Weight Decay Regularization*](https://arxiv.org/abs/1711.05101) (2017).
+- McCandlish et al., [*An Empirical Model of Large-Batch Training*](https://arxiv.org/abs/1812.06162) (2018) — the critical batch size.
+- Yang et al., [*Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer*](https://arxiv.org/abs/2203.03466) (2022) — μP.
+- Chowdhery et al., [*PaLM*](https://arxiv.org/abs/2204.02311) (2022), §5 — an honest account of training instabilities.
+- Hu et al., [*MiniCPM*](https://arxiv.org/abs/2404.06395) (2024) — the WSD schedule.
 
 **Next** → [Taxonomy of generative models](06-taxonomy.md)

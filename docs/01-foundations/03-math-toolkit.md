@@ -303,6 +303,6 @@ gradient checkpointing, 8-bit optimizers and LoRA.
 - Petersen & Pedersen, *The Matrix Cookbook* — the lookup table for matrix calculus.
 - Strang, *Linear Algebra and Learning from Data* (2019).
 - Vershynin, *High-Dimensional Probability* (2018) — concentration and the thin-shell phenomenon.
-- Micikevicius et al., *Mixed Precision Training* (2017).
+- Micikevicius et al., [*Mixed Precision Training*](https://arxiv.org/abs/1710.03740) (2017).
 
 **Next** → [Neural networks refresher](04-neural-network-refresher.md)

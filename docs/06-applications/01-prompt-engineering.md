@@ -328,12 +328,12 @@ Since prompts are just text, they can be optimized:
 
 ## Further reading
 
-- Brown et al., *Language Models are Few-Shot Learners* (2020) — in-context learning.
-- Min et al., *Rethinking the Role of Demonstrations* (2022) — the label-randomization result.
-- Wei et al., *Chain-of-Thought Prompting* (2022); Kojima et al., *Zero-shot CoT* (2022).
-- Zhou et al., *Large Language Models Are Human-Level Prompt Engineers* (APE, 2022).
-- Khattab et al., *DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines* (2023).
-- Yang et al., *Large Language Models as Optimizers* (OPRO, 2023).
-- Sclar et al., *Quantifying Language Models' Sensitivity to Spurious Features in Prompt Design* (2023).
+- Brown et al., [*Language Models are Few-Shot Learners*](https://arxiv.org/abs/2005.14165) (2020) — in-context learning.
+- Min et al., [*Rethinking the Role of Demonstrations*](https://arxiv.org/abs/2202.12837) (2022) — the label-randomization result.
+- Wei et al., [*Chain-of-Thought Prompting*](https://arxiv.org/abs/2201.11903) (2022); Kojima et al., [*Zero-shot CoT*](https://arxiv.org/abs/2205.11916) (2022).
+- Zhou et al., [*Large Language Models Are Human-Level Prompt Engineers*](https://arxiv.org/abs/2211.01910) (APE, 2022).
+- Khattab et al., [*DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines*](https://arxiv.org/abs/2310.03714) (2023).
+- Yang et al., [*Large Language Models as Optimizers*](https://arxiv.org/abs/2309.03409) (OPRO, 2023).
+- Sclar et al., [*Quantifying Language Models' Sensitivity to Spurious Features in Prompt Design*](https://arxiv.org/abs/2310.11324) (2023).
 
 **Next** → [Embeddings & vector search](02-embeddings-and-vector-search.md)

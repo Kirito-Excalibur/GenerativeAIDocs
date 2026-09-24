@@ -342,9 +342,9 @@ This caps memory and compute at the price of never learning dependencies longer 
 
 - Hochreiter & Schmidhuber, *Long Short-Term Memory* (1997).
 - Bengio et al., *Learning Long-Term Dependencies with Gradient Descent is Difficult* (1994) — the vanishing gradient analysis.
-- Pascanu et al., *On the Difficulty of Training Recurrent Neural Networks* (2013) — clipping.
-- Olah, *Understanding LSTM Networks* (2015) — the clearest visual explanation ever written.
-- Greff et al., *LSTM: A Search Space Odyssey* (2017) — which components actually matter.
-- Gu & Dao, *Mamba: Linear-Time Sequence Modeling with Selective State Spaces* (2023).
+- Pascanu et al., [*On the Difficulty of Training Recurrent Neural Networks*](https://arxiv.org/abs/1211.5063) (2013) — clipping.
+- Olah, [*Understanding LSTM Networks*](https://colah.github.io/posts/2015-08-Understanding-LSTMs/) (2015) — the clearest visual explanation ever written.
+- Greff et al., [*LSTM: A Search Space Odyssey*](https://arxiv.org/abs/1503.04069) (2017) — which components actually matter.
+- Gu & Dao, [*Mamba: Linear-Time Sequence Modeling with Selective State Spaces*](https://arxiv.org/abs/2312.00752) (2023).
 
 **Next** → [Attention](03-attention.md)

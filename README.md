@@ -1,7 +1,7 @@
 # The Generative AI Wiki
 
 A reference on generative models for students of AI and ML: the math, the models, and how
-they are used in practice. 47 articles, each with intuition, derivations, worked examples and code.
+they are used in practice. 50 articles, each with intuition, derivations, worked examples and code.
 
 New here? Start with [What is generative AI?](docs/01-foundations/01-what-is-generative-ai.md), or follow the [study roadmap](docs/09-reference/05-roadmap.md).
 
@@ -86,6 +86,12 @@ The families differ in how they handle the likelihood. See [the taxonomy](docs/0
     - [How the families connect](docs/01-foundations/06-taxonomy.md#4-the-connections-this-is-where-understanding-clicks)
     - [Which model for which data](docs/01-foundations/06-taxonomy.md#5-why-each-modality-picked-what-it-picked)
     - [Decision guide](docs/01-foundations/06-taxonomy.md#6-decision-guide)
+- **Reinforcement learning**
+    - [Why supervised learning isn't enough](docs/01-foundations/07-reinforcement-learning.md#1-when-supervised-learning-isnt-enough)
+    - [The policy-gradient theorem](docs/01-foundations/07-reinforcement-learning.md#3-the-policy-gradient-theorem)
+    - [Baselines and variance](docs/01-foundations/07-reinforcement-learning.md#4-variance-and-why-baselines-fix-it)
+    - [PPO](docs/01-foundations/07-reinforcement-learning.md#6-ppo-small-safe-steps)
+    - [Text generation as RL](docs/01-foundations/07-reinforcement-learning.md#7-text-generation-as-an-rl-problem)
 
 </div>
 
@@ -215,6 +221,8 @@ The families differ in how they handle the likelihood. See [the taxonomy](docs/0
     - [Lost in the middle](docs/04-large-language-models/09-long-context.md#6-what-long-context-actually-delivers)
     - [Chain of thought](docs/04-large-language-models/10-reasoning.md#2-chain-of-thought-prompting)
     - [Test-time compute](docs/04-large-language-models/10-reasoning.md#3-scaling-test-time-compute)
+    - [Diffusion language models](docs/04-large-language-models/11-diffusion-language-models.md)
+    - [Masked diffusion vs autoregressive](docs/04-large-language-models/11-diffusion-language-models.md#6-where-they-stand)
 
 </div>
 
@@ -251,6 +259,10 @@ The families differ in how they handle the likelihood. See [the taxonomy](docs/0
     - [Vision-language models](docs/05-diffusion-and-vision/05-multimodal.md#3-vision-language-models-the-three-patterns)
     - [Video generation](docs/05-diffusion-and-vision/05-multimodal.md#4-video-generation)
     - [Audio generation](docs/05-diffusion-and-vision/05-multimodal.md#5-audio-generation)
+- **Audio & speech**
+    - [Neural audio codecs](docs/05-diffusion-and-vision/06-audio-and-speech.md#4-neural-audio-codecs-audio-as-tokens)
+    - [Text-to-speech architectures](docs/05-diffusion-and-vision/06-audio-and-speech.md#5-text-to-speech-architectures)
+    - [Music generation](docs/05-diffusion-and-vision/06-audio-and-speech.md#6-music-and-general-audio)
 
 </div>
 

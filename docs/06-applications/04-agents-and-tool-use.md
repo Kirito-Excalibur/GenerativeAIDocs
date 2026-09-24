@@ -401,10 +401,10 @@ class Agent:
 
 ## Further reading
 
-- Yao et al., *ReAct: Synergizing Reasoning and Acting in Language Models* (2022).
-- Schick et al., *Toolformer* (2023).
-- Shinn et al., *Reflexion: Language Agents with Verbal Reinforcement Learning* (2023).
-- Jimenez et al., *SWE-bench* (2023); Zhou et al., *WebArena* (2023); Yao et al., *τ-bench* (2024).
+- Yao et al., [*ReAct: Synergizing Reasoning and Acting in Language Models*](https://arxiv.org/abs/2210.03629) (2022).
+- Schick et al., [*Toolformer*](https://arxiv.org/abs/2302.04761) (2023).
+- Shinn et al., [*Reflexion: Language Agents with Verbal Reinforcement Learning*](https://arxiv.org/abs/2303.11366) (2023).
+- Jimenez et al., [*SWE-bench*](https://arxiv.org/abs/2310.06770) (2023); Zhou et al., [*WebArena*](https://arxiv.org/abs/2307.13854) (2023); Yao et al., [*τ-bench*](https://arxiv.org/abs/2406.12045) (2024).
 - Greshake et al., *Not What You've Signed Up For: Indirect Prompt Injection* (2023).
 - Willison, *The Lethal Trifecta* — private data + untrusted content + external communication.
 - Anthropic, *Building Effective Agents* (2024) — an unusually practical guide to when *not* to use agents.
