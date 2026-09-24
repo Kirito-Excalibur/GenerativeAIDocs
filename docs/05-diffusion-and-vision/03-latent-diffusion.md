@@ -92,6 +92,8 @@ labour matched to the structure of the problem.
 
 ## 2. Text conditioning via cross-attention
 
+Compressing pixels into a small latent space fixes *where* diffusion runs. It says nothing about *what* it generates — turning "denoise this latent" into "denoise this latent to match a text prompt" needs a separate mechanism for injecting the prompt at all.
+
 ```
    "a photo of an astronaut riding a horse"
                     │
@@ -133,6 +135,8 @@ labour matched to the structure of the problem.
 ---
 
 ## 3. Classifier-free guidance
+
+A better text encoder gives the model richer information to condition on. It doesn't force the model to actually *use* that conditioning strongly — and by default, diffusion models tend to under-weight the prompt relative to what they'd generate unconditionally.
 
 **Start from Bayes.** To sample from $p(x\mid c)$ instead of $p(x)$:
 
@@ -199,6 +203,8 @@ high $w$; *guidance intervals* apply CFG only in the middle timesteps, where it 
 
 ## 4. ControlNet and spatial conditioning
 
+CFG steers generation using nothing but a text prompt. Text is a coarse control, though — it can't specify an exact pose or a precise layout — and getting that level of spatial control needs conditioning on something richer than a caption.
+
 Text says *what*. ControlNet says *where*.
 
 ```
@@ -245,6 +251,8 @@ image's style or subject* via an image encoder + decoupled cross-attention).
 ---
 
 ## 5. Editing and inpainting
+
+ControlNet and its relatives condition a *new* generation on extra structure. A related but different problem is taking an *existing* image and changing only part of it — which needs a way to get back into the diffusion process partway through, on a real image rather than random noise.
 
 ### Inpainting: the no-training approach
 
@@ -302,6 +310,8 @@ Add noise to an existing image up to timestep $t_0 < T$, then denoise from there
 
 ## 6. Personalization
 
+Editing techniques change what an image *shows*, using a fixed model. A different goal is to change what the *model itself* knows — teaching it a specific subject, character or style it wasn't trained on, so every future generation can include it on request.
+
 | Method | Trains | Data needed | Output size |
 |---|---|---|---|
 | **Textual Inversion** | one new token embedding | 3–5 images | ~10 KB |
@@ -322,6 +332,8 @@ LoRA), and fast to train. The image-generation community's adapter ecosystem is 
 ---
 
 ## 7. Implementation
+
+Text conditioning, CFG, ControlNet, editing, personalization — all of it sits on top of the same core diffusion loop from → [Diffusion models](01-diffusion-models.md), just with extra inputs threaded through. Seeing the minimal version of that loop, latent space and all, ties every piece above back to working code.
 
 A complete text-to-image loop, showing every piece:
 

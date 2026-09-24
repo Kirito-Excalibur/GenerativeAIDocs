@@ -39,6 +39,8 @@ direction of increasing probability.
 
 ## 2. From score to samples: Langevin dynamics
 
+Knowing the score sidesteps $Z$ in theory. Actually turning a learned score into samples means running a specific stochastic process — Langevin dynamics — and that process has real, high-dimensional failure modes.
+
 $$x_{t+1} = x_t + \frac{\eta}{2}\,s_\theta(x_t) + \sqrt{\eta}\,z_t, \qquad z_t \sim \mathcal{N}(0,I)$$
 
 Gradient ascent on log-probability, plus noise. As $\eta\to0$, $t\to\infty$, the iterates converge
@@ -58,6 +60,8 @@ cross a low-density valley, which it does with probability $\propto e^{-\Delta}$
 ---
 
 ## 3. The fix: noise conditioning
+
+Both problems — the undefined score off the data manifold, and slow mode mixing — have the same root cause: $p_{\text{data}}$ is concentrated on a thin, disconnected manifold. The fix is to stop asking for the score of that sharp distribution directly, and instead learn it at many levels of blur.
 
 > [!TIP]
 > **Song & Ermon's insight (2019)**: perturb the data with noise at *many* scales. Large noise
@@ -92,6 +96,8 @@ No Hessian, no MCMC, no $Z$ — just regression onto scaled noise.
 
 ## 4. The equivalence with DDPM
 
+That training objective — regress onto scaled noise at every noise level — should look familiar. It's worth making the connection to → [Diffusion models](01-diffusion-models.md) explicit, because the two derivations turn out to be exactly the same algorithm.
+
 Two independently-developed methods turn out to be the same algorithm.
 
 In DDPM, $x_t = \sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon$, so
@@ -118,6 +124,8 @@ $$\boxed{\;s_\theta(x_t, t) = -\frac{\epsilon_\theta(x_t,t)}{\sqrt{1-\bar\alpha_
 ---
 
 ## 5. The continuous-time SDE view
+
+That equivalence is easiest to see by taking the discrete chain — DDPM's $T$ steps, or the score model's annealed noise levels — and letting the number of steps go to infinity. What falls out is a continuous-time stochastic differential equation, and it comes with a deterministic twin.
 
 Take $T\to\infty$ and the discrete chain becomes a stochastic differential equation:
 
@@ -187,6 +195,8 @@ trained with $T = 1000$, with no retraining.
 
 ## 6. Samplers: the practical menu
 
+DDIM is one specific way to discretize that ODE. It isn't the only one, and which solver you pick — along with how you space the noise levels — is most of what separates a slow diffusion sampler from a fast one.
+
 Steps needed for good quality on a standard latent diffusion model:
 
 | Sampler | Steps | Type | Notes |
@@ -227,6 +237,8 @@ Combined with a good solver it is worth several steps of budget for free.
 
 ## 7. Distillation to very few steps
 
+Better solvers and schedules get you from 1000 steps to 20–50 without retraining. Getting below that — to 4 steps, or 1 — requires actually retraining the model to skip most of the trajectory, which is what distillation methods do.
+
 | Method | Idea | Steps |
 |---|---|---|
 | **Progressive distillation** | student learns to take 2 teacher steps in 1; repeat $\log_2$ times | 1000 → 4 |
@@ -257,6 +269,8 @@ real-time image generation comes from.
 ---
 
 ## 8. Implementation
+
+All of this — the score, Langevin dynamics, the SDE/ODE view, fast samplers — is describable on paper without ever running code. A minimal implementation makes it concrete exactly where §4's DDPM-equivalence claim can be checked directly against working numbers.
 
 A DPM-Solver++(2M) sampler, which is what most production systems actually use:
 

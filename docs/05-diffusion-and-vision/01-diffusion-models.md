@@ -41,6 +41,8 @@
 
 ## 2. The forward process
 
+That approximation needs a precise notion of "how much noise has been added by step $t$" — which is exactly what the forward process defines, in closed form, for any $t$ at once.
+
 $$q(x_t \mid x_{t-1}) = \mathcal{N}\!\left(x_t;\ \sqrt{1-\beta_t}\,x_{t-1},\ \beta_t I\right)$$
 
 with a **variance schedule** $\beta_1 < \beta_2 < \dots < \beta_T$, typically
@@ -110,6 +112,8 @@ Measurably better FID, especially at low resolutions.
 
 ## 3. The reverse process
 
+Whichever schedule sets $\bar\alpha_t$, the forward process is only half the story — it's the *known*, fixed direction. Generation needs the opposite: a way to walk back from noise to data, and that direction has to be learned.
+
 $$p_\theta(x_{t-1}\mid x_t) = \mathcal{N}\!\left(x_{t-1};\ \mu_\theta(x_t, t),\ \Sigma_\theta(x_t,t)\right)$$
 
 We need to learn $\mu_\theta$. The key is that the **true** posterior, when conditioned on $x_0$,
@@ -148,6 +152,8 @@ predict noise.
 ---
 
 ## 4. The loss: from full ELBO to three lines of code
+
+Predicting $\epsilon$ tells you what the network should output. Turning that into an actual training objective — starting from the full variational bound from → [The ELBO](../01-foundations/02-probability-and-information-theory.md#7-the-elbo-what-to-do-when-the-likelihood-is-intractable) and simplifying it down — is the derivation that makes diffusion practical to implement.
 
 **The variational bound** (same structure as the VAE's, extended over $T$ latents):
 
@@ -196,6 +202,8 @@ def train_step(model, x0, T=1000):
 
 ## 5. Sampling
 
+Training a diffusion model is almost suspiciously simple. Generating from one is where the cost shows up — running that noise-predicting network not once, but through the entire reverse chain, step by step.
+
 ```python
 @torch.no_grad()
 def sample(model, shape, T=1000):
@@ -223,6 +231,8 @@ def sample(model, shape, T=1000):
 
 ## 6. Parameterization choices
 
+That 1000-step cost assumed the network predicts $\epsilon$, the noise. That's a choice, not a requirement — the same network could just as easily be trained to predict the clean image $x_0$ directly, or something in between, and the choice has real consequences for training stability.
+
 The network can predict three different things — all equivalent in principle, different in
 practice:
 
@@ -246,6 +256,8 @@ practice:
 ---
 
 ## 7. The architecture: U-Net and DiT
+
+Whatever the network predicts — $\epsilon$, $x_0$, or $v$ — it still has to be some concrete architecture that takes a noisy image and a timestep and outputs a prediction of the same shape. Two designs have dominated that role.
 
 ```
   U-NET (the classic diffusion backbone)
@@ -300,6 +312,8 @@ def timestep_embedding(t, dim, max_period=10000):
 ---
 
 ## 8. Why diffusion beat GANs
+
+U-Net or DiT, trained on this objective, is what actually displaced GANs as the default for image synthesis by 2022. It's worth being explicit about why, given everything GANs had going for them in single-pass speed.
 
 | Property | GAN | Diffusion |
 |---|---|---|
