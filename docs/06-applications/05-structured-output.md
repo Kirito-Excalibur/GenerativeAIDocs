@@ -37,6 +37,8 @@
 
 ## 2. How constrained decoding works
 
+That guarantee isn't magic — it comes from a specific, checkable mechanism: compiling the schema into a state machine and masking out any token that would leave it. Worth seeing exactly how that works before trusting it.
+
 ```
    Schema: {"name": string, "age": integer}
 
@@ -76,6 +78,8 @@ overhead of a few percent or less.
 ---
 
 ## 3. What you can constrain
+
+That token-vs-character subtlety is the hard part of *implementing* a constrained decoder. As a user, you mostly interact with it through a higher-level interface — a regex, a grammar, or a JSON schema — and it's worth knowing what each of those actually lets you express.
 
 | Constraint | Machinery | Example |
 |---|---|---|
@@ -117,6 +121,8 @@ use it — you get the guarantee without running your own inference stack.
 ---
 
 ## 4. The quality trade-off
+
+A guarantee of valid syntax says nothing about whether the *content* is any good. Forcing a model into a rigid schema can measurably hurt quality if the schema fights how the model would naturally reason.
 
 > [!WARNING]
 > **Constraints guarantee *syntax*, not *semantics*.** A model forced into a schema it finds
@@ -166,6 +172,8 @@ use it — you get the guarantee without running your own inference stack.
 
 ## 5. Schema design principles
 
+Field ordering is one specific instance of a broader pattern: how you design the schema itself shapes what the model can express, sometimes in ways that actively work against getting a good answer.
+
 | ✅ Do | ❌ Don't |
 |---|---|
 | Put a reasoning/explanation field **first** | put it last, or omit it |
@@ -193,6 +201,8 @@ use it — you get the guarantee without running your own inference stack.
 
 ## 6. Tool calling is structured output
 
+Every schema-design principle above applies just as much to a format you've probably already used without thinking of it as "structured output": a tool call's arguments.
+
 The same machinery, different framing. A tool's `input_schema` is a JSON Schema, and the model's
 tool call is constrained to match it.
 
@@ -217,6 +227,8 @@ what determines whether long-horizon tasks work at all.
 ---
 
 ## 7. When constrained decoding isn't available
+
+Constrained decoding gives that guarantee wherever it's supported. It isn't universal, though — some APIs and some output formats don't support it, and it's worth knowing what to fall back on when the guarantee isn't available.
 
 Not every provider or model exposes it. The fallback stack:
 

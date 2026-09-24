@@ -55,6 +55,8 @@
 
 ## 2. Function calling: the mechanism
 
+Higher stakes make it worth getting the mechanism exactly right. Function calling — how the model actually decides to invoke a tool, and how that decision gets parsed and executed — is the plumbing everything else in this page runs on.
+
 You give the model a schema; the model emits a structured call; **your code executes it** and
 returns the result as a new message.
 
@@ -97,6 +99,8 @@ examples, and what the output looks like.
 
 ## 3. ReAct: reason, act, observe
 
+A well-described tool is only useful if the model reasons about *when* to reach for it. The pattern that structures that reasoning — think, act, observe the result, repeat — has a name and a specific justification for why the thinking step matters.
+
 ```
   Thought: I need the current population of Tokyo and Delhi to compare them.
   Action: search("Tokyo metropolitan population 2024")
@@ -122,6 +126,8 @@ API's tool-call mechanism, without explicit ReAct prompting. The pattern is now 
 ---
 
 ## 4. The compounding error problem
+
+Whether explicit or built in, ReAct is still a loop, run repeatedly. Every extra step in that loop is another chance for something to go wrong, and over a long agentic task those small chances add up fast.
 
 > [!WARNING]
 > **This is the central practical difficulty with agents**, and it is arithmetic.
@@ -175,6 +181,8 @@ def call_tool_with_retry(model, tool_call, tools, max_retries=2):
 
 ## 5. Memory
 
+Retrying a failed tool call assumes the agent still remembers what it was trying to do. Over a long enough task, the agent's own context window becomes the limiting resource, and how it manages what to remember is its own design problem.
+
 An agent's context window is its working memory, and it fills up.
 
 | Type | Implementation | Lifetime |
@@ -203,6 +211,8 @@ An agent's context window is its working memory, and it fills up.
 ---
 
 ## 6. Multi-agent systems
+
+A scratchpad extends how much one agent can remember. Past a certain task complexity, the better fix isn't more memory for one agent — it's splitting the work across several agents with narrower jobs.
 
 ```
   SINGLE AGENT                    ORCHESTRATOR-WORKER
@@ -247,6 +257,8 @@ Multi-agent genuinely helps when:
 
 ## 7. Evaluating agents
 
+Whether it's one agent or several, the same question follows: does the thing actually work? Agentic tasks are harder to score than a single generation, because success is about a whole trajectory, not one output.
+
 > [!WARNING]
 > Much harder than evaluating a single response. Multiple valid trajectories can reach the same
 > goal, and the same trajectory can succeed or fail stochastically.
@@ -271,6 +283,8 @@ OSWorld (desktop control).
 ---
 
 ## 8. Security
+
+Those benchmarks measure whether an agent succeeds at the task it was given. They say nothing about what it does when someone tries to redirect it toward a task it was never given — which is where an agent's ability to *act*, not just talk, becomes a genuine liability.
 
 > [!WARNING]
 > **The fundamental problem: an agent's context mixes trusted instructions with untrusted data,
