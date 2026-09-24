@@ -246,7 +246,77 @@ EBM-grade training instability.
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — Langevin step, by hand.** Let $E(x) = x^2$ (so $\nabla_x E = 2x$), $\eta=0.1$,
+current point $x_t=0.5$, and a drawn noise value $z_t=0.3$. Compute $x_{t+1}$ using §3's update
+rule. Which direction did the drift term push $x$ (toward or away from the energy minimum at
+$x{=}0$), and would a *larger* $\eta$ make the noise term relatively more or less influential?
+
+<details><summary>Solution</summary>
+
+$$x_{t+1} = x_t - \frac{\eta}{2}\nabla_xE(x_t) + \sqrt\eta\,z_t
+= 0.5 - 0.05(1.0) + \sqrt{0.1}(0.3) = 0.5 - 0.05 + 0.0949 = 0.545$$
+
+The drift term ($-0.05$) pushed *toward* 0 (the minimum of $E(x)=x^2$), as expected — gradient
+descent on the energy. The noise term ($+0.0949$) happened to push the other way and dominated
+this particular step, which is normal (Langevin dynamics is stochastic, not monotonically
+descending).
+
+Larger $\eta$: the drift term scales linearly in $\eta$ while the noise term scales as
+$\sqrt\eta$ — so as $\eta$ grows, drift grows *faster* than noise, meaning **noise becomes
+relatively less influential** at large $\eta$ (and vice versa: at small $\eta$, noise dominates
+relative to drift). This is why $\eta\to0$ is needed for the chain to actually sample from
+$p_\theta$ correctly (per §3) — at large step sizes the balance between drift and noise is off
+from what the correct continuous-time process requires.
+
+</details>
+
+**Problem 2 — energy composition.** Two energy functions score two candidate images $a, b$:
+$E_1(a)=1.0, E_1(b)=3.0$ (a "cat" detector — lower is more cat-like) and $E_2(a)=2.0,
+E_2(b)=0.5$ (an "outdoor" detector). Using §7's compositionality property, which image does the
+*combined* energy $E_1+E_2$ favor as "cat outdoors," and does either individual detector agree
+with the combined verdict?
+
+<details><summary>Solution</summary>
+
+$E_{\text{total}}(a) = 1.0+2.0=3.0$; $E_{\text{total}}(b)=3.0+0.5=3.5$. Lower energy is more
+probable, so **image $a$** is favored as "cat outdoors" overall.
+
+Individually: $E_1$ alone prefers $a$ (1.0 < 3.0, more cat-like) — **agrees** with the combined
+verdict. $E_2$ alone prefers $b$ (0.5 < 2.0, more outdoor-like) — **disagrees**. So the composed
+energy doesn't simply follow either detector; it's a genuine trade-off, exactly the
+"no retraining, no conditioning mechanism" compositional algebra described in §7 — you get a
+principled answer to "cat AND outdoors" just by adding two independently-trained energies.
+
+</details>
+
+**Problem 3 — CD-$k$ bias, intuition check.** Contrastive divergence with $k=1$ starts Langevin
+chains from real data points and runs one step. Using §4, explain why this produces a *biased*
+gradient (compare with the unbiased "true" MLE gradient in §2, which requires negative-phase
+samples from the *actual* model distribution $p_\theta$, not from a 1-step perturbation of the
+data). What would happen to the bias as $k\to\infty$?
+
+<details><summary>Solution</summary>
+
+The unbiased gradient (§2) needs $\mathbb{E}_{x'\sim p_\theta}[\nabla_\theta E_\theta(x')]$ — an
+expectation under the model's *true, converged* distribution. CD-$k$ substitutes a **1-step
+Langevin perturbation of a real data point** for that expectation — which is a sample from
+"data slightly nudged by the model's current gradient field," not a sample from $p_\theta$ itself
+(unless the chain has fully mixed, which 1 step never achieves). Because the negative-phase
+samples stay anchored near the data manifold instead of exploring wherever $p_\theta$ actually
+puts mass, the gradient systematically under-corrects regions of $x$-space that are far from any
+training point but where the model might currently assign high probability.
+
+As $k\to\infty$, the chain has arbitrarily long to mix, so its distribution converges to the true
+stationary distribution of the Langevin process, which (per §3) *is* $p_\theta$ — so the CD-$k$
+gradient becomes the exact, unbiased MLE gradient from §2 in the limit. This is exactly why §4
+frames CD-$k$ as a "practical hack": it trades bias (finite $k$) for tractability (you can't
+actually run $k=\infty$ inside every training step).
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

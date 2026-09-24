@@ -335,7 +335,67 @@ Diffusion won on quality **and** coverage **and** training stability. GANs retai
 
 ---
 
-## 8. Key takeaways
+## 8. Exercises
+
+**Problem 1 — optimal discriminator.** At some point during training, $p_{\text{data}}(x_0)=0.6$
+and $p_g(x_0)=0.2$ at a particular point $x_0$. Using §2's formula, what does the optimal
+discriminator output at $x_0$? Is $x_0$ a region where real or fake data is relatively more
+common, and does $D^*$'s value reflect that?
+
+<details><summary>Solution</summary>
+
+$$D^*(x_0) = \frac{p_{\text{data}}(x_0)}{p_{\text{data}}(x_0)+p_g(x_0)} = \frac{0.6}{0.8} = 0.75$$
+
+Real data is 3× more likely than fake data at this point ($0.6$ vs $0.2$), and the optimal
+discriminator assigns $75\%$ confidence that a point here is real — directly reflecting the
+*density ratio*, exactly as §2 states ("the optimal discriminator is a density ratio
+estimator"). At true equilibrium ($p_g=p_{\text{data}}$ everywhere), this would read exactly
+$0.5$ at every point; $0.75$ here tells you training is not yet converged at this $x_0$.
+
+</details>
+
+**Problem 2 — non-saturating gradient, verify the claim.** §3(a) claims the non-saturating loss
+gives a *large* gradient exactly when $G$ is performing badly ($D(G(z))\approx0$). Differentiate
+$-\log D(G(z))$ and $\log(1-D(G(z)))$ with respect to $D(G(z))$ directly (treat $D(G(z))$ as a
+variable $d\in(0,1)$) and evaluate both derivatives at $d=0.01$ (G is very bad) and $d=0.99$ (G
+is very good). Do the numbers match the qualitative claim?
+
+<details><summary>Solution</summary>
+
+$\frac{d}{dd}[-\log d] = -1/d$; $\frac{d}{dd}[\log(1-d)] = -1/(1-d)$.
+
+At $d=0.01$ (G bad): non-saturating magnitude $=1/0.01=100$; minimax magnitude
+$=1/(1-0.01)=1.01$. **Non-saturating gives a gradient ~100× larger** exactly where G needs help
+most — confirming §3(a)'s claim precisely.
+
+At $d=0.99$ (G good): non-saturating $=1/0.99=1.01$; minimax $=1/(1-0.99)=100$. Now it's
+*reversed* — minimax has the huge gradient, but this is the region where G is already winning and
+doesn't need a strong push. This confirms the picture in §3(a)'s diagram: minimax gives strong
+signal exactly where it's least needed and weak signal exactly where it's most needed; the
+non-saturating loss inverts this to the useful pattern.
+
+</details>
+
+**Problem 3 — coupling layer, new numbers.** Using §-adjacent normalizing-flow style notation, an
+affine coupling layer has $h=(h_1,h_2)=(2.0,-1.0)$, with $s(h_1)=0.3h_1$ and $t(h_1)=0.5$
+(constant, for simplicity). Compute $y_2$, verify the inverse recovers $h_2$, and give
+$\log|\det J|$.
+
+<details><summary>Solution</summary>
+
+$s = 0.3\times2.0=0.6$. $y_2 = h_2 e^s+t = (-1.0)(e^{0.6})+0.5 = -1.822+0.5=-1.322$.
+
+Inverse: $h_2 = (y_2-t)e^{-s} = (-1.322-0.5)\times e^{-0.6} = -1.822\times0.549 = -1.000$ ✓
+recovers exactly.
+
+$\log|\det J| = s = 0.6$ (the sum of $s$ over the transformed dimensions — here just one). This
+matches the mechanism in → [Normalizing flows §3](04-normalizing-flows.md#3-affine-coupling-layers-realnvp):
+the log-determinant is *just the sum of the scale outputs*, computed in one forward pass, with no
+determinant computation needed at all.
+
+</details>
+
+## 9. Key takeaways
 
 | # | Takeaway |
 |---|---|

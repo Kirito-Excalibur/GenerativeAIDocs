@@ -331,7 +331,75 @@ the numbers change.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — score a different sentence.** Using the bigram counts from §3's worked example
+($p(\text{cat}|\text{the})=2/3$, $p(\text{mat}|\text{the})=1/3$, $p(\text{sat}|\text{cat})=0.5$,
+$p(\text{ate}|\text{cat})=0.5$), score the sentence "the cat ate" the same way §3 scored "the cat
+sat": compute $p(\text{the cat ate})$, the per-token cross-entropy, and the perplexity.
+
+<details><summary>Solution</summary>
+
+$$p(\text{the cat ate}) = p(\text{the})\cdot p(\text{cat}|\text{the})\cdot p(\text{ate}|\text{cat})
+= \tfrac13\times\tfrac23\times\tfrac12 = 0.111$$
+
+(Identical to $p(\text{the cat sat})$ in §3, since $p(\text{sat}|\text{cat})=p(\text{ate}|\text{cat})=0.5$
+— the model is exactly as confident about either continuation.)
+
+Cross-entropy $=-\frac13(\ln\frac13+\ln\frac23+\ln\frac12)=0.732$ nats; perplexity
+$=e^{0.732}=2.08$ — matching §3's numbers exactly, which makes sense since the two sentences have
+identical per-step probabilities.
+
+</details>
+
+**Problem 2 — off-by-one, spot the bug.** A colleague writes:
+
+```python
+logits = model(tokens)                    # full sequence, no shift
+loss = F.cross_entropy(logits.view(-1, V), tokens.view(-1))
+```
+
+Using §4's discussion, what's wrong, and what will you observe if you train with this code?
+
+<details><summary>Solution</summary>
+
+This computes the loss for predicting token $i$ from a forward pass that **already includes**
+token $i$ in the input (since `tokens` is fed whole, and position $i$'s output is compared
+against `tokens[i]` itself, not `tokens[i+1]`). Under causal masking, position $i$'s hidden state
+already attends to tokens $\le i$ — including $i$ — so the model is being asked to predict the
+token it can already see.
+
+Per §4's warning, this is "information leakage": the loss will collapse to near-zero within a
+few steps (the model trivially learns "copy the current input"), and any text the model generates
+will be garbage, because at real inference time (autoregressive generation) it has no future
+token to copy. Correct form:
+`logits = model(tokens[:, :-1]); loss = F.cross_entropy(logits.view(-1,V), tokens[:, 1:].reshape(-1))`.
+
+</details>
+
+**Problem 3 — KV cache sizing.** Using the formula from §6, compute the KV-cache memory (in GB)
+for a 13B-parameter model with $L=40$, $H_{kv}=40$ (no GQA — full multi-head), $d_h=128$, at
+context length $T=4096$, batch size 1, BF16 (2 bytes/element). Then recompute with GQA at
+$H_{kv}=8$. What's the memory reduction factor, and does it match the ratio $H_{kv,\text{full}}/H_{kv,\text{GQA}}$?
+
+<details><summary>Solution</summary>
+
+Formula: $2\times L\times H_{kv}\times d_h\times T\times B\times\text{bytes}$.
+
+No GQA: $2\times40\times40\times128\times4096\times1\times2 = 3{,}355{,}443{,}200$ bytes
+$\approx 3.13$ GB.
+
+With GQA ($H_{kv}{=}8$): $2\times40\times8\times128\times4096\times1\times2 = 671{,}088{,}640$
+bytes $\approx 0.625$ GB.
+
+Reduction factor: $3.13/0.625 = 5.0\times$ — and indeed $H_{kv,\text{full}}/H_{kv,\text{GQA}} =
+40/8 = 5$. The formula is linear in $H_{kv}$, so the memory reduction from GQA is *exactly* the
+ratio of query heads to KV heads, with everything else held fixed — confirming the general claim
+in → [Attention §7](../03-sequence-models/03-attention.md#7-mqa-and-gqa-shrinking-the-kv-cache).
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

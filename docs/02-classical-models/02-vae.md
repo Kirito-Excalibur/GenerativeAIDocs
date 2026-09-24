@@ -371,7 +371,77 @@ have posterior collapse. If it is near the reconstruction loss, $\beta$ is too l
 
 ---
 
-## 10. Key takeaways
+## 10. Exercises
+
+**Problem 1 — Gaussian KL, new numbers.** Compute $D_{KL}(\mathcal{N}(-1.5, 0.25)\|\mathcal{N}(0,1))$
+in nats using the boxed formula from §2 (note: variance $0.25$, so $\sigma=0.5$). Is the
+resulting latent code "expensive" (far from the prior) or "cheap"? Compare with the §8 sanity
+checks ($\mu{=}0,\sigma{=}1 \to 0$ nats; $\mu{=}2,\sigma{=}1\to2$ nats, from the info-theory page).
+
+<details><summary>Solution</summary>
+
+$$D_{KL} = \tfrac12(\mu^2+\sigma^2-\log\sigma^2-1) = \tfrac12(2.25+0.25-\log0.25-1)
+= \tfrac12(2.25+0.25+1.386-1) = \tfrac12(2.886) = 1.443\text{ nats} \approx 2.08\text{ bits}$$
+
+Comparing directly in nats against the $\mu{=}2,\sigma{=}1$ reference point from
+→ [Probability & information theory §8](../01-foundations/02-probability-and-information-theory.md#8-gaussians-the-closed-forms-you-will-use-constantly)
+(which costs exactly 2 nats): this code, at $1.443$ nats, is actually **cheaper** — even though
+$|\mu|=1.5$ is a large shift, because $\sigma=0.5$ is *tighter* than the prior's $\sigma=1$, and
+the $-\log\sigma^2$ term rewards tight (confident) codes even as the $\mu^2$ term penalizes the
+shift. This is exactly the tension described in §2: the decoder wants tight, informative codes
+(small $\sigma$) while the KL term pulls toward $\sigma{=}1,\mu{=}0$.
+
+</details>
+
+**Problem 2 — posterior collapse, diagnose it.** After training, you observe: reconstruction loss
+$=210$ nats, KL $=0.003$ nats, and samples from the prior look reasonable but bear no
+relationship to any specific input when you check reconstructions (every input reconstructs to
+roughly the same generic output). Using §5, what's happening, and name two fixes with their
+mechanism.
+
+<details><summary>Solution</summary>
+
+$KL\approx0$ is the signature of **posterior collapse** (§5): the encoder has learned to ignore
+$x$ and output $q_\phi(z|x)\approx\mathcal{N}(0,I)$ regardless of input, satisfying the KL term
+at zero cost — while the decoder, if expressive enough, learns to model $p(x)$ unconditionally
+(hence the generic reconstructions and the fact that prior samples still "look reasonable" — the
+decoder is a passable unconditional generator, just not a *conditional* one).
+
+**Fix 1 — KL annealing**: ramp $\beta$ from 0→1 over training, so early on the model is rewarded
+purely for reconstruction and is forced to *use* $z$ to succeed, before the KL penalty has a
+chance to zero it out.
+
+**Fix 2 — free bits**: clamp the per-dimension KL to a floor $\lambda$
+(`torch.clamp(kl_per_dim, min=free_bits)`), which removes the gradient pressure to shrink KL
+*below* $\lambda$ nats/dim — so the optimizer can't reach the zero-information solution even if it
+would otherwise prefer to.
+
+</details>
+
+**Problem 3 — VQ-VAE compression, a different codebook.** Redo §7's compression-ratio
+calculation for a $128\times128\times3$ image compressed to a $16\times16$ grid of codes from a
+**1024**-entry codebook (note: different image size, grid size, and codebook size from the
+worked example). What's the compression ratio, and how does the token count compare to the
+original $256\times256$/$32\times32$/512-entry example?
+
+<details><summary>Solution</summary>
+
+Raw bits: $128\times128\times3\times8 = 393{,}216$ bits. Encoded bits:
+$16\times16\times\log_2(1024) = 256\times10 = 2{,}560$ bits.
+
+$$\text{ratio} = \frac{393{,}216}{2{,}560} = 153.6\times$$
+
+Slightly *less* compression than the worked example's $170\times$, even though this image is
+smaller — because the codebook here is smaller (1024 vs... wait, 1024 > 512, so $\log_2$ per code
+is *larger* (10 bits vs 9 bits), which pushes toward less compression, while the smaller image
+(4× fewer raw pixels) and smaller grid ($16^2{=}256$ vs $32^2{=}1024$ codes, i.e. 4× fewer codes)
+scale proportionally and roughly cancel. Net: $153.6\times$ vs $170\times$ — comparable order of
+magnitude, and in both cases the resulting token count (256 vs 1024) is small enough for a
+Transformer to model directly, which is the operative point from §7, not the exact ratio.
+
+</details>
+
+## 11. Key takeaways
 
 | # | Takeaway |
 |---|---|

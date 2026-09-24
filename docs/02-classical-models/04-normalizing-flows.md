@@ -300,7 +300,73 @@ page next if you care about modern image generation.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — the invertible-1×1-conv log-det.** A Glow-style $1\times1$ convolution has weight
+matrix $W$ with $\det W = 2.5$, applied to a $16\times16$ feature map with $c$ channels. What is
+the total $\log|\det J|$ contribution of this layer (per §4)? If the feature map were $32\times32$
+instead, how would the contribution change, and why does this make spatial resolution a
+*multiplier* on the layer's log-det rather than something that changes $\det W$ itself?
+
+<details><summary>Solution</summary>
+
+Per §4: $\log|\det J| = h\times w\times\log|\det W|$. At $16\times16$:
+$256\times\log(2.5) = 256\times0.916=234.6$.
+
+At $32\times32$: $1024\times\log(2.5)=938.6$ — exactly **4×** larger, matching the 4× increase in
+spatial positions ($32^2/16^2=4$). This is because $W$ acts *independently and identically* at
+every spatial location (it's a $1\times1$ conv — no spatial mixing), so the *same* per-location
+$\log|\det W|$ term is simply summed over however many locations there are. $\det W$ itself never
+changes with resolution; only the number of times it's applied does.
+
+</details>
+
+**Problem 2 — MAF/IAF trade-off, applied.** You need a model for a real-time synthesizer that
+must generate audio samples fast, but you don't care about evaluating the likelihood of existing
+recordings. Using §4's MAF/IAF table, which would you pick and why? Now suppose the requirement
+flips: you need to score thousands of pre-recorded clips by likelihood as fast as possible, but
+generation speed doesn't matter (e.g., an anomaly-detection pipeline). Which would you pick now?
+
+<details><summary>Solution</summary>
+
+Real-time synthesis (fast generation, don't care about density evaluation speed): **IAF** — "fast
+sampling" is its whole advantage, at the cost of slow (sequential) density evaluation, which
+you've said you don't need.
+
+Batch likelihood scoring (fast density, generation speed irrelevant): **MAF** — "1 parallel pass"
+for density evaluation is exactly what you want; its slow sequential sampling is irrelevant since
+you're not generating anything.
+
+This mirrors the real historical case in §4: Parallel WaveNet used exactly this reasoning in
+reverse — trained an MAF-style teacher (fast to train/score) then **distilled it into an IAF
+student** so that deployment (many users needing fast synthesis) could use the direction that's
+fast to sample from, while training could use the direction that's fast to fit.
+
+</details>
+
+**Problem 3 — dequantization, why it matters.** A flow is trained directly on integer pixel
+values $\{0,...,255\}$ without adding uniform noise. Using §5's warning, what happens to the
+reported log-likelihood as training continues, and why is comparing this number against a
+properly-dequantized model's log-likelihood meaningless?
+
+<details><summary>Solution</summary>
+
+Per §5: without dequantization, the model is fitting a *continuous* density to data supported
+only on a discrete grid (the integers). The optimal continuous density for discrete support is a
+sum of Dirac deltas at each observed integer — infinitely tall, infinitely thin spikes — so as
+training continues, the model can push $\log p(x)$ at the training integers toward $+\infty$ by
+concentrating density arbitrarily tightly around them. This isn't learning "the data is more
+predictable"; it's an artifact of applying a continuous-density tool to discrete data.
+
+The comparison is meaningless because a dequantized model's likelihood is a proper (finite) lower
+bound on the *discrete* log-likelihood, while the non-dequantized model's number is an
+unbounded, ill-defined quantity that has nothing to do with how well it models discrete pixel
+values — the two numbers aren't measuring the same thing, even though they're both called
+"log-likelihood."
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|
