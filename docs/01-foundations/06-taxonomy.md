@@ -46,6 +46,8 @@ graph TD
 
 ## 2. The master comparison table
 
+That fault line splits the field into families. Before reading about each one individually, here's the whole comparison side by side, so you know what to look for.
+
 | | **Autoregressive** | **VAE** | **GAN** | **Flow** | **Diffusion** | **EBM** |
 |---|---|---|---|---|---|---|
 | **Core equation** | $p(x)=\prod_i p(x_i\|x_{<i})$ | $\log p(x)\ge\text{ELBO}$ | $\min_G\max_D V(D,G)$ | $p(x)=p(z)\|\det J\|^{-1}$ | $\log p(x)\ge\text{ELBO}_T$ | $p(x)=\frac{e^{-E(x)}}{Z}$ |
@@ -64,6 +66,8 @@ graph TD
 ---
 
 ## 3. Family-by-family, in one paragraph each
+
+The table tells you *what* each family trades off. It doesn't explain *why* — each family made a specific, deliberate choice about how to handle the likelihood, and that choice is worth spelling out once per family.
 
 ### Autoregressive: *factorize and conquer*
 
@@ -128,6 +132,8 @@ but rarely used directly.
 
 ## 4. The connections (this is where understanding clicks)
 
+Read individually, these families look like a list of unrelated tricks. They aren't — several of them are literally special cases of each other, and seeing the reductions is what turns memorized facts into an actual mental model.
+
 These families are not separate species. They are views of the same object.
 
 ```mermaid
@@ -176,6 +182,8 @@ graph LR
 
 ## 5. Why each modality picked what it picked
 
+Those are structural connections between model families in the abstract. In practice, which family wins is decided by the data — text, images, audio and molecules each favor a different family for concrete, mechanical reasons.
+
 | Modality | Winner | Why |
 |---|---|---|
 | **Text** | Autoregressive | Text is discrete, sequential, has a canonical order, and variable length. AR fits all four natively. Diffusion on discrete tokens remains awkward (no natural Gaussian noise on a simplex). |
@@ -195,6 +203,8 @@ graph LR
 ---
 
 ## 6. Decision guide
+
+That rule of thumb tells you which family fits your *data*. It doesn't yet tell you which specific model to reach for given your actual constraints — compute, need for exact likelihood, latency — which is what the decision guide below is for.
 
 ```
 START: what do you need?
@@ -228,6 +238,8 @@ START: what do you need?
 ---
 
 ## 7. The trilemma, revisited with the escape routes
+
+The decision guide above is a snapshot of what works today. The trilemma from → [What is generative AI?](01-what-is-generative-ai.md) is the reason the landscape keeps shifting: every family in this taxonomy is a different bet on which two of quality, speed and coverage to keep.
 
 | Leg being attacked | Technique | Result |
 |---|---|---|

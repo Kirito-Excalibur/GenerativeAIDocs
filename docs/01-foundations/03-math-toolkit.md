@@ -33,6 +33,8 @@ The attention score matrix for 32 heads is $8\times32\times2048\times2048 = 1.07
 
 ## 2. Matrix calculus: the six rules you need
 
+Shapes tell you what a tensor looks like; they don't tell you how to differentiate through it. Backprop is just the chain rule applied tensor by tensor, and there are only six patterns you'll ever need.
+
 Use **denominator layout**: $\partial \mathcal{L}/\partial W$ has the same shape as $W$. This is what
 frameworks do, and it makes shape-checking your derivations trivial.
 
@@ -67,6 +69,8 @@ these two operations into one kernel (`cross_entropy(logits, targets)`, never
 ---
 
 ## 3. Jacobians and the change-of-variables formula
+
+Those six rules cover derivatives of scalars and vectors. A subtler question is what happens to an entire *density* when you transform the variable it's defined over — which is exactly what invertible generative models need to track.
 
 If $z \sim p_Z$ and $x = f(z)$ with $f$ **invertible and differentiable**, then
 
@@ -109,6 +113,8 @@ arbitrarily complex neural nets.
 ---
 
 ## 4. High-dimensional geometry: why your intuition is wrong
+
+Jacobians and determinants are exact, mechanical tools — they don't depend on dimension. But the spaces those transformations operate on behave nothing like the 2-D and 3-D intuition you're used to, and that mismatch causes real bugs in how people reason about and manipulate latent spaces.
 
 This section prevents real confusion about latent spaces.
 
@@ -163,6 +169,8 @@ stream can represent far more than $d$ features if each is sparse.
 
 ## 5. SVD and low-rank structure (the math behind LoRA)
 
+That last fact — many nearly-orthogonal directions fit into a high-dimensional space — is about how vectors relate to each other. A complementary question is about a single matrix: how much of its behavior can be captured with far fewer numbers than it has entries. That's the SVD, and it's the entire mathematical basis for LoRA.
+
 Every matrix $W \in \mathbb{R}^{m\times n}$ factorizes as
 
 $$W = U\Sigma V^\top = \sum_{i=1}^{r} \sigma_i u_i v_i^\top, \qquad \sigma_1 \ge \sigma_2 \ge \dots \ge 0$$
@@ -198,6 +206,8 @@ $$\|W - W_k\|_F^2 = \sum_{i>k}\sigma_i^2$$
 
 ## 6. Norms, and which one to use when
 
+SVD measures a matrix's *size* via its singular values. Vectors need their own notion of size too — and unlike singular values, there's more than one reasonable definition, each suited to a different job.
+
 | Norm | Definition | Used for |
 |---|---|---|
 | $\ell_2$ / Euclidean | $\sqrt{\sum_i x_i^2}$ | gradient clipping, weight decay, distances |
@@ -217,6 +227,8 @@ $$\|W - W_k\|_F^2 = \sum_{i>k}\sigma_i^2$$
 ---
 
 ## 7. Convexity, and why nobody worries about it any more
+
+Norms describe the shape of the space a loss function lives in; they say nothing about the shape of the loss function itself. That's a separate question, and neural network losses answer it in a genuinely strange way.
 
 A function is convex if $f(\lambda x + (1-\lambda)y) \le \lambda f(x) + (1-\lambda)f(y)$. Convex
 problems have a unique global minimum. **Neural network losses are wildly non-convex** —
@@ -241,6 +253,8 @@ Yet training works. The empirical explanation:
 ---
 
 ## 8. Numerical precision: the practical constraint
+
+All of that — gradients, Jacobians, singular values, norms, loss landscapes — is described in this page using real numbers. On actual hardware, "real number" means a specific, finite bit pattern, and which one you pick changes what trains and what silently breaks.
 
 | Format | Bits | Exponent/Mantissa | Range | Typical use |
 |---|---|---|---|---|

@@ -110,6 +110,8 @@ opt = torch.optim.AdamW([
 
 ## 2. The optimizer memory bill
 
+Choosing AdamW settles *how* the weights update. It says nothing about what that choice costs in memory — and for optimizers that track per-parameter statistics, that cost is often larger than the model itself.
+
 Per-parameter state, mixed-precision training:
 
 | Optimizer | States | Bytes/param (BF16 weights) | 7B model |
@@ -132,6 +134,8 @@ This table is *why* distributed training exists. → [Pretraining](../04-large-l
 ---
 
 ## 3. Learning rate schedules
+
+The memory bill is fixed once you pick an optimizer. What still varies, every single step, is the learning rate — and how you move it over the course of training matters almost as much as which optimizer you chose.
 
 The learning rate is the single most important hyperparameter. The schedule matters almost as much
 as the peak value.
@@ -178,6 +182,8 @@ $$\eta_t = \eta_{\min} + \tfrac12(\eta_{\max}-\eta_{\min})\left(1 + \cos\!\left(
 
 ## 4. Batch size, and the critical batch size
 
+Every schedule above assumes a fixed batch size. Change the batch size and the whole picture shifts — including, as this section covers, how the learning rate itself should scale.
+
 Larger batch → less gradient noise → you can take larger steps. But the return diminishes.
 
 **Gradient noise scale** (McCandlish et al., 2018). Define
@@ -217,6 +223,8 @@ tokens = 4.2M tokens.
 
 ## 5. Gradient clipping
 
+Batch size and learning rate control the *average* size of an update. Neither protects you from a single bad batch producing one huge gradient — that's what clipping is for.
+
 $$g \leftarrow g \cdot \min\!\left(1, \frac{c}{\|g\|_2}\right), \qquad c \text{ typically } 1.0$$
 
 > [!TIP]
@@ -245,6 +253,8 @@ pretraining shows a slow decay with occasional 2–3× spikes. A sustained rise,
 ---
 
 ## 6. Mixed precision training
+
+Gradient clipping caps how large an update can be numerically; it says nothing about how those numbers are represented in memory in the first place. That representation — how many bits per number — is its own source of training failures.
 
 ```
  ┌─────────────── FP32 master weights ───────────────┐
@@ -278,6 +288,8 @@ handling of outlier channels.
 ---
 
 ## 7. Loss spikes: the debugging playbook
+
+Every mechanism covered so far — optimizer choice, schedule, batch size, clipping, precision — is a piece of what keeps a long training run stable. When one of them isn't enough, the loss spikes, and the question becomes how to actually diagnose which piece failed.
 
 Real large runs *will* spike. The loss jumps from 2.1 to 6.0 in a few steps and either recovers
 or diverges.
@@ -322,6 +334,8 @@ document doing exactly this dozens of times.
 ---
 
 ## 8. Hyperparameter starting points
+
+Debugging a spike after the fact is expensive. Cheaper is starting from hyperparameter values that are already known to work at scale, so most runs never need the playbook above.
 
 Sensible defaults for a decoder-only LM. Start here, then tune the LR.
 

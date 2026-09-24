@@ -52,8 +52,8 @@ The families differ in how they handle the likelihood. See [the taxonomy](01-fou
     - [What is generative AI?](01-foundations/01-what-is-generative-ai.md)
     - [Generative vs discriminative](01-foundations/01-what-is-generative-ai.md#1-the-core-distinction)
     - [The curse of dimensionality](01-foundations/01-what-is-generative-ai.md#2-why-modelling-px-is-hard-the-curse-of-dimensionality)
-    - [The generative trilemma](01-foundations/01-what-is-generative-ai.md#4-the-generative-trilemma)
-    - [Why now: compute, data, architecture](01-foundations/01-what-is-generative-ai.md#5-why-now-the-three-factor-explanation)
+    - [The generative trilemma](01-foundations/01-what-is-generative-ai.md#5-the-generative-trilemma)
+    - [Why now: compute, data, architecture](01-foundations/01-what-is-generative-ai.md#6-why-now-the-three-factor-explanation)
     - [Emergence, or the lack of it](01-foundations/01-what-is-generative-ai.md#8-emergence-or-the-lack-of-it)
     - [Study roadmap](09-reference/05-roadmap.md)
 - **Probability and information**

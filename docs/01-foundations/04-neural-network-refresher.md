@@ -32,6 +32,8 @@ SwiGLU's three matrices at $d_{\text{ff}} = \frac{8}{3}d$, it's $3 \cdot d \cdot
 
 ## 2. Backpropagation, worked by hand
 
+An MLP is only useful once it can learn — and learning means computing how the loss changes with respect to every weight. That's backpropagation: the chain rule, applied mechanically, layer by layer.
+
 Backprop is the chain rule with **memoization**. The key insight: computing gradients naively
 costs $O(\text{params} \times \text{ops})$; reusing intermediate results costs $O(\text{ops})$ —
 the backward pass is only ~2× the forward pass.
@@ -87,6 +89,8 @@ FORWARD  ───────────────────────�
 
 ## 3. Activation functions
 
+Backprop's chain rule multiplies a derivative through at every layer — and that derivative comes from $\phi$, the nonlinearity between layers. Which nonlinearity you pick changes those derivatives directly, and a bad choice can make deep networks untrainable before a single weight is off.
+
 | Name | Formula | Derivative at 0 | Notes |
 |---|---|---|---|
 | Sigmoid | $\sigma(x)=\frac{1}{1+e^{-x}}$ | 0.25 | saturates both ends; **max gradient 0.25** → vanishing |
@@ -133,6 +137,8 @@ open models. → [LLM architecture](../04-large-language-models/01-llm-architect
 ---
 
 ## 4. Normalization
+
+Activations control what happens at one point in the network. A separate problem is what happens to the *scale* of activations as they compound across many layers — left unchecked, that scale drifts, and the fix is normalization.
 
 ### The zoo
 
@@ -222,6 +228,8 @@ after the sublayer) or QK-norm.
 
 ## 5. Residual connections
 
+Pre-norm keeps each layer's *input* well-scaled, but it doesn't address the deeper reason very deep networks were hard to train in the first place: without help, a stack of nonlinear layers struggles to even represent the identity function. That's what residual connections solve directly.
+
 $$y = x + F(x)$$
 
 > [!TIP]
@@ -246,6 +254,8 @@ stream is a shared communication bus, not a pipeline.
 ---
 
 ## 6. Initialization
+
+Residuals fix the *architecture's* gradient flow, but a network still has to start somewhere. Before a single gradient step, the weights' initial scale already determines whether activations explode, vanish, or survive to the last layer — which is what initialization schemes are designed to control.
 
 The goal: keep activation variance ≈ constant across layers at step 0. Too large → explosion; too
 small → the signal dies before reaching the output.
@@ -289,6 +299,8 @@ for name, p in model.named_parameters():
 ---
 
 ## 7. Regularization: what survives at scale
+
+A well-initialized, well-normalized network with residual connections will fit its training data — sometimes too well. Regularization is the set of techniques for controlling that, though at LLM pretraining scale, most of the classic toolbox turns out not to be needed.
 
 | Technique | What it does | Status in modern LLMs |
 |---|---|---|

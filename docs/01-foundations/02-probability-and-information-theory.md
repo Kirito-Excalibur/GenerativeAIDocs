@@ -37,6 +37,8 @@ precisely why VAEs and diffusion models need a variational bound.
 
 ## 2. Entropy: the cost of describing a random variable
 
+Before any of that machinery is useful, you need a way to answer a simpler question: how many bits does it take to describe a random variable at all? That's entropy, and every other quantity on this page — cross-entropy, KL, perplexity, mutual information — is a variation on it.
+
 $$H(p) = -\sum_x p(x)\log p(x) = \mathbb{E}_{x\sim p}[-\log p(x)]$$
 
 Units: **bits** if $\log = \log_2$, **nats** if $\log = \ln$. ($1 \text{ nat} = 1.4427$ bits.)
@@ -81,6 +83,8 @@ compressible**.
 ---
 
 ## 3. Cross-entropy: what you actually optimize
+
+Entropy is the *best* any model could do — the bit cost when the model knows $p$ exactly. Real models never know $p$; they only have their own guess, $q$. The bits you actually pay when using $q$ to describe data drawn from $p$ is a different, larger quantity: cross-entropy.
 
 $$H(p, q) = -\sum_x p(x)\log q(x) = \mathbb{E}_{x\sim p}[-\log q(x)]$$
 
@@ -157,6 +161,8 @@ The original GAN objective is equivalent to minimizing $2\,D_{\mathrm{JS}} - 2\l
 
 ## 5. Perplexity: cross-entropy in disguise
 
+Cross-entropy in nats is exact but unintuitive — nobody has a feel for what "3.2 nats" means. Exponentiating it gives a number practitioners actually report and compare models by: perplexity.
+
 $$\mathrm{PPL} = \exp\!\left(-\frac{1}{N}\sum_{i=1}^{N}\log p_\theta(x_i \mid x_{<i})\right) = \exp(H(p_{\text{data}}, p_\theta))$$
 
 > [!TIP]
@@ -193,6 +199,8 @@ $$\text{BPC} = \frac{2.0}{0.693 \times 4.1} = 0.704 \text{ bits/char}$$
 
 ## 6. Mutual information
 
+Perplexity and cross-entropy both compare a model's distribution to the true one. A related but different question is how much two separate random variables — not a model and its target, any two variables — reveal about each other. That's mutual information, built from the same KL divergence you already have.
+
 $$I(X;Y) = D_{\mathrm{KL}}\big(p(x,y) \,\big\|\, p(x)p(y)\big) = H(X) - H(X\mid Y) = H(Y) - H(Y \mid X)$$
 
 > [!TIP]
@@ -226,6 +234,8 @@ more than $\log 256 = 8$ nats. This is a large part of why contrastive methods w
 ---
 
 ## 7. The ELBO: what to do when the likelihood is intractable
+
+Every quantity so far has assumed $p(x)$ is something you can actually evaluate. For latent-variable models it usually isn't — the integral $p_\theta(x) = \int p_\theta(x\mid z)p(z)\,dz$ has no closed form. KL divergence, again, is what rescues a training signal from that intractability.
 
 For a latent-variable model $p_\theta(x) = \int p_\theta(x\mid z)p(z)\,dz$, that integral is
 intractable for any interesting $p_\theta$. Introduce a tractable $q_\phi(z\mid x)$.
@@ -288,6 +298,8 @@ the same decomposition reappears in → [diffusion models](../05-diffusion-and-v
 
 ## 8. Gaussians: the closed forms you will use constantly
 
+That regularizer, $D_{\mathrm{KL}}(q_\phi(z\mid x)\,\|\,p(z))$, is only cheap to compute in closed form for one family of distributions — which is exactly why VAEs and diffusion models standardize on it.
+
 The multivariate Gaussian:
 
 $$\mathcal{N}(x; \mu, \Sigma) = (2\pi)^{-d/2}|\Sigma|^{-1/2}\exp\!\left(-\tfrac12 (x-\mu)^\top\Sigma^{-1}(x-\mu)\right)$$
@@ -331,6 +343,8 @@ single closed-form jump from $x_0$ to $x_t$.
 
 ## 9. The softmax and its temperature
 
+Gaussians are the right tool when the variable is continuous. The moment a model is choosing among a fixed set of discrete options instead — the next token, a class label — the tool changes: you need a way to turn raw scores into a valid probability distribution. That's the softmax.
+
 $$p_i = \frac{\exp(z_i/\tau)}{\sum_j \exp(z_j/\tau)}$$
 
 **Worked example** — logits $z = (2.0, 1.0, 0.5, -1.0)$:
@@ -358,6 +372,8 @@ interacts with top-$k$ and top-$p$.
 ---
 
 ## 10. Monte Carlo estimation and the two gradient estimators
+
+Softmax gives you a distribution; training a model often means differentiating *through* a sample drawn from one. That sampling step is not naturally differentiable, and working around it is the last piece of machinery this page needs.
 
 You will constantly need $\nabla_\phi \mathbb{E}_{q_\phi(z)}[f(z)]$ — a gradient of an expectation
 whose *distribution* depends on the parameters. Two tools:

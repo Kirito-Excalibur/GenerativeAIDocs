@@ -36,6 +36,8 @@ the score says nothing about *which* of your many decisions caused it. Working t
 
 ## 2. The vocabulary
 
+That's the intuition. Making it precise — what exactly is a "trajectory," a "reward," a "policy" — requires fixing some vocabulary before any formula will make sense.
+
 An agent interacts with an environment over time:
 
 ```
@@ -75,6 +77,8 @@ is one response and the reward arrives at the end, $\gamma = 1$ is the usual cho
 ---
 
 ## 3. The policy-gradient theorem
+
+With the objective $J(\theta)$ defined, the only thing left is how to actually improve it: take its gradient with respect to the policy's parameters. That gradient, derived without ever needing a model of the environment, is the policy-gradient theorem.
 
 We want $\nabla_\theta J(\theta)$, but $J$ is an expectation over trajectories whose *distribution*
 depends on $\theta$. The environment is a black box (you cannot differentiate a game engine or a
@@ -123,6 +127,8 @@ This estimator, used with Monte Carlo samples, is **REINFORCE** (Williams, 1992)
 
 ## 4. Variance, and why baselines fix it
 
+REINFORCE is correct in expectation, but a single trajectory's gradient can point almost anywhere — and training on noise that large is slow. The fix doesn't change what the estimator computes on average; it changes how much any one sample swings.
+
 REINFORCE is unbiased but extremely noisy. The problem is visible in a simple case: if every
 return is positive (say rewards between 90 and 100), *every* action gets pushed up, and the
 algorithm can only learn from the small differences between large numbers.
@@ -161,6 +167,8 @@ of them to see the signal. With the baseline, every sample points the same way.
 
 ## 5. Actor-critic methods
 
+A constant baseline like $b=10.5$ already helps, but the best possible baseline is one that adapts to the *state* — an estimate of how good things already look before the action is taken. Learning that estimate alongside the policy is what actor-critic methods do.
+
 Where does $V(s)$ come from? Learn it. An **actor-critic** method trains two things:
 
 | Component | Learns | Loss |
@@ -190,6 +198,8 @@ $$\hat A_t^{\text{GAE}} = \sum_{k\ge 0}(\gamma\lambda)^k\,\delta_{t+k}$$
 ---
 
 ## 6. PPO: small, safe steps
+
+GAE tells you how to estimate the advantage well. It says nothing about how large a step to take once you have it — and for policy gradients, a step that's too large can collapse the policy entirely. PPO's whole design is about making that step safe.
 
 Policy gradients have a nasty failure mode. One overly large update can wreck the policy, and then
 the data it collects next is bad, so it never recovers. **Trust-region** methods limit how far each
@@ -224,6 +234,8 @@ $$\mathcal{L}^{\text{CLIP}} = \mathbb{E}_t\Big[\min\big(\rho_t A_t,\;\operatorna
 ---
 
 ## 7. Text generation as an RL problem
+
+Everything above is generic RL, written for an abstract "agent" and "environment." Turning a language model into that agent — deciding what a state, an action and an episode even *are* for text — is the last translation step before any of this touches an LLM.
 
 The mapping is direct:
 
@@ -261,6 +273,8 @@ advantage would be 0: the group teaches nothing, because there is no contrast to
 ---
 
 ## 8. Implementation
+
+GRPO and the rest of this page are algorithms on paper. Getting a policy-gradient loop to actually run — and not silently diverge — comes down to a handful of implementation details that don't show up in the math.
 
 REINFORCE with a baseline on the two-armed bandit from §4, small enough to read in full:
 

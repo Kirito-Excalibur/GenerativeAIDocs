@@ -56,6 +56,8 @@ Discriminative                          Generative
 
 ## 2. Why modelling p(x) is hard: the curse of dimensionality
 
+That behavioural definition hides a real difficulty: *high-dimensional* is doing all the work in that sentence. It is the entire reason building these models took decades longer than building classifiers, and it's worth seeing exactly why.
+
 Suppose you want to model $28 \times 28$ binary images (tiny MNIST). The sample space has
 
 $$2^{784} \approx 10^{236}$$
@@ -109,9 +111,59 @@ Ambient space R^784                Data manifold (intrinsic dim ~10)
 
 ---
 
-## 3. The four things a generative model can do
+## 3. What "learning a distribution" actually means in practice
 
-Not all models can do all four. This table is the single most useful thing on this page.
+Whichever of those four strategies a model uses, it still faces the same question: given a finite pile of samples and no access to $p_{\text{data}}$ itself, how do you actually point the parameters $\theta$ toward the right answer? The mechanism turns out to be the same across every family — and it has a consequence, visible in a moment, that explains something you'll otherwise just have to take on faith: *why* VAEs blur and GANs drop modes, not merely *that* they do.
+
+You never see $p_{\text{data}}$. You see $N$ samples from it. Training almost always means
+**maximum likelihood estimation**:
+
+$$\theta^* = \arg\max_\theta \frac{1}{N}\sum_{i=1}^{N} \log p_\theta(x^{(i)})$$
+
+**Derivation — why MLE is the same as minimizing KL divergence**
+
+$$
+\begin{aligned}
+D_{\mathrm{KL}}(p_{\text{data}} \,\|\, p_\theta)
+&= \mathbb{E}_{x \sim p_{\text{data}}}\!\left[\log \frac{p_{\text{data}}(x)}{p_\theta(x)}\right] \\
+&= \underbrace{\mathbb{E}_{p_{\text{data}}}[\log p_{\text{data}}(x)]}_{\text{$-H(p_{\text{data}})$, constant in }\theta}
+ - \mathbb{E}_{p_{\text{data}}}[\log p_\theta(x)]
+\end{aligned}
+$$
+
+The first term does not depend on $\theta$. So
+
+$$\arg\min_\theta D_{\mathrm{KL}}(p_{\text{data}} \| p_\theta) = \arg\max_\theta \mathbb{E}_{p_{\text{data}}}[\log p_\theta(x)]$$
+
+— **maximizing likelihood is exactly minimizing the KL divergence from data to model.** This is the
+single most important identity in generative modelling. → [Probability & information theory](02-probability-and-information-theory.md)
+
+### The consequence: mode-covering behaviour
+
+$D_{\mathrm{KL}}(p_{\text{data}} \| p_\theta)$ is **asymmetric**, and the asymmetry has teeth:
+
+$$D_{\mathrm{KL}}(p \| q) = \int p(x) \log\frac{p(x)}{q(x)}\,dx$$
+
+Wherever $p(x) > 0$ but $q(x) \to 0$, the integrand $\to \infty$. So a model trained by MLE is
+**infinitely punished for assigning zero probability to real data**, but only mildly punished for
+assigning probability to nonsense. Result: MLE models *over-generalize* — they cover all the modes,
+and blur between them.
+
+![A two-mode data density with two single-Gaussian fits: the forward-KL fit is wide and centred between the modes; the reverse-KL fit sits tightly on one mode](../assets/figures/kl-forward-reverse.svg)
+
+*Computed numerically: p = ½N(−2, 0.6²) + ½N(2, 0.6²). Forward KL is minimized by moment matching (μ = 0, σ = 2.09); reverse KL by grid search (μ = ±2, σ = 0.60). → full treatment in [Probability & information theory §4](02-probability-and-information-theory.md#4-kl-divergence-the-excess-cost-of-being-wrong).*
+
+This one picture explains **why VAEs are blurry and GANs collapse.** VAEs minimize (a bound on)
+forward KL → cover everything → blur. GAN training is closer to a symmetric/reverse objective →
+sharp but drops modes. → [VAE](../02-classical-models/02-vae.md), → [GAN](../02-classical-models/03-gan.md)
+
+---
+
+## 4. The four things a generative model can do
+
+That asymmetry is not just a post-hoc explanation for blur and collapse — it is a preview of a more general pattern. Every family pays for what it's good at with something it's bad at. The next table makes that trade concrete, one capability at a time.
+
+Not all models can do all four:
 
 | Capability | What it means | AR | VAE | GAN | Flow | Diffusion | EBM |
 |---|---|:--:|:--:|:--:|:--:|:--:|:--:|
@@ -127,7 +179,9 @@ latent diffusion. Flows are niche because invertibility constrains architecture 
 
 ---
 
-## 4. The generative trilemma
+## 5. The generative trilemma
+
+Underneath that market-shaped explanation sits a stricter constraint than any single row of the table shows on its own — one that shows up the moment you line up quality, speed and coverage side by side.
 
 You want three things. You get two.
 
@@ -163,7 +217,9 @@ speculative decoding attacks autoregressive latency (→ [Inference & decoding](
 
 ---
 
-## 5. Why now? The three-factor explanation
+## 6. Why now? The three-factor explanation
+
+None of this — the trilemma, the race to break it, the four families and their trade-offs — was attempted at any serious scale before roughly 2012. What changed was not one clever idea but three factors compounding at once, and it's worth being precise about their relative weight rather than crediting the usual folklore.
 
 Generative models are old. The Boltzmann machine is from 1985; the variational autoencoder's core
 math is 1990s statistics. The explosion after 2012 has three causes, and it is worth getting the
@@ -225,53 +281,9 @@ curated deliberately.
 
 ---
 
-## 6. What "learning a distribution" actually means in practice
-
-You never see $p_{\text{data}}$. You see $N$ samples from it. Training almost always means
-**maximum likelihood estimation**:
-
-$$\theta^* = \arg\max_\theta \frac{1}{N}\sum_{i=1}^{N} \log p_\theta(x^{(i)})$$
-
-**Derivation — why MLE is the same as minimizing KL divergence**
-
-$$
-\begin{aligned}
-D_{\mathrm{KL}}(p_{\text{data}} \,\|\, p_\theta)
-&= \mathbb{E}_{x \sim p_{\text{data}}}\!\left[\log \frac{p_{\text{data}}(x)}{p_\theta(x)}\right] \\
-&= \underbrace{\mathbb{E}_{p_{\text{data}}}[\log p_{\text{data}}(x)]}_{\text{$-H(p_{\text{data}})$, constant in }\theta}
- - \mathbb{E}_{p_{\text{data}}}[\log p_\theta(x)]
-\end{aligned}
-$$
-
-The first term does not depend on $\theta$. So
-
-$$\arg\min_\theta D_{\mathrm{KL}}(p_{\text{data}} \| p_\theta) = \arg\max_\theta \mathbb{E}_{p_{\text{data}}}[\log p_\theta(x)]$$
-
-— **maximizing likelihood is exactly minimizing the KL divergence from data to model.** This is the
-single most important identity in generative modelling. → [Probability & information theory](02-probability-and-information-theory.md)
-
-### The consequence: mode-covering behaviour
-
-$D_{\mathrm{KL}}(p_{\text{data}} \| p_\theta)$ is **asymmetric**, and the asymmetry has teeth:
-
-$$D_{\mathrm{KL}}(p \| q) = \int p(x) \log\frac{p(x)}{q(x)}\,dx$$
-
-Wherever $p(x) > 0$ but $q(x) \to 0$, the integrand $\to \infty$. So a model trained by MLE is
-**infinitely punished for assigning zero probability to real data**, but only mildly punished for
-assigning probability to nonsense. Result: MLE models *over-generalize* — they cover all the modes,
-and blur between them.
-
-![A two-mode data density with two single-Gaussian fits: the forward-KL fit is wide and centred between the modes; the reverse-KL fit sits tightly on one mode](../assets/figures/kl-forward-reverse.svg)
-
-*Computed numerically: p = ½N(−2, 0.6²) + ½N(2, 0.6²). Forward KL is minimized by moment matching (μ = 0, σ = 2.09); reverse KL by grid search (μ = ±2, σ = 0.60). → full treatment in [Probability & information theory §4](02-probability-and-information-theory.md#4-kl-divergence-the-excess-cost-of-being-wrong).*
-
-This one picture explains **why VAEs are blurry and GANs collapse.** VAEs minimize (a bound on)
-forward KL → cover everything → blur. GAN training is closer to a symmetric/reverse objective →
-sharp but drops modes. → [VAE](../02-classical-models/02-vae.md), → [GAN](../02-classical-models/03-gan.md)
-
----
-
 ## 7. Conditional generation: where the value is
+
+Compute, data and architecture explain how to build a model of $p(x)$ at all. They say nothing about *controlling* what comes out — and control is where the commercial value actually sits. Nobody wants a model that draws a random image; they want one that draws *this* image, for *this* prompt.
 
 Unconditional generation ("draw any image") is a research benchmark. Products want
 **conditional** generation:
@@ -301,6 +313,8 @@ Two ways to condition, and the distinction matters:
 ---
 
 ## 8. Emergence, or the lack of it
+
+Conditioning answers *what* a model can be steered to produce. A separate, less settled question is *when* — at what scale — a capability shows up at all, and whether that appearance is a gradual improvement or a genuine jump. This closing section is a caveat worth carrying into every later page that talks about scale.
 
 A widely-cited observation is that some capabilities appear *suddenly* at scale. The GPT-3
 paper's own arithmetic results are a clean example: the 13B model (≈$2\times10^{22}$ training FLOPs)
@@ -349,7 +363,7 @@ $196{,}608$-dimensional image.
 **Problem 2 — forward vs reverse KL, by hand.** Let $p$ put mass $0.5$ at $x{=}0$ and $0.5$ at
 $x{=}10$ (two point masses), and let $q_1, q_2$ be candidate approximations: $q_1$ puts all its
 mass at $x{=}5$ (between the modes), $q_2$ puts all its mass at $x{=}0$ (on one mode). Using the
-informal "infinite penalty" rule from §6, which of $q_1, q_2$ would forward KL $D_{KL}(p\|q)$
+informal "infinite penalty" rule from §3, which of $q_1, q_2$ would forward KL $D_{KL}(p\|q)$
 prefer, and which would reverse KL $D_{KL}(q\|p)$ prefer? Why can neither actually be evaluated
 if $q$ is a point mass?
 
@@ -358,7 +372,7 @@ if $q$ is a point mass?
 Forward KL integrates $p(x)\log(p(x)/q(x))$: wherever $p(x)>0$ but $q(x)=0$, the term is
 $+\infty$. Since $p$ has mass at *both* 0 and 10, **any** $q$ that is zero at either point gives
 infinite forward KL — so *neither* $q_1$ nor $q_2$ is preferred by forward KL over the other; both
-are catastrophic, which is exactly the "must cover everything" property from §6. A $q$ that
+are catastrophic, which is exactly the "must cover everything" property from §3. A $q$ that
 actually minimizes forward KL here must itself be spread across both modes (e.g. reproduce $p$
 exactly, or in the Gaussian-fit case in the linked info-theory page, straddle both).
 
@@ -376,7 +390,7 @@ version of the same infinite-penalty logic that applies to continuous densities 
 
 **Problem 3 — the trilemma.** A colleague proposes a new "instant GAN" that samples in one
 forward pass, claims perfect mode coverage (no mode collapse, ever), and produces
-state-of-the-art FID. Using the trilemma from §4, what should you be suspicious of, and what's
+state-of-the-art FID. Using the trilemma from §5, what should you be suspicious of, and what's
 the first experiment you'd run?
 
 <details markdown="1"><summary>Solution</summary>
