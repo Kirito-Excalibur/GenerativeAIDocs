@@ -421,7 +421,7 @@ bypasses it.
 ## Further reading
 
 - Bender et al., *On the Dangers of Stochastic Parrots* (2021).
-- Hofmann et al., *AI Generates Covertly Racist Decisions about People Based on Their Dialect* (2024).
+- Hofmann et al., [*AI Generates Covertly Racist Decisions about People Based on Their Dialect*](https://arxiv.org/abs/2403.00742) (2024).
 - Kleinberg, Mullainathan & Raghavan, [*Inherent Trade-Offs in the Fair Determination of Risk Scores*](https://arxiv.org/abs/1609.05807) (2016).
 - Strubell et al., [*Energy and Policy Considerations for Deep Learning in NLP*](https://arxiv.org/abs/1906.02243) (2019); Luccioni et al., [*Estimating the Carbon Footprint of BLOOM*](https://arxiv.org/abs/2211.02001) (2022).
 - Noy & Zhang, *Experimental Evidence on the Productivity Effects of Generative AI* (2023); Peng et al., [*The Impact of AI on Developer Productivity*](https://arxiv.org/abs/2302.06590) (2023).

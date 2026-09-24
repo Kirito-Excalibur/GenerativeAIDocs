@@ -349,7 +349,7 @@ actually run $k=\infty$ inside every training step).
 - Hinton, *Training Products of Experts by Minimizing Contrastive Divergence* (2002).
 - Hyvärinen, *Estimation of Non-Normalized Statistical Models by Score Matching* (2005).
 - Vincent, *A Connection Between Score Matching and Denoising Autoencoders* (2011) — the key bridge.
-- Du & Mordatch, *Implicit Generation and Generalization in Energy-Based Models* (2019).
+- Du & Mordatch, [*Implicit Generation and Generalization in Energy-Based Models*](https://arxiv.org/abs/1903.08689) (2019).
 - Grathwohl et al., [*Your Classifier is Secretly an Energy Based Model*](https://arxiv.org/abs/1912.03263) (JEM, 2019).
 - Song & Kingma, [*How to Train Your Energy-Based Models*](https://arxiv.org/abs/2101.03288) (2021) — the modern survey.
 

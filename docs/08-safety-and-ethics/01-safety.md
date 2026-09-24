@@ -420,7 +420,7 @@ rise as evidence of success is exactly the mistake the curve in §3 is warning a
 - Sharma et al., [*Towards Understanding Sycophancy in Language Models*](https://arxiv.org/abs/2310.13548) (2023).
 - Wei, Haghtalab & Steinhardt, [*Jailbroken: How Does LLM Safety Training Fail?*](https://arxiv.org/abs/2307.02483) (2023).
 - Anil et al., *Many-shot Jailbreaking* (2024); Zou et al., [*Universal and Transferable Adversarial Attacks*](https://arxiv.org/abs/2307.15043) (GCG, 2023).
-- Turpin et al., *Language Models Don't Always Say What They Think* (2023).
+- Turpin et al., [*Language Models Don't Always Say What They Think*](https://arxiv.org/abs/2305.04388) (2023).
 - Olsson et al., [*In-context Learning and Induction Heads*](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) (2022).
 - Templeton et al., [*Scaling Monosemanticity*](https://transformer-circuits.pub/2024/scaling-monosemanticity/) (2024); Elhage et al., [*Toy Models of Superposition*](https://transformer-circuits.pub/2022/toy_model/index.html) (2022).
 - Carlini et al., [*Quantifying Memorization Across Neural Language Models*](https://arxiv.org/abs/2202.07646) (2022).

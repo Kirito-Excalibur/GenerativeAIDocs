@@ -472,9 +472,9 @@ you've drifted) to pick a stopping point, not the reward-model score alone.
 ## Further reading
 
 - Ouyang et al., [*Training Language Models to Follow Instructions with Human Feedback*](https://arxiv.org/abs/2203.02155) (InstructGPT, 2022).
-- Rafailov et al., [*Direct Preference Optimization*](https://arxiv.org/abs/2403.19159) (2023) — read the derivation in the appendix.
+- Rafailov et al., [*Direct Preference Optimization*](https://arxiv.org/abs/2305.18290) (2023) — read the derivation in the appendix.
 - Bai et al., [*Constitutional AI: Harmlessness from AI Feedback*](https://arxiv.org/abs/2212.08073) (2022).
-- Shao et al., [*DeepSeekMath*](https://arxiv.org/abs/2511.22570) (2024) — introduces GRPO.
+- Shao et al., [*DeepSeekMath*](https://arxiv.org/abs/2402.03300) (2024) — introduces GRPO.
 - DeepSeek-AI, [*DeepSeek-R1*](https://arxiv.org/abs/2501.12948) (2025) — pure RL producing emergent reasoning.
 - Gao, Schulman & Hilton, [*Scaling Laws for Reward Model Overoptimization*](https://arxiv.org/abs/2210.10760) (2022).
 - Sharma et al., [*Towards Understanding Sycophancy in Language Models*](https://arxiv.org/abs/2310.13548) (2023).

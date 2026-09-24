@@ -496,7 +496,7 @@ the most likely upgrade if latency becomes the bottleneck.
 - Schick et al., [*Toolformer*](https://arxiv.org/abs/2302.04761) (2023).
 - Shinn et al., [*Reflexion: Language Agents with Verbal Reinforcement Learning*](https://arxiv.org/abs/2303.11366) (2023).
 - Jimenez et al., [*SWE-bench*](https://arxiv.org/abs/2310.06770) (2023); Zhou et al., [*WebArena*](https://arxiv.org/abs/2307.13854) (2023); Yao et al., [*τ-bench*](https://arxiv.org/abs/2406.12045) (2024).
-- Greshake et al., *Not What You've Signed Up For: Indirect Prompt Injection* (2023).
+- Greshake et al., [*Not What You've Signed Up For: Indirect Prompt Injection*](https://arxiv.org/abs/2302.12173) (2023).
 - Willison, *The Lethal Trifecta* — private data + untrusted content + external communication.
 - Anthropic, *Building Effective Agents* (2024) — an unusually practical guide to when *not* to use agents.
 

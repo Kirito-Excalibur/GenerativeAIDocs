@@ -456,7 +456,7 @@ some quality risk is tolerable, pattern 1 with the LLM kept frozen throughout (n
 - Zhai et al., [*Sigmoid Loss for Language Image Pre-Training*](https://arxiv.org/abs/2303.15343) (SigLIP, 2023).
 - Liu et al., [*Visual Instruction Tuning*](https://arxiv.org/abs/2304.08485) (LLaVA, 2023); Li et al., [*BLIP-2*](https://arxiv.org/abs/2301.12597) (2023).
 - Alayrac et al., [*Flamingo*](https://arxiv.org/abs/2204.14198) (2022).
-- Yu et al., *SoundStream* (2021); Défossez et al., [*EnCodec*](https://arxiv.org/abs/2210.13438) (2022); Copet et al., [*MusicGen*](https://arxiv.org/abs/2306.05284) (2023).
+- Yu et al., [*SoundStream*](https://arxiv.org/abs/2107.03312) (2021); Défossez et al., [*EnCodec*](https://arxiv.org/abs/2210.13438) (2022); Copet et al., [*MusicGen*](https://arxiv.org/abs/2306.05284) (2023).
 - Thrush et al., [*Winoground*](https://arxiv.org/abs/2204.03162) (2022) — the compositionality failure, measured.
 - Li et al., [*Evaluating Object Hallucination in Large Vision-Language Models*](https://arxiv.org/abs/2305.10355) (POPE, 2023).
 

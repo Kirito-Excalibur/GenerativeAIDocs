@@ -405,7 +405,7 @@ structurally, regardless of what the model is induced to output.
 
 ## Further reading
 
-- Greshake et al., *Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection* (2023).
+- Greshake et al., [*Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection*](https://arxiv.org/abs/2302.12173) (2023).
 - Willison, *Prompt injection* series and *The Lethal Trifecta* — the clearest practical writing on this.
 - Nasr et al., [*Scalable Extraction of Training Data from (Production) Language Models*](https://arxiv.org/abs/2311.17035) (2023).
 - Hubinger et al., [*Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training*](https://arxiv.org/abs/2401.05566) (2024).

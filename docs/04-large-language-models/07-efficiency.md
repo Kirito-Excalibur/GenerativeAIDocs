@@ -423,7 +423,7 @@ trend.
 
 ## Further reading
 
-- Dettmers et al., *LLM.int8()* (2022) — the outlier discovery.
+- Dettmers et al., [*LLM.int8()*](https://arxiv.org/abs/2208.07339) (2022) — the outlier discovery.
 - Xiao et al., [*SmoothQuant*](https://arxiv.org/abs/2211.10438) (2022); Lin et al., *AWQ* (2023); Frantar et al., [*GPTQ*](https://arxiv.org/abs/2210.17323) (2022).
 - Hinton, Vinyals & Dean, [*Distilling the Knowledge in a Neural Network*](https://arxiv.org/abs/1503.02531) (2015).
 - Agarwal et al., [*GKD: Generalized Knowledge Distillation*](https://arxiv.org/abs/2306.13649) (2023) — on-policy distillation.

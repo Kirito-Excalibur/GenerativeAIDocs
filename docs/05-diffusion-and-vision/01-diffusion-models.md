@@ -424,7 +424,7 @@ correct recipe's re-noising step ("re-noise the original to level $t$") is desig
 ## Further reading
 
 - Ho, Jain & Abbeel, [*Denoising Diffusion Probabilistic Models*](https://arxiv.org/abs/2006.11239) (2020) — the paper that started it.
-- Sohl-Dickstein et al., *Deep Unsupervised Learning using Nonequilibrium Thermodynamics* (2015) — the original idea, five years early.
+- Sohl-Dickstein et al., [*Deep Unsupervised Learning using Nonequilibrium Thermodynamics*](https://arxiv.org/abs/1503.03585) (2015) — the original idea, five years early.
 - Nichol & Dhariwal, [*Improved Denoising Diffusion Probabilistic Models*](https://arxiv.org/abs/2102.09672) (2021) — cosine schedule, learned variance.
 - Luo, [*Understanding Diffusion Models: A Unified Perspective*](https://arxiv.org/abs/2208.11970) (2022) — the clearest full derivation available.
 - Peebles & Xie, [*Scalable Diffusion Models with Transformers*](https://arxiv.org/abs/2212.09748) (DiT, 2023).

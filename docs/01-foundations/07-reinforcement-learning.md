@@ -399,9 +399,9 @@ advantage sign**, not movement in general.
 
 - Sutton & Barto, *Reinforcement Learning: An Introduction* (2nd ed., 2018): the standard textbook, free online.
 - Williams, *Simple Statistical Gradient-Following Algorithms for Connectionist Reinforcement Learning* (1992): REINFORCE.
-- Schulman et al., *High-Dimensional Continuous Control Using Generalized Advantage Estimation* (2015).
-- Schulman et al., *Proximal Policy Optimization Algorithms* (2017).
-- Shao et al., [*DeepSeekMath*](https://arxiv.org/abs/2511.22570) (2024): introduces GRPO.
+- Schulman et al., [*High-Dimensional Continuous Control Using Generalized Advantage Estimation*](https://arxiv.org/abs/1506.02438) (2015).
+- Schulman et al., [*Proximal Policy Optimization Algorithms*](https://arxiv.org/abs/1707.06347) (2017).
+- Shao et al., [*DeepSeekMath*](https://arxiv.org/abs/2402.03300) (2024): introduces GRPO.
 - OpenAI, *Spinning Up in Deep RL*: a practical, well-written tutorial.
 
 **Next** → Part II: [Autoregressive models](../02-classical-models/01-autoregressive-models.md)

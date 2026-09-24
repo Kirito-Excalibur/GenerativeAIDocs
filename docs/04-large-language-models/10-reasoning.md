@@ -483,7 +483,7 @@ structurally lack (circuit depth), exactly as §1's theorem predicts.
 - Snell et al., [*Scaling LLM Test-Time Compute Optimally*](https://arxiv.org/abs/2408.03314) (2024).
 - DeepSeek-AI, [*DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via RL*](https://arxiv.org/abs/2501.12948) (2025).
 - Merrill & Sabharwal, [*The Expressive Power of Transformers with Chain of Thought*](https://arxiv.org/abs/2310.07923) (2024).
-- Turpin et al., *Language Models Don't Always Say What They Think* (2023) — CoT unfaithfulness.
+- Turpin et al., [*Language Models Don't Always Say What They Think*](https://arxiv.org/abs/2305.04388) (2023) — CoT unfaithfulness.
 - Mirzadeh et al., [*GSM-Symbolic*](https://arxiv.org/abs/2410.05229) (2024) — the brittleness evidence.
 
 **Next** → [Diffusion language models](11-diffusion-language-models.md)

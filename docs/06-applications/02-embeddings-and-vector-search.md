@@ -484,7 +484,7 @@ routine upgrade.
 
 - Karpukhin et al., [*Dense Passage Retrieval*](https://arxiv.org/abs/2004.04906) (2020) — the foundational DPR paper.
 - Malkov & Yashunin, [*Efficient and Robust ANN Search using HNSW*](https://arxiv.org/abs/1603.09320) (2016).
-- Jégou et al., [*Product Quantization for Nearest Neighbor Search*](https://arxiv.org/abs/2411.12306) (2011).
+- Jégou et al., *Product Quantization for Nearest Neighbor Search* (2011).
 - Robertson & Zaragoza, *The Probabilistic Relevance Framework: BM25 and Beyond* (2009).
 - Thakur et al., [*BEIR: A Heterogeneous Benchmark for Zero-shot Information Retrieval*](https://arxiv.org/abs/2104.08663) (2021).
 - Kusupati et al., [*Matryoshka Representation Learning*](https://arxiv.org/abs/2205.13147) (2022).

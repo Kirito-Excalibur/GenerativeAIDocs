@@ -339,7 +339,7 @@ modality table gives you the domain-specific *why*.
 
 ## Further reading
 
-- Bond-Taylor et al., *Deep Generative Modelling: A Comparative Review* (2021) — the best survey.
+- Bond-Taylor et al., [*Deep Generative Modelling: A Comparative Review*](https://arxiv.org/abs/2103.04922) (2021) — the best survey.
 - Luo, [*Understanding Diffusion Models: A Unified Perspective*](https://arxiv.org/abs/2208.11970) (2022) — the VAE↔diffusion bridge, done carefully.
 - Song et al., [*Score-Based Generative Modeling through SDEs*](https://arxiv.org/abs/2011.13456) (2021) — the unification.
 - Lipman et al., [*Flow Matching for Generative Modeling*](https://arxiv.org/abs/2210.02747) (2023).

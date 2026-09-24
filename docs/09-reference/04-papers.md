@@ -41,10 +41,10 @@
 | Papamakarios et al., [*Normalizing Flows for Probabilistic Modeling*](https://arxiv.org/abs/1912.02762) | 2021 | the definitive survey |
 | van den Oord et al., [*Neural Discrete Representation Learning*](https://arxiv.org/abs/1711.00937) (VQ-VAE) ⭐ | 2017 | discrete latents; straight-through |
 | Esser et al., [*Taming Transformers*](https://arxiv.org/abs/2012.09841) (VQGAN) | 2020 | VQ + perceptual + adversarial |
-| Du & Mordatch, *Implicit Generation and Generalization in EBMs* | 2019 | EBMs on images |
+| Du & Mordatch, [*Implicit Generation and Generalization in EBMs*](https://arxiv.org/abs/1903.08689) | 2019 | EBMs on images |
 | Grathwohl et al., [*Your Classifier is Secretly an EBM*](https://arxiv.org/abs/1912.03263) | 2019 | JEM |
-| Nalisnick et al., *Do Deep Generative Models Know What They Don't Know?* | 2018 | high likelihood ≠ in-distribution |
-| Bond-Taylor et al., *Deep Generative Modelling: A Comparative Review* | 2021 | the best cross-family survey |
+| Nalisnick et al., [*Do Deep Generative Models Know What They Don't Know?*](https://arxiv.org/abs/1810.09136) | 2018 | high likelihood ≠ in-distribution |
+| Bond-Taylor et al., [*Deep Generative Modelling: A Comparative Review*](https://arxiv.org/abs/2103.04922) | 2021 | the best cross-family survey |
 
 ## Sequence models and the Transformer
 
@@ -58,7 +58,7 @@
 | Su et al., [*RoFormer*](https://arxiv.org/abs/2104.09864) (RoPE) ⭐ | 2021 | rotary position embedding |
 | Press et al., [*Train Short, Test Long*](https://arxiv.org/abs/2108.12409) (ALiBi) | 2021 | linear position bias |
 | Ainslie et al., *GQA* | 2023 | 8× smaller KV cache |
-| Dao et al., [*FlashAttention*](https://arxiv.org/abs/2307.08691) ⭐ | 2022 | tiling + online softmax; exact, $O(T)$ memory |
+| Dao et al., [*FlashAttention*](https://arxiv.org/abs/2205.14135) ⭐ | 2022 | tiling + online softmax; exact, $O(T)$ memory |
 | Gu & Dao, [*Mamba*](https://arxiv.org/abs/2312.00752) ⭐ | 2023 | selective state-space models |
 | Elhage et al., [*A Mathematical Framework for Transformer Circuits*](https://transformer-circuits.pub/2021/framework/index.html) ⭐ | 2021 | the residual stream view |
 | Olsson et al., [*In-context Learning and Induction Heads*](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) ⭐ | 2022 | a circuit tied to a capability |
@@ -83,12 +83,12 @@
 | Narayanan et al., [*Efficient Large-Scale LM Training on GPU Clusters*](https://arxiv.org/abs/2104.04473) (Megatron) | 2021 | 3-D parallelism |
 | Lee et al., [*Deduplicating Training Data Makes LMs Better*](https://arxiv.org/abs/2107.06499) ⭐ | 2022 | dedup improves loss *and* cuts memorization |
 | Penedo et al., [*The FineWeb Datasets*](https://arxiv.org/abs/2406.17557) | 2024 | an open, documented filtering pipeline |
-| Yang et al., [*Tensor Programs V*](https://arxiv.org/abs/2310.02244) (μP) | 2022 | hyperparameter transfer across scale |
+| Yang et al., [*Tensor Programs V*](https://arxiv.org/abs/2203.03466) (μP) | 2022 | hyperparameter transfer across scale |
 | Shazeer et al., [*Outrageously Large Neural Networks*](https://arxiv.org/abs/1701.06538) (MoE) | 2017 | sparse gating |
 | Fedus et al., [*Switch Transformers*](https://arxiv.org/abs/2101.03961) | 2021 | top-1 routing at scale |
 | Jiang et al., [*Mixtral of Experts*](https://arxiv.org/abs/2401.04088) | 2024 | open MoE; expert specialization analysis |
 | DeepSeek-AI, [*DeepSeek-V3 Technical Report*](https://arxiv.org/abs/2412.19437) ⭐ | 2024 | fine-grained + shared experts; MLA; loss-free balancing |
-| Dettmers et al., *LLM.int8()* | 2022 | the outlier discovery |
+| Dettmers et al., [*LLM.int8()*](https://arxiv.org/abs/2208.07339) | 2022 | the outlier discovery |
 | Xiao et al., [*SmoothQuant*](https://arxiv.org/abs/2211.10438) | 2022 | migrate outliers into the weights |
 | Frantar et al., [*GPTQ*](https://arxiv.org/abs/2210.17323) / Lin et al., *AWQ* | 2022/23 | 4-bit weight quantization |
 | Ma et al., [*The Era of 1-bit LLMs*](https://arxiv.org/abs/2402.17764) (BitNet b1.58) | 2024 | ternary weights, trained natively |
@@ -107,18 +107,18 @@
 | **Ouyang et al., *Training LMs to Follow Instructions with Human Feedback*** ⭐ | 2022 | InstructGPT / RLHF |
 | **Rafailov et al., *Direct Preference Optimization*** ⭐ | 2023 | the derivation removing the reward model |
 | Bai et al., [*Constitutional AI*](https://arxiv.org/abs/2212.08073) ⭐ | 2022 | AI feedback from written principles |
-| Shao et al., [*DeepSeekMath*](https://arxiv.org/abs/2511.22570) | 2024 | GRPO |
+| Shao et al., [*DeepSeekMath*](https://arxiv.org/abs/2402.03300) | 2024 | GRPO |
 | **DeepSeek-AI, *DeepSeek-R1*** ⭐ | 2025 | pure RL → emergent reasoning |
 | Gao, Schulman & Hilton, [*Scaling Laws for Reward Model Overoptimization*](https://arxiv.org/abs/2210.10760) ⭐ | 2022 | true preference peaks then declines |
 | Casper et al., [*Open Problems and Fundamental Limitations of RLHF*](https://arxiv.org/abs/2307.15217) | 2023 | the honest critique |
 | **Wei et al., *Chain-of-Thought Prompting*** ⭐ | 2022 | reasoning via intermediate tokens |
 | Kojima et al., [*Large Language Models are Zero-Shot Reasoners*](https://arxiv.org/abs/2205.11916) | 2022 | "let's think step by step" |
-| Wang et al., [*Self-Consistency*](https://arxiv.org/abs/2505.10772) ⭐ | 2022 | sample $n$, majority vote |
+| Wang et al., [*Self-Consistency*](https://arxiv.org/abs/2203.11171) ⭐ | 2022 | sample $n$, majority vote |
 | Lightman et al., [*Let's Verify Step by Step*](https://arxiv.org/abs/2305.20050) ⭐ | 2023 | process reward models; PRM800K |
 | Yao et al., [*Tree of Thoughts*](https://arxiv.org/abs/2305.10601) | 2023 | search over reasoning |
 | Snell et al., [*Scaling LLM Test-Time Compute Optimally*](https://arxiv.org/abs/2408.03314) ⭐ | 2024 | the second scaling axis |
 | Merrill & Sabharwal, [*The Expressive Power of Transformers with CoT*](https://arxiv.org/abs/2310.07923) ⭐ | 2024 | the complexity-theoretic justification for CoT |
-| Turpin et al., *Language Models Don't Always Say What They Think* ⭐ | 2023 | CoT is often unfaithful |
+| Turpin et al., [*Language Models Don't Always Say What They Think*](https://arxiv.org/abs/2305.04388) ⭐ | 2023 | CoT is often unfaithful |
 
 ## Inference and serving
 
@@ -137,7 +137,7 @@
 
 | Paper | Year | Take-away |
 |---|---|---|
-| Sohl-Dickstein et al., *Deep Unsupervised Learning using Nonequilibrium Thermodynamics* | 2015 | the idea, five years early |
+| Sohl-Dickstein et al., [*Deep Unsupervised Learning using Nonequilibrium Thermodynamics*](https://arxiv.org/abs/1503.03585) | 2015 | the idea, five years early |
 | Song & Ermon, [*Generative Modeling by Estimating Gradients*](https://arxiv.org/abs/1907.05600) (NCSN) ⭐ | 2019 | annealed Langevin |
 | **Ho et al., *Denoising Diffusion Probabilistic Models*** ⭐ | 2020 | the simple loss |
 | Song et al., [*Denoising Diffusion Implicit Models*](https://arxiv.org/abs/2010.02502) (DDIM) ⭐ | 2020 | deterministic sampling |
@@ -170,7 +170,7 @@
 | Karpukhin et al., [*Dense Passage Retrieval*](https://arxiv.org/abs/2004.04906) | 2020 | dense retrieval with hard negatives |
 | Robertson & Zaragoza, *The Probabilistic Relevance Framework: BM25 and Beyond* | 2009 | the sparse baseline you should still use |
 | Malkov & Yashunin, [*HNSW*](https://arxiv.org/abs/1603.09320) | 2016 | the quality-default ANN index |
-| Jégou et al., [*Product Quantization*](https://arxiv.org/abs/2411.12306) | 2011 | 32× index compression |
+| Jégou et al., *Product Quantization* | 2011 | 32× index compression |
 | Gao et al., [*Precise Zero-Shot Dense Retrieval*](https://arxiv.org/abs/2212.10496) (HyDE) | 2022 | embed a hypothetical answer |
 | Kusupati et al., [*Matryoshka Representation Learning*](https://arxiv.org/abs/2205.13147) | 2022 | truncatable embeddings |
 | **Liu et al., *Lost in the Middle*** ⭐ | 2023 | the U-shaped attention curve |
@@ -206,7 +206,7 @@
 | Templeton et al., [*Scaling Monosemanticity*](https://transformer-circuits.pub/2024/scaling-monosemanticity/) ⭐ | 2024 | SAE features in a production model |
 | Elhage et al., [*Toy Models of Superposition*](https://transformer-circuits.pub/2022/toy_model/index.html) ⭐ | 2022 | why neurons are polysemantic |
 | Bender et al., *On the Dangers of Stochastic Parrots* | 2021 | the critical perspective, worth engaging with |
-| Hofmann et al., *AI Generates Covertly Racist Decisions* | 2024 | alignment hides bias rather than removing it |
+| Hofmann et al., [*AI Generates Covertly Racist Decisions*](https://arxiv.org/abs/2403.00742) | 2024 | alignment hides bias rather than removing it |
 
 ---
 

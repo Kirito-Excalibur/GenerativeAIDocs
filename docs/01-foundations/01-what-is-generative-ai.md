@@ -447,7 +447,7 @@ argument and the $w\approx7$–8 empirical sweet spot — in
 ## Further reading
 
 - Bishop, *Pattern Recognition and Machine Learning*, ch. 1–2 — the classical framing.
-- Goodfellow, Bengio & Courville, [*Deep Learning*](https://arxiv.org/abs/1607.00133), ch. 20 — deep generative models.
+- Goodfellow, Bengio & Courville, [*Deep Learning*](https://www.deeplearningbook.org/), ch. 20 — deep generative models.
 - Murphy, *Probabilistic Machine Learning: Advanced Topics* (2023) — the most current textbook treatment.
 - Kaplan et al., [*Scaling Laws for Neural Language Models*](https://arxiv.org/abs/2001.08361) (2020).
 - Schaeffer et al., [*Are Emergent Abilities of LLMs a Mirage?*](https://arxiv.org/abs/2304.15004) (2023).

@@ -400,7 +400,7 @@ only the relevant handful of precedents per query — is the only economically v
 
 ## Further reading
 
-- Dao et al., [*FlashAttention*](https://arxiv.org/abs/2307.08691) (2022); Liu et al., [*Ring Attention with Blockwise Transformers*](https://arxiv.org/abs/2310.01889) (2023).
+- Dao et al., [*FlashAttention*](https://arxiv.org/abs/2205.14135) (2022); Liu et al., [*Ring Attention with Blockwise Transformers*](https://arxiv.org/abs/2310.01889) (2023).
 - Beltagy et al., [*Longformer*](https://arxiv.org/abs/2004.05150) (2020); Jiang et al., [*Mistral 7B*](https://arxiv.org/abs/2310.06825) (2023) — sliding window in practice.
 - Gu & Dao, [*Mamba*](https://arxiv.org/abs/2312.00752) (2023); Lieber et al., [*Jamba*](https://arxiv.org/abs/2403.19887) (2024).
 - Peng et al., [*YaRN*](https://arxiv.org/abs/2309.00071) (2023); Chen et al., [*Position Interpolation*](https://arxiv.org/abs/2306.15595) (2023).

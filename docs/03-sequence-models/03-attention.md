@@ -516,7 +516,7 @@ for this new offset just as it did for the offset-3 example worked in the page i
 
 - Bahdanau et al., [*Neural Machine Translation by Jointly Learning to Align and Translate*](https://arxiv.org/abs/1409.0473) (2015) — attention's origin.
 - Vaswani et al., [*Attention Is All You Need*](https://arxiv.org/abs/1706.03762) (2017).
-- Dao et al., [*FlashAttention*](https://arxiv.org/abs/2307.08691) (2022) and [*FlashAttention-2*](https://arxiv.org/abs/2307.08691) (2023).
+- Dao et al., [*FlashAttention*](https://arxiv.org/abs/2205.14135) (2022) and [*FlashAttention-2*](https://arxiv.org/abs/2307.08691) (2023).
 - Ainslie et al., [*GQA: Training Generalized Multi-Query Transformer Models*](https://arxiv.org/abs/2305.13245) (2023).
 - Olsson et al., [*In-context Learning and Induction Heads*](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) (2022).
 - Xiao et al., [*Efficient Streaming Language Models with Attention Sinks*](https://arxiv.org/abs/2309.17453) (2023).

@@ -329,15 +329,15 @@ remain "an active research area" as that page notes.
 ## Further reading
 
 - van den Oord et al., [*WaveNet: A Generative Model for Raw Audio*](https://arxiv.org/abs/1609.03499) (2016).
-- Shen et al., *Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions* (Tacotron 2, 2018).
-- Ren et al., *FastSpeech: Fast, Robust and Controllable Text to Speech* (2019).
-- Kong et al., *HiFi-GAN: Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis* (2020).
-- Zeghidour et al., *SoundStream: An End-to-End Neural Audio Codec* (2021).
-- Défossez et al., *High Fidelity Neural Audio Compression* (EnCodec, 2022).
-- Borsos et al., *AudioLM: a Language Modeling Approach to Audio Generation* (2022).
-- Wang et al., *Neural Codec Language Models are Zero-Shot Text to Speech Synthesizers* (VALL-E, 2023).
-- Le et al., *Voicebox: Text-Guided Multilingual Universal Speech Generation at Scale* (2023).
-- Copet et al., *Simple and Controllable Music Generation* (MusicGen, 2023).
-- Radford et al., *Robust Speech Recognition via Large-Scale Weak Supervision* (Whisper, 2022).
+- Shen et al., [*Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions*](https://arxiv.org/abs/1712.05884) (Tacotron 2, 2018).
+- Ren et al., [*FastSpeech: Fast, Robust and Controllable Text to Speech*](https://arxiv.org/abs/1905.09263) (2019).
+- Kong et al., [*HiFi-GAN: Generative Adversarial Networks for Efficient and High Fidelity Speech Synthesis*](https://arxiv.org/abs/2010.05646) (2020).
+- Zeghidour et al., [*SoundStream: An End-to-End Neural Audio Codec*](https://arxiv.org/abs/2107.03312) (2021).
+- Défossez et al., [*High Fidelity Neural Audio Compression*](https://arxiv.org/abs/2210.13438) (EnCodec, 2022).
+- Borsos et al., [*AudioLM: a Language Modeling Approach to Audio Generation*](https://arxiv.org/abs/2209.03143) (2022).
+- Wang et al., [*Neural Codec Language Models are Zero-Shot Text to Speech Synthesizers*](https://arxiv.org/abs/2301.02111) (VALL-E, 2023).
+- Le et al., [*Voicebox: Text-Guided Multilingual Universal Speech Generation at Scale*](https://arxiv.org/abs/2306.15687) (2023).
+- Copet et al., [*Simple and Controllable Music Generation*](https://arxiv.org/abs/2306.05284) (MusicGen, 2023).
+- Radford et al., [*Robust Speech Recognition via Large-Scale Weak Supervision*](https://arxiv.org/abs/2212.04356) (Whisper, 2022).
 
 **Next** → Part VI: [Prompt engineering](../06-applications/01-prompt-engineering.md)

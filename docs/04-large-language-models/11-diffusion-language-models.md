@@ -303,13 +303,13 @@ cleanly as hoped — a mismatch worth checking for separately once the masking b
 
 ## Further reading
 
-- Austin et al., *Structured Denoising Diffusion Models in Discrete State-Spaces* (D3PM, 2021).
-- Li et al., *Diffusion-LM Improves Controllable Text Generation* (2022): diffusion in embedding space.
-- Lou et al., *Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution* (SEDD, 2024).
-- Sahoo et al., *Simple and Effective Masked Diffusion Language Models* (MDLM, 2024).
-- Shi et al., *Simplified and Generalized Masked Diffusion for Discrete Data* (2024).
-- Nie et al., *Large Language Diffusion Models* (LLaDA, 2025).
-- Inception Labs, *Mercury: Ultra-Fast Language Models Based on Diffusion* (2025).
-- Berglund et al., *The Reversal Curse: LLMs Trained on "A is B" Fail to Learn "B is A"* (2023).
+- Austin et al., [*Structured Denoising Diffusion Models in Discrete State-Spaces*](https://arxiv.org/abs/2107.03006) (D3PM, 2021).
+- Li et al., [*Diffusion-LM Improves Controllable Text Generation*](https://arxiv.org/abs/2205.14217) (2022): diffusion in embedding space.
+- Lou et al., [*Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution*](https://arxiv.org/abs/2310.16834) (SEDD, 2024).
+- Sahoo et al., [*Simple and Effective Masked Diffusion Language Models*](https://arxiv.org/abs/2406.07524) (MDLM, 2024).
+- Shi et al., [*Simplified and Generalized Masked Diffusion for Discrete Data*](https://arxiv.org/abs/2406.04329) (2024).
+- Nie et al., [*Large Language Diffusion Models*](https://arxiv.org/abs/2502.09992) (LLaDA, 2025).
+- Inception Labs, [*Mercury: Ultra-Fast Language Models Based on Diffusion*](https://arxiv.org/abs/2506.17298) (2025).
+- Berglund et al., [*The Reversal Curse: LLMs Trained on "A is B" Fail to Learn "B is A"*](https://arxiv.org/abs/2309.12288) (2023).
 
 **Next** → Part V: [Diffusion models](../05-diffusion-and-vision/01-diffusion-models.md)
