@@ -231,7 +231,7 @@ Use NVIDIA unified memory so optimizer states spill to CPU RAM during transient 
 📊 QLoRA reported matching 16-bit full fine-tuning performance on their benchmarks. The forward
 pass dequantizes NF4 → BF16 on the fly, so compute is unchanged; only storage shrinks.
 
-⚠️ **The tradeoff to know**: QLoRA is *slower* than LoRA (~30–40%) because of dequantization
+⚠️ **The tradeoff to know**: QLoRA is noticeably *slower* than LoRA because of dequantization
 overhead. It trades speed for memory. If the model fits in BF16, use plain LoRA.
 
 ---

@@ -88,7 +88,7 @@ scores overstate capability.
 
 | Test | Finding |
 |---|---|
-| **GSM1k** (Scale AI, 2024) | a new set built to match GSM8K's distribution; some models dropped by up to 13 points |
+| **GSM1k** (Scale AI, 2024) | a new set built to match GSM8K's distribution; some models dropped by up to 8% |
 | **Order sensitivity** | models that memorized a set do worse when answer options are shuffled |
 | **Canary strings** | benchmark files embed unique GUIDs; models can be prompted to reproduce them |
 | **Perplexity gap** | abnormally low perplexity on test items vs matched held-out items |
@@ -267,7 +267,7 @@ and worst-case analysis matter more than the headline number.
 |---|---|
 | 1 | Benchmarks have a lifecycle: discriminative → optimized → saturated. Assume old ones are exhausted. |
 | 2 | Multiple choice measures recognition, has a 25% floor, and is sensitive to scoring method. |
-| 3 | Contamination is real and substantial — GSM1k showed drops of up to 13 points. |
+| 3 | Contamination is real and substantial — GSM1k showed accuracy drops of up to 8%. |
 | 4 | Detect contamination temporally: evaluate on post-cutoff problems. |
 | 5 | Elo gaps: 100 points ≈ 64% win rate. Use style-controlled ratings. |
 | 6 | Arenas measure "what a casual evaluator prefers", which is real but is not accuracy. |

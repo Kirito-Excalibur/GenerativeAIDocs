@@ -54,12 +54,12 @@ problem tractable.
 
 | Model | Total params | Active/token | Experts | Top-$k$ |
 |---|---|---|---|---|
-| Switch Transformer | 1.6 T | ~7 B | 2048 | 1 |
+| Switch-C | 1.6 T | — | 2048 | 1 |
 | **Mixtral 8×7B** | **46.7 B** | **12.9 B** | 8 | 2 |
 | Mixtral 8×22B | 141 B | 39 B | 8 | 2 |
 | DeepSeek-V2 | 236 B | 21 B | 160 + 2 shared | 6 |
 | DeepSeek-V3 | 671 B | 37 B | 256 + 1 shared | 8 |
-| Qwen MoE variants | varies | ~1/8 of total | 60+ | 4+ |
+| Qwen1.5-MoE-A2.7B | 14.3 B | 2.7 B | 60 + 4 shared | 4 |
 
 🔢 **Why "8×7B" is 46.7 B, not 56 B.** Only the MLPs are replicated. For Mixtral:
 

@@ -1,8 +1,8 @@
 # Latent Diffusion & Conditioning
 
 > **Summary** — Diffusing directly in pixel space is wasteful: most pixels are perceptually
-> redundant. Latent diffusion compresses images 8× with a VAE, runs diffusion in that 64×-smaller
-> space, and decodes at the end. Combined with cross-attention for text conditioning and
+> redundant. Latent diffusion compresses images 8× per side with a VAE (64× fewer spatial
+> positions, 48× fewer values), runs diffusion in that small space, and decodes at the end. Combined with cross-attention for text conditioning and
 > classifier-free guidance for prompt adherence, this is the architecture behind essentially every
 > text-to-image system. This page also covers ControlNet, inpainting, and image editing.
 
@@ -218,8 +218,9 @@ Text says *what*. ControlNet says *where*.
    gradually. Without this, the random initial output would destroy the base model's predictions
    before it could learn anything useful.
 
-📊 ControlNet trains on as few as ~50k image/control pairs and takes a day on one GPU — remarkably
-cheap for the capability it adds.
+📊 The ControlNet paper reports that training is robust with small datasets (under 50k pairs) as
+well as large ones, and feasible on a single consumer GPU — remarkably cheap for the capability it
+adds ([Zhang et al. 2023](https://arxiv.org/abs/2302.05543)).
 
 | Control type | Use |
 |---|---|

@@ -271,10 +271,12 @@ different embeddings for the same word.** A prompt ending in a trailing space th
 model into the rarer, space-less continuation tokens and measurably degrades output. This is the
 mechanism behind the common advice "don't end your prompt with a space."
 
-⚠️ **Number tokenization** is the other regex-driven trap. GPT-2's `\p{N}+` groups runs of digits
-arbitrarily by frequency, so `"2023"` might be one token while `"2024"` is `"202"+"4"`. Arithmetic
-then operates over inconsistent units. **Modern fix**: force digits to be tokenized individually
-(LLaMA and most recent models do this) — it measurably improves arithmetic accuracy.
+⚠️ **Number tokenization** is the other regex-driven trap. GPT-2 lets BPE merge digit runs by
+frequency, so the chunk boundaries have nothing to do with place value: `"1234"` becomes
+`"12"+"34"` but `"5678"` becomes `" 5"+"678"`. Arithmetic then operates over inconsistent units.
+**Two modern fixes**: split every digit individually (LLaMA-1/2, via SentencePiece), or cap digit
+chunks at 3 characters so they align with thousands (GPT-4's `cl100k` and LLaMA-3, where
+`"1234567"` → `"123"+"456"+"7"`). Both measurably improve arithmetic.
 
 ---
 
@@ -347,7 +349,7 @@ character-level ciphers.
 ### (b) Arithmetic
 
 ```
-  "1234 + 5678"  →  ["123", "4", " +", " ", "567", "8"]
+  "1234 + 5678"  →  ["12", "34", " +", " 5", "678"]        (GPT-2 tokenizer, verified with tiktoken)
 ```
 
 The digits are not aligned to place value. The model must learn arithmetic over *inconsistent

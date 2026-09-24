@@ -169,8 +169,9 @@ possible** (→ [Alignment §7](../04-large-language-models/05-alignment.md#7-st
 
 📊 **Many-shot jailbreaking** is a clean illustration of mechanism 2: long contexts are a newer
 capability, and safety training on short contexts doesn't cover them. The attack's effectiveness
-increases log-linearly with the number of shots — it is in-context learning working exactly as
-designed, applied adversarially.
+follows a **power law** in the number of shots — the same scaling as ordinary in-context learning.
+It fails at 5 shots and works consistently at 256 ([Anil et al. 2024](https://www.anthropic.com/research/many-shot-jailbreaking)).
+It is in-context learning working exactly as designed, applied adversarially.
 
 📊 **Defences:**
 

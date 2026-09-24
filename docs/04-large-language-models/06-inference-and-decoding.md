@@ -51,11 +51,15 @@ insight of this page.
 
 📊 **The measurement** (Holtzman et al., *The Curious Case of Neural Text Degeneration*, 2019):
 
-| | Human text | Beam search output |
-|---|---|---|
-| Repetition rate | low | **very high** |
-| Average per-token probability | moderate, **highly variable** | high, flat |
-| Perplexity of the produced text | ~12 | ~3 |
+| | Human text | Beam search ($b{=}16$) | Pure sampling | Nucleus ($p{=}0.95$) |
+|---|---|---|---|---|
+| Perplexity of the produced text | 12.38 | **1.48** | 22.73 | 13.13 |
+| Repetition | 0.28% | **28.94%** | 0.22% | 0.36% |
+| Self-BLEU (lower = more diverse) | 0.31 | 0.44 | 0.28 | 0.32 |
+
+*Source: [Holtzman et al. 2019](https://arxiv.org/abs/1904.09751), Table 1 (GPT-2 Large). Note how
+nucleus sampling lands close to human text on every column, while beam search is far too
+predictable and repeats itself 100× more often than people do.*
 
 🧠 **Why maximizing likelihood fails.** Human language is *not* a sequence of locally most-probable
 words. Real text has bursts of surprise: unexpected word choices are what carry information.

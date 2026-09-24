@@ -131,19 +131,9 @@ This table is *why* distributed training exists. → [Pretraining](../04-large-l
 The learning rate is the single most important hyperparameter. The schedule matters almost as much
 as the peak value.
 
-```
-  lr
-   │      ╭───╮
-peak│     ╱     ╲___
-   │    ╱           ╲──╮
-   │   ╱                ╲──╮
-   │  ╱                     ╲──╮
-   │ ╱                          ╲───╮
-  0│╱                                ╰────  ← 10% of peak (min_lr)
-   └────┬──────────────────────────────────►  steps
-     warmup            cosine decay
-     (~1-2%)
-```
+![Two learning-rate schedules over 100k steps: warmup then cosine decay, and warmup then constant then a short linear decay](../assets/figures/lr-schedules.svg)
+
+*Both schedules: linear warmup over 2k steps to 3×10⁻⁴, ending at 3×10⁻⁵. Cosine decays continuously and needs the run length up front; WSD holds the peak and decays only in the final 10%.*
 
 ### Warmup: why it is not optional
 
@@ -345,8 +335,8 @@ document doing exactly this dozens of times.
 | Precision | BF16 with FP32 master | never FP16 |
 | Init std | 0.02, residual projections $\times 1/\sqrt{2L}$ | |
 
-**LR vs model size** — empirically $\eta_{\text{opt}} \approx 0.003 \cdot N^{-1/3}$ hits close for
-$N$ in the $10^8$–$10^{10}$ range:
+**LR vs model size** — the optimal peak LR falls as models grow. Published values
+(GPT-3 paper, Table 2.1; LLaMA-2 paper) give a feel for the trend:
 
 | Params | Typical peak LR |
 |---|---|

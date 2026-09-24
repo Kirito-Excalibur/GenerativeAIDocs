@@ -224,7 +224,7 @@ the opposite of standard GAN advice.
 | 2018 | **BigGAN** | scale (batch 2048), truncation trick, class conditioning | **7.4** (ImageNet 128) |
 | 2019 | **StyleGAN** | mapping network $z\to w$, AdaIN style injection, per-layer noise | **4.4** (FFHQ) |
 | 2020 | StyleGAN2 | removed droplet artifacts; weight demodulation; path-length reg | **2.8** (FFHQ) |
-| 2021 | StyleGAN3 | alias-free — fixed "texture sticking" under motion | 3.1 |
+| 2021 | StyleGAN3 | alias-free — fixed "texture sticking" under motion | 2.79 (T) / 3.07 (R), FFHQ-U |
 | 2023+ | GigaGAN, adversarial distillation | GANs as *fast samplers* / distillation losses | — |
 
 ### StyleGAN's key innovation, because it generalizes

@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="518.4pt" height="273.6pt" viewBox="0 0 518.4 273.6" xmlns="http://www.w3.org/2000/svg" version="1.1"><style>svg{--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--grid:#e1e0d9;--axis:#c3c2b7;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--q1:#86b6ef;--q2:#5598e7;--q3:#2a78d6;--q4:#1c5cab;--q5:#104281}@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--ink:#ffffff;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#9ec5f4}}</style>
+ 
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 273.6 
+L 518.4 273.6 
+L 518.4 0 
+L 0 0 
+z
+" style="fill: var(--surface)"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.84 232.56 
+L 445.824 232.56 
+L 445.824 49.248 
+L 51.84 49.248 
+z
+" style="fill: var(--surface)"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m6c2e1a67aa" d="M 0 0 
+L 0 3.5 
+" style="stroke: var(--axis); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m6c2e1a67aa" x="51.84" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <!-- $\mathdefault{10^{1}}$ -->
+      <g style="fill: var(--muted)" transform="translate(42.16 247.918281)">
+       <text>
+        <tspan x="0" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.389063" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m6c2e1a67aa" x="150.336" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <!-- $\mathdefault{10^{2}}$ -->
+      <g style="fill: var(--muted)" transform="translate(140.656 247.918281)">
+       <text>
+        <tspan x="0" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.279688" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">2</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m6c2e1a67aa" x="248.832" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <!-- $\mathdefault{10^{3}}$ -->
+      <g style="fill: var(--muted)" transform="translate(239.152 247.918281)">
+       <text>
+        <tspan x="0" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.279688" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">3</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m6c2e1a67aa" x="347.328" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <!-- $\mathdefault{10^{4}}$ -->
+      <g style="fill: var(--muted)" transform="translate(337.648 247.918281)">
+       <text>
+        <tspan x="0" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.389063" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">4</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m6c2e1a67aa" x="445.824" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <!-- $\mathdefault{10^{5}}$ -->
+      <g style="fill: var(--muted)" transform="translate(436.144 247.918281)">
+       <text>
+        <tspan x="0" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.389063" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">5</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <defs>
+       <path id="m15f69a0319" d="M 0 0 
+L 0 2 
+" style="stroke: var(--axis); stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#m15f69a0319" x="81.49025" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m15f69a0319" x="98.834535" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m15f69a0319" x="111.140501" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_9">
+      <g>
+       <use xlink:href="#m15f69a0319" x="120.68575" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_10">
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m15f69a0319" x="128.484786" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_11">
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#m15f69a0319" x="135.078777" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m15f69a0319" x="140.790751" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_13">
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#m15f69a0319" x="145.82907" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_14">
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#m15f69a0319" x="179.98625" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_15">
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#m15f69a0319" x="197.330535" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_16">
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#m15f69a0319" x="209.636501" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_17">
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#m15f69a0319" x="219.18175" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_18">
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#m15f69a0319" x="226.980786" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_19">
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#m15f69a0319" x="233.574777" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_20">
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#m15f69a0319" x="239.286751" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_21">
+     <g id="line2d_21">
+      <g>
+       <use xlink:href="#m15f69a0319" x="244.32507" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_22">
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#m15f69a0319" x="278.48225" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_23">
+     <g id="line2d_23">
+      <g>
+       <use xlink:href="#m15f69a0319" x="295.826535" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_24">
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#m15f69a0319" x="308.132501" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_25">
+     <g id="line2d_25">
+      <g>
+       <use xlink:href="#m15f69a0319" x="317.67775" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_26">
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#m15f69a0319" x="325.476786" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_27">
+     <g id="line2d_27">
+      <g>
+       <use xlink:href="#m15f69a0319" x="332.070777" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_28">
+     <g id="line2d_28">
+      <g>
+       <use xlink:href="#m15f69a0319" x="337.782751" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_29">
+     <g id="line2d_29">
+      <g>
+       <use xlink:href="#m15f69a0319" x="342.82107" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_30">
+     <g id="line2d_30">
+      <g>
+       <use xlink:href="#m15f69a0319" x="376.97825" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_31">
+     <g id="line2d_31">
+      <g>
+       <use xlink:href="#m15f69a0319" x="394.322535" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_32">
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m15f69a0319" x="406.628501" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_33">
+     <g id="line2d_33">
+      <g>
+       <use xlink:href="#m15f69a0319" x="416.17375" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_34">
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m15f69a0319" x="423.972786" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_35">
+     <g id="line2d_35">
+      <g>
+       <use xlink:href="#m15f69a0319" x="430.566777" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_36">
+     <g id="line2d_36">
+      <g>
+       <use xlink:href="#m15f69a0319" x="436.278751" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_37">
+     <g id="line2d_37">
+      <g>
+       <use xlink:href="#m15f69a0319" x="441.31707" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_6">
+     <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--ink2)" x="248.832" y="262.564219" transform="rotate(-0 248.832 262.564219)">batch size B (sequences)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_38">
+      <path d="M 51.84 224.744444 
+L 445.824 224.744444 
+" clip-path="url(#p9039b46785)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_39">
+      <defs>
+       <path id="mec4cd15f77" d="M 0 0 
+L -3.5 0 
+" style="stroke: var(--axis); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#mec4cd15f77" x="51.84" y="224.744444" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <!-- $\mathdefault{10^{0}}$ -->
+      <g style="fill: var(--muted)" transform="translate(25.48 228.923585)">
+       <text>
+        <tspan x="0" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.279688" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_40">
+      <path d="M 51.84 144.096887 
+L 445.824 144.096887 
+" clip-path="url(#p9039b46785)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_41">
+      <g>
+       <use xlink:href="#mec4cd15f77" x="51.84" y="144.096887" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <!-- $\mathdefault{10^{1}}$ -->
+      <g style="fill: var(--muted)" transform="translate(25.48 148.276028)">
+       <text>
+        <tspan x="0" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.178125" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.389063" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_42">
+      <path d="M 51.84 63.44933 
+L 445.824 63.44933 
+" clip-path="url(#p9039b46785)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_43">
+      <g>
+       <use xlink:href="#mec4cd15f77" x="51.84" y="63.44933" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <!-- $\mathdefault{10^{2}}$ -->
+      <g style="fill: var(--muted)" transform="translate(25.48 67.628471)">
+       <text>
+        <tspan x="0" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">1</tspan>
+        <tspan x="6.998535" y="-0.06875" style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">0</tspan>
+        <tspan x="14.102344" y="-4.279688" style="font-size: 7.7px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: var(--muted)">2</tspan>
+       </text>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_44">
+      <defs>
+       <path id="me26083dc46" d="M 0 0 
+L -2 0 
+" style="stroke: var(--axis); stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_45">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="228.434674" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_46">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="200.46711" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_47">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="186.265781" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_48">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="176.189777" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_49">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="168.374221" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_50">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="161.988447" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_11">
+     <g id="line2d_51">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="156.589352" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_52">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="151.912443" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_13">
+     <g id="line2d_53">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="147.787117" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_14">
+     <g id="line2d_54">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="119.819553" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_15">
+     <g id="line2d_55">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="105.618223" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_16">
+     <g id="line2d_56">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="95.542219" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_17">
+     <g id="line2d_57">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="87.726664" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_18">
+     <g id="line2d_58">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="81.34089" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_19">
+     <g id="line2d_59">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="75.941795" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_20">
+     <g id="line2d_60">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="71.264886" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_21">
+     <g id="line2d_61">
+      <g>
+       <use xlink:href="#me26083dc46" x="51.84" y="67.13956" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_10">
+     <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--ink2)" x="19.192344" y="140.904" transform="rotate(-90 19.192344 140.904)">steps (× minimum)</text>
+    </g>
+   </g>
+   <g id="line2d_62">
+    <path d="M 51.84 63.100822 
+L 85.496925 90.246336 
+L 109.254754 109.144413 
+L 129.052945 124.603176 
+L 144.891497 136.683379 
+L 158.750231 146.962746 
+L 170.629146 155.493047 
+L 180.528241 162.357869 
+L 190.427337 168.959789 
+L 200.326432 175.25779 
+L 208.245709 180.04952 
+L 216.164985 184.599848 
+L 224.084261 188.890118 
+L 232.003538 192.904353 
+L 239.922814 196.630162 
+L 247.84209 200.059502 
+L 255.761367 203.189199 
+L 263.680643 206.021162 
+L 271.59992 208.562256 
+L 279.519196 210.823847 
+L 287.438472 212.821099 
+L 295.357749 214.572086 
+L 303.277025 216.096843 
+L 311.196302 217.416442 
+L 321.095397 218.809808 
+L 330.994492 219.956159 
+L 340.893588 220.893155 
+L 352.772503 221.788841 
+L 366.631236 222.582121 
+L 382.469789 223.237099 
+L 400.288161 223.743371 
+L 422.066171 224.139348 
+L 445.824 224.395936 
+L 445.824 224.395936 
+" clip-path="url(#p9039b46785)" style="fill: none; stroke: var(--s1); stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_63">
+    <path d="M 51.84 224.744444 
+L 445.824 224.744444 
+" clip-path="url(#p9039b46785)" style="fill: none; stroke: var(--axis); stroke-linecap: round"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 51.84 232.56 
+L 51.84 49.248 
+" style="fill: none; stroke: var(--axis); stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 51.84 232.56 
+L 445.824 232.56 
+" style="fill: none; stroke: var(--axis); stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="258.832" y="195.218439" transform="rotate(-0 258.832 195.218439)">B = B_crit: 2× the minimum steps</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--ink2)" x="197.330535" y="217.560772" transform="rotate(-0 197.330535 217.560772)">floor: can't go below 1×</text>
+   </g>
+   <g id="line2d_64">
+    <defs>
+     <path id="m0f7b69e43c" d="M 0 4 
+C 1.060812 4 2.078319 3.578535 2.828427 2.828427 
+C 3.578535 2.078319 4 1.060812 4 0 
+C 4 -1.060812 3.578535 -2.078319 2.828427 -2.828427 
+C 2.078319 -3.578535 1.060812 -4 0 -4 
+C -1.060812 -4 -2.078319 -3.578535 -2.828427 -2.828427 
+C -3.578535 -2.078319 -4 -1.060812 -4 0 
+C -4 1.060812 -3.578535 2.078319 -2.828427 2.828427 
+C -2.078319 3.578535 -1.060812 4 0 4 
+z
+" style="stroke: var(--surface); stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#p9039b46785)">
+     <use xlink:href="#m0f7b69e43c" x="248.832" y="200.46711" style="fill: var(--s1); stroke: var(--surface); stroke-width: 2"/>
+    </g>
+   </g>
+  </g>
+  <g id="text_13">
+   <text style="font-weight: 700; font-size: 13px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink)" x="6.2208" y="19.453969" transform="rotate(-0 6.2208 19.453969)">Diminishing returns from bigger batches</text>
+  </g>
+  <g id="text_14">
+   <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="6.2208" y="36.706359" transform="rotate(-0 6.2208 36.706359)">Relative steps to a target loss ∝ 1 + B_crit / B   (B_crit = 1,000)</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p9039b46785">
+   <rect x="51.84" y="49.248" width="393.984" height="183.312"/>
+  </clipPath>
+ </defs>
+</svg>

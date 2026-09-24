@@ -240,9 +240,10 @@ prompt. If you have 20 retrieved documents, the ones ranked 8–14 may as well n
 | ∞Bench | 100k+ tasks including code and math |
 | BABILong | reasoning over facts scattered in long distractor text |
 
-📊 **The RULER finding is the one to internalize**: models claiming 128k+ context often maintain
-their *effective* performance only to ~1/4 of their advertised length. "Supported context" and
-"useful context" are different numbers, and vendors quote the former.
+📊 **The RULER finding is the one to internalize**: of the models tested, all claimed context sizes
+of 32k tokens or more, yet **only half maintained satisfactory performance at 32k**, and almost all
+degraded sharply as length grew ([Hsieh et al. 2024](https://arxiv.org/abs/2404.06654)).
+"Supported context" and "useful context" are different numbers, and vendors quote the former.
 
 ---
 

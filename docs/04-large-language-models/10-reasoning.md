@@ -78,7 +78,7 @@ depth** — the only way a fixed-depth architecture can perform variable-depth c
 A 3× improvement from changing nothing but the prompt format.
 
 📊 **Zero-shot CoT** (Kojima et al., 2022) — appending "Let's think step by step" raised GSM8K
-accuracy on GPT-3 from 10.4% to 40.7%. No examples required.
+accuracy on InstructGPT (text-davinci-002) from 10.4% to 40.7%. No examples required.
 
 ⚠️ **CoT only helps above a scale threshold.** Below roughly 10 B parameters, CoT prompting often
 *hurts* — smaller models generate plausible-looking but invalid reasoning chains and then follow
@@ -126,7 +126,7 @@ Sample $n$ reasoning chains at temperature ~0.7, extract the final answers, take
 reasoning tends to converge on the *same* right answer. Errors are diverse; correctness is
 concentrated.
 
-📊 GSM8K with PaLM 540B: 56.9% (single CoT) → **74.4%** ($n = 40$). A 17-point gain from sampling
+📊 GSM8K with PaLM 540B: 56.5% (greedy CoT) → **74.4%** ($n = 40$). An 18-point gain from sampling
 alone.
 
 ⚠️ Requires a well-defined final answer to vote on. It does not apply to open-ended generation,

@@ -216,8 +216,11 @@ humans. That's the reason it works at all.
 | Sycophancy | agrees with a stated expected answer | never reveal the expected answer |
 | Poor calibration | clusters on 7–8 out of 10 | prefer **pairwise comparison** to absolute scoring |
 
-🔢 **Position bias is large** — reported swings of 10–20 percentage points from ordering alone. This
-is not a footnote; a pairwise evaluation without order-swapping is close to meaningless.
+🔢 **Position bias is large.** In MT-Bench's test, a judge was "consistent" if it picked the same
+winner after the two answers were swapped. GPT-4 was consistent only **65%** of the time;
+GPT-3.5 **46%**; Claude-v1 **24%**, favouring whichever answer came first in 75% of cases
+([Zheng et al. 2023](https://arxiv.org/abs/2306.05685), Table 2). A pairwise evaluation without
+order-swapping is close to meaningless.
 
 💻 **A judge implementation with the fixes applied:**
 

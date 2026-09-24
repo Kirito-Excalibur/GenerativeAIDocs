@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="518.4pt" height="273.6pt" viewBox="0 0 518.4 273.6" xmlns="http://www.w3.org/2000/svg" version="1.1"><style>svg{--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--grid:#e1e0d9;--axis:#c3c2b7;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--q1:#86b6ef;--q2:#5598e7;--q3:#2a78d6;--q4:#1c5cab;--q5:#104281}@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--ink:#ffffff;--ink2:#c3c2b7;--muted:#898781;--grid:#2c2c2a;--axis:#383835;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--q1:#184f95;--q2:#256abf;--q3:#3987e5;--q4:#6da7ec;--q5:#9ec5f4}}</style>
+ 
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 273.6 
+L 518.4 273.6 
+L 518.4 0 
+L 0 0 
+z
+" style="fill: var(--surface)"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.84 232.56 
+L 445.824 232.56 
+L 445.824 71.136 
+L 51.84 71.136 
+z
+" style="fill: var(--surface)"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m40f409a666" d="M 0 0 
+L 0 3.5 
+" style="stroke: var(--axis); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m40f409a666" x="124.204408" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--muted)" x="124.204408" y="247.918281" transform="rotate(-0 124.204408 247.918281)">10</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m40f409a666" x="204.609306" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--muted)" x="204.609306" y="247.918281" transform="rotate(-0 204.609306 247.918281)">20</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m40f409a666" x="285.014204" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--muted)" x="285.014204" y="247.918281" transform="rotate(-0 285.014204 247.918281)">30</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m40f409a666" x="365.419102" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--muted)" x="365.419102" y="247.918281" transform="rotate(-0 365.419102 247.918281)">40</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m40f409a666" x="445.824" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--muted)" x="445.824" y="247.918281" transform="rotate(-0 445.824 247.918281)">50</text>
+     </g>
+    </g>
+    <g id="text_6">
+     <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--ink2)" x="248.832" y="262.564219" transform="rotate(-0 248.832 262.564219)">steps in the task (k)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_6">
+      <path d="M 51.84 232.56 
+L 445.824 232.56 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_7">
+      <defs>
+       <path id="m100a71ddae" d="M 0 0 
+L -3.5 0 
+" style="stroke: var(--axis); stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m100a71ddae" x="51.84" y="232.56" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: end; fill: var(--muted)" x="44.84" y="236.739141" transform="rotate(-0 44.84 236.739141)">0.0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_8">
+      <path d="M 51.84 200.908235 
+L 445.824 200.908235 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_9">
+      <g>
+       <use xlink:href="#m100a71ddae" x="51.84" y="200.908235" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: end; fill: var(--muted)" x="44.84" y="205.087376" transform="rotate(-0 44.84 205.087376)">0.2</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_10">
+      <path d="M 51.84 169.256471 
+L 445.824 169.256471 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#m100a71ddae" x="51.84" y="169.256471" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: end; fill: var(--muted)" x="44.84" y="173.435611" transform="rotate(-0 44.84 173.435611)">0.4</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_12">
+      <path d="M 51.84 137.604706 
+L 445.824 137.604706 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#m100a71ddae" x="51.84" y="137.604706" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: end; fill: var(--muted)" x="44.84" y="141.783847" transform="rotate(-0 44.84 141.783847)">0.6</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_14">
+      <path d="M 51.84 105.952941 
+L 445.824 105.952941 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#m100a71ddae" x="51.84" y="105.952941" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: end; fill: var(--muted)" x="44.84" y="110.132082" transform="rotate(-0 44.84 110.132082)">0.8</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_16">
+      <path d="M 51.84 74.301176 
+L 445.824 74.301176 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--grid); stroke-linecap: round"/>
+     </g>
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#m100a71ddae" x="51.84" y="74.301176" style="fill: var(--axis); stroke: var(--axis); stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: end; fill: var(--muted)" x="44.84" y="78.480317" transform="rotate(-0 44.84 78.480317)">1.0</text>
+     </g>
+    </g>
+    <g id="text_13">
+     <text style="font-size: 11px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: middle; fill: var(--ink2)" x="21.058906" y="151.848" transform="rotate(-90 21.058906 151.848)">probability of success</text>
+    </g>
+   </g>
+   <g id="line2d_18">
+    <path d="M 51.84 90.127059 
+L 59.88049 104.370353 
+L 67.92098 117.189318 
+L 75.961469 128.726386 
+L 84.001959 139.109747 
+L 92.042449 148.454773 
+L 100.082939 156.865295 
+L 108.123429 164.434766 
+L 116.163918 171.247289 
+L 124.204408 177.37856 
+L 132.244898 182.896704 
+L 140.285388 187.863034 
+L 148.325878 192.33273 
+L 156.366367 196.355457 
+L 164.406857 199.975912 
+L 172.447347 203.23432 
+L 180.487837 206.166888 
+L 188.528327 208.8062 
+L 196.568816 211.18158 
+L 204.609306 213.319422 
+L 212.649796 215.24348 
+L 220.690286 216.975132 
+L 228.730776 218.533618 
+L 236.771265 219.936257 
+L 244.811755 221.198631 
+L 252.852245 222.334768 
+L 260.892735 223.357291 
+L 268.933224 224.277562 
+L 276.973714 225.105806 
+L 285.014204 225.851225 
+L 293.054694 226.522103 
+L 301.095184 227.125892 
+L 309.135673 227.669303 
+L 317.176163 228.158373 
+L 325.216653 228.598536 
+L 333.257143 228.994682 
+L 341.297633 229.351214 
+L 349.338122 229.672092 
+L 357.378612 229.960883 
+L 365.419102 230.220795 
+L 373.459592 230.454715 
+L 381.500082 230.665244 
+L 389.540571 230.854719 
+L 397.581061 231.025248 
+L 405.621551 231.178723 
+L 413.662041 231.31685 
+L 421.702531 231.441165 
+L 429.74302 231.553049 
+L 437.78351 231.653744 
+L 445.824 231.74437 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--s1); stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 51.84 82.214118 
+L 59.88049 89.731412 
+L 67.92098 96.872841 
+L 75.961469 103.657199 
+L 84.001959 110.102339 
+L 92.042449 116.225222 
+L 100.082939 122.041961 
+L 108.123429 127.567863 
+L 116.163918 132.81747 
+L 124.204408 137.804596 
+L 132.244898 142.542367 
+L 140.285388 147.043248 
+L 148.325878 151.319086 
+L 156.366367 155.381132 
+L 164.406857 159.240075 
+L 172.447347 162.906071 
+L 180.487837 166.388768 
+L 188.528327 169.697329 
+L 196.568816 172.840463 
+L 204.609306 175.82644 
+L 212.649796 178.663118 
+L 220.690286 181.357962 
+L 228.730776 183.918064 
+L 236.771265 186.350161 
+L 244.811755 188.660652 
+L 252.852245 190.85562 
+L 260.892735 192.940839 
+L 268.933224 194.921797 
+L 276.973714 196.803707 
+L 285.014204 198.591522 
+L 293.054694 200.289946 
+L 301.095184 201.903448 
+L 309.135673 203.436276 
+L 317.176163 204.892462 
+L 325.216653 206.275839 
+L 333.257143 207.590047 
+L 341.297633 208.838545 
+L 349.338122 210.024617 
+L 357.378612 211.151387 
+L 365.419102 212.221817 
+L 373.459592 213.238726 
+L 381.500082 214.20479 
+L 389.540571 215.122551 
+L 397.581061 215.994423 
+L 405.621551 216.822702 
+L 413.662041 217.609567 
+L 421.702531 218.357088 
+L 429.74302 219.067234 
+L 437.78351 219.741872 
+L 445.824 220.382779 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--s2); stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 51.84 75.883765 
+L 59.88049 77.450527 
+L 67.92098 79.001622 
+L 75.961469 80.537206 
+L 84.001959 82.057434 
+L 92.042449 83.562459 
+L 100.082939 85.052435 
+L 108.123429 86.52751 
+L 116.163918 87.987835 
+L 124.204408 89.433557 
+L 132.244898 90.864821 
+L 140.285388 92.281773 
+L 148.325878 93.684555 
+L 156.366367 95.07331 
+L 164.406857 96.448177 
+L 172.447347 97.809295 
+L 180.487837 99.156802 
+L 188.528327 100.490834 
+L 196.568816 101.811526 
+L 204.609306 103.11901 
+L 212.649796 104.41342 
+L 220.690286 105.694886 
+L 228.730776 106.963537 
+L 236.771265 108.219502 
+L 244.811755 109.462907 
+L 252.852245 110.693878 
+L 260.892735 111.912539 
+L 268.933224 113.119014 
+L 276.973714 114.313423 
+L 285.014204 115.495889 
+L 293.054694 116.66653 
+L 301.095184 117.825465 
+L 309.135673 118.97281 
+L 317.176163 120.108682 
+L 325.216653 121.233195 
+L 333.257143 122.346463 
+L 341.297633 123.448599 
+L 349.338122 124.539713 
+L 357.378612 125.619916 
+L 365.419102 126.689317 
+L 373.459592 127.748023 
+L 381.500082 128.796143 
+L 389.540571 129.833782 
+L 397.581061 130.861044 
+L 405.621551 131.878033 
+L 413.662041 132.884853 
+L 421.702531 133.881605 
+L 429.74302 134.868389 
+L 437.78351 135.845305 
+L 445.824 136.812452 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--s3); stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 51.84 74.459435 
+L 59.88049 74.617536 
+L 67.92098 74.775478 
+L 75.961469 74.933263 
+L 84.001959 75.09089 
+L 92.042449 75.248359 
+L 100.082939 75.40567 
+L 108.123429 75.562825 
+L 116.163918 75.719822 
+L 124.204408 75.876662 
+L 132.244898 76.033345 
+L 140.285388 76.189872 
+L 148.325878 76.346242 
+L 156.366367 76.502456 
+L 164.406857 76.658513 
+L 172.447347 76.814415 
+L 180.487837 76.970161 
+L 188.528327 77.12575 
+L 196.568816 77.281185 
+L 204.609306 77.436463 
+L 212.649796 77.591587 
+L 220.690286 77.746555 
+L 228.730776 77.901369 
+L 236.771265 78.056027 
+L 244.811755 78.210531 
+L 252.852245 78.364881 
+L 260.892735 78.519076 
+L 268.933224 78.673117 
+L 276.973714 78.827004 
+L 285.014204 78.980737 
+L 293.054694 79.134316 
+L 301.095184 79.287742 
+L 309.135673 79.441014 
+L 317.176163 79.594133 
+L 325.216653 79.747099 
+L 333.257143 79.899912 
+L 341.297633 80.052572 
+L 349.338122 80.205079 
+L 357.378612 80.357434 
+L 365.419102 80.509637 
+L 373.459592 80.661687 
+L 381.500082 80.813585 
+L 389.540571 80.965332 
+L 397.581061 81.116927 
+L 405.621551 81.26837 
+L 413.662041 81.419661 
+L 421.702531 81.570802 
+L 429.74302 81.721791 
+L 437.78351 81.872629 
+L 445.824 82.023316 
+" clip-path="url(#p74532fba6b)" style="fill: none; stroke: var(--s4); stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 51.84 232.56 
+L 51.84 71.136 
+" style="fill: none; stroke: var(--axis); stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 51.84 232.56 
+L 445.824 232.56 
+" style="fill: none; stroke: var(--axis); stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="451.824" y="234.641713" transform="rotate(-0 451.824 234.641713)">p = 0.9</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="451.824" y="223.280122" transform="rotate(-0 451.824 223.280122)">p = 0.95</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="451.824" y="139.709795" transform="rotate(-0 451.824 139.709795)">p = 0.99</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="451.824" y="84.92066" transform="rotate(-0 451.824 84.92066)">p = 0.999</text>
+   </g>
+   <g id="legend_1">
+    <g id="line2d_22">
+     <path d="M 55.84 59.942072 
+L 63.84 59.942072 
+L 71.84 59.942072 
+" style="fill: none; stroke: var(--s1); stroke-width: 2; stroke-linecap: round"/>
+    </g>
+    <g id="text_18">
+     <text style="font-size: 10px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="79.84" y="63.442072" transform="rotate(-0 79.84 63.442072)">p = 0.9</text>
+    </g>
+    <g id="line2d_23">
+     <path d="M 130.8275 59.942072 
+L 138.8275 59.942072 
+L 146.8275 59.942072 
+" style="fill: none; stroke: var(--s2); stroke-width: 2; stroke-linecap: round"/>
+    </g>
+    <g id="text_19">
+     <text style="font-size: 10px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="154.8275" y="63.442072" transform="rotate(-0 154.8275 63.442072)">p = 0.95</text>
+    </g>
+    <g id="line2d_24">
+     <path d="M 212.1775 59.942072 
+L 220.1775 59.942072 
+L 228.1775 59.942072 
+" style="fill: none; stroke: var(--s3); stroke-width: 2; stroke-linecap: round"/>
+    </g>
+    <g id="text_20">
+     <text style="font-size: 10px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="236.1775" y="63.442072" transform="rotate(-0 236.1775 63.442072)">p = 0.99</text>
+    </g>
+    <g id="line2d_25">
+     <path d="M 293.5275 59.942072 
+L 301.5275 59.942072 
+L 309.5275 59.942072 
+" style="fill: none; stroke: var(--s4); stroke-width: 2; stroke-linecap: round"/>
+    </g>
+    <g id="text_21">
+     <text style="font-size: 10px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="317.5275" y="63.442072" transform="rotate(-0 317.5275 63.442072)">p = 0.999</text>
+    </g>
+   </g>
+  </g>
+  <g id="text_22">
+   <text style="font-weight: 700; font-size: 13px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink)" x="6.2208" y="19.453969" transform="rotate(-0 6.2208 19.453969)">Why long agent tasks fail</text>
+  </g>
+  <g id="text_23">
+   <text style="font-size: 10.5px; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; text-anchor: start; fill: var(--ink2)" x="6.2208" y="36.706359" transform="rotate(-0 6.2208 36.706359)">Task success = pᵏ for k steps at per-step reliability p</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p74532fba6b">
+   <rect x="51.84" y="71.136" width="393.984" height="161.424"/>
+  </clipPath>
+ </defs>
+</svg>

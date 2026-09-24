@@ -124,22 +124,9 @@ using concavity of $\log$. Hence $D_{\mathrm{KL}} \ge 0$. ∎
 
 Fit a **single** Gaussian $q$ to a bimodal $p$. Two objectives, two answers:
 
-```
-Forward KL:  min_q  D_KL(p ‖ q)          Reverse KL:  min_q  D_KL(q ‖ p)
-"mean-seeking" / MODE-COVERING            "mode-seeking" / ZERO-FORCING
+![A two-mode data density with two single-Gaussian fits: the forward-KL fit is wide and centred between the modes; the reverse-KL fit sits tightly on one mode](../assets/figures/kl-forward-reverse.svg)
 
-     p:  ╱╲        ╱╲                          p:  ╱╲        ╱╲
-        ╱  ╲      ╱  ╲                            ╱  ╲      ╱  ╲
-     ──╯    ╰────╯    ╰──                      ──╯    ╰────╯    ╰──
-     q:      ╭────╮                            q:  ╭╮
-          ╭──╯    ╰──╮                            ╱││╲
-     ─────╯          ╰─────                   ───╯╰╯╰───────────────
-
- penalty ∞ where p>0 but q≈0             penalty ∞ where q>0 but p≈0
- ⇒ q must cover ALL of p's support       ⇒ q must hide INSIDE p's support
- ⇒ mass in the empty valley              ⇒ picks one mode, ignores the other
- ⇒ BLURRY samples (VAE, MLE)             ⇒ SHARP but incomplete (GAN-ish, RL KL penalty)
-```
+*Computed numerically for p = ½N(−2, 0.6²) + ½N(2, 0.6²). Forward KL (min KL(p‖q)) is minimized by matching p's mean and variance: μ = 0, σ = 2.09, which puts most of q's mass in the empty valley. Reverse KL (min KL(q‖p)), found by grid search, locks onto one mode: μ = 2, σ = 0.60. Forward KL is infinitely penalized where p > 0 but q ≈ 0, so it must cover everything; reverse KL is infinitely penalized where q > 0 but p ≈ 0, so it hides inside one mode.*
 
 **Where you meet each one:**
 

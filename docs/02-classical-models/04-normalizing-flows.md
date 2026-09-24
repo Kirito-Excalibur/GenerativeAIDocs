@@ -215,7 +215,7 @@ limitation of discrete flows.
 | $f$ must be invertible | **no dimensionality reduction** — the latent has the same size as the data |
 | Every layer needs a cheap log-det | rules out most standard architectures |
 | No bottleneck | no compression, no compact semantic latent |
-| Needs many layers | Glow used 320 coupling layers for 256×256 faces; ~200M parameters |
+| Needs many layers | Glow used 6 levels × 32 steps = 192 flow steps for 256×256 faces |
 | Topology preservation | a continuous bijection cannot change the number of connected components |
 
 🧠 **The topology point is subtle and important.** A diffeomorphism maps connected sets to connected

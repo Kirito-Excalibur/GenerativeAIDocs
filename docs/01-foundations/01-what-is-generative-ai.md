@@ -171,22 +171,12 @@ relative weights right.
 
 📊 **Training compute of landmark models** (FLOPs, log scale)
 
-```
-1e26 ┤                                                        ●  frontier models (2024-2026)
-1e25 ┤                                                   ●
-1e24 ┤                                            ●  GPT-4-class (~2e25)
-1e23 ┤                                     ●  PaLM (2.5e24)
-1e22 ┤                             ●  GPT-3 (3.1e23)
-1e21 ┤                      ●  GPT-2 (1e21)
-1e20 ┤               ●  BERT (6e19)
-1e19 ┤        ●  ResNet-50 (1e18)
-1e18 ┤  ●  AlexNet (4.7e17)
-     └──┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬──
-       2012 2014 2016 2018 2019 2020 2021 2022 2023 2024 2026
-```
+![Log-scale scatter of training compute for seven landmark models from AlexNet (5e17 FLOPs, 2012) to Llama 3.1 405B (3.8e25 FLOPs, 2024), with a fitted exponential trend](../assets/figures/compute-growth.svg)
 
-That is roughly **8 orders of magnitude in 13 years** — a doubling time of about 6 months, far
-faster than Moore's law (24 months). The extra speed comes from hardware specialization (GPU →
+*Training compute, log scale. Sources: AlexNet 0.0058 pfs-days (OpenAI, “AI and Compute”); Transformer-big 2.3e19 (Vaswani et al. 2017, Table 2); GPT-3 3.14e23; Chinchilla 5.76e23; PaLM 2.53e24; Llama 3.1 405B 3.8e25 (each from its paper). *Llama 2 70B is derived as 6 × 70B params × 2T tokens. Line: least-squares fit of log₁₀(FLOPs) on year.*
+
+That is roughly **8 orders of magnitude in 12 years**. The fitted trend doubles every **5.3 months**,
+far faster than Moore's law (24 months). The extra speed comes from hardware specialization (GPU →
 tensor cores → TPUs), lower precision (FP32 → FP16/BF16 → FP8), and above all from *spending more
 money*: cluster sizes grew from 1 GPU to $10^5$ accelerators.
 
@@ -201,8 +191,8 @@ curated deliberately.
 |---|---|---|---|
 | MNIST | 60 K images | digits | 1998 |
 | ImageNet | 1.3 M images | objects | 2009 |
-| Books1+2 (GPT-2) | ~8 B tokens | books/web | 2019 |
-| Common Crawl (filtered) | ~500 B tokens | web | 2020 |
+| WebText (GPT-2) | ~40 GB of text (≈10 B tokens) | web | 2019 |
+| Common Crawl, filtered (GPT-3) | 410 B tokens | web | 2020 |
 | LAION-5B | 5.85 B image–text pairs | web | 2022 |
 | Modern frontier corpora | 10–30+ T tokens | web+code+books+synthetic | 2024+ |
 
@@ -267,15 +257,9 @@ Wherever $p(x) > 0$ but $q(x) \to 0$, the integrand $\to \infty$. So a model tra
 assigning probability to nonsense. Result: MLE models *over-generalize* — they cover all the modes,
 and blur between them.
 
-```
-      p_data (two modes)          MLE fit: mode-COVERING       Reverse-KL fit: mode-SEEKING
-          ╱╲      ╱╲                    ╱▔▔▔▔▔▔╲                    ╱╲
-         ╱  ╲    ╱  ╲                 ╱          ╲                 ╱  ╲
-      ──╯    ╰──╯    ╰──           ──╯            ╰──          ───╯    ╰──────────
-                                  puts mass in the valley       picks one mode,
-                                  (blurry VAE samples)          ignores the other
-                                  min KL(p‖q)                   min KL(q‖p)  (GAN-like)
-```
+![A two-mode data density with two single-Gaussian fits: the forward-KL fit is wide and centred between the modes; the reverse-KL fit sits tightly on one mode](../assets/figures/kl-forward-reverse.svg)
+
+*Computed numerically: p = ½N(−2, 0.6²) + ½N(2, 0.6²). Forward KL is minimized by moment matching (μ = 0, σ = 2.09); reverse KL by grid search (μ = ±2, σ = 0.60). → full treatment in [Probability & information theory §4](02-probability-and-information-theory.md#4-kl-divergence-the-excess-cost-of-being-wrong).*
 
 This one picture explains **why VAEs are blurry and GANs collapse.** VAEs minimize (a bound on)
 forward KL → cover everything → blur. GAN training is closer to a symmetric/reverse objective →
@@ -314,25 +298,19 @@ Two ways to condition, and the distinction matters:
 
 ## 8. Emergence, or the lack of it
 
-📊 A widely-cited observation is that some capabilities appear *suddenly* at scale — a model at
-$10^{22}$ FLOPs scores at chance on 3-digit arithmetic, one at $10^{23}$ scores 80%.
+📊 A widely-cited observation is that some capabilities appear *suddenly* at scale. The GPT-3
+paper's own arithmetic results are a clean example: the 13B model (≈$2\times10^{22}$ training FLOPs)
+solves 3-digit addition **under 10%** of the time, while the 175B model (≈$3\times10^{23}$) solves
+it **80.2%** of the time ([Brown et al. 2020](https://arxiv.org/abs/2005.14165), §3.9.1).
 
 The important caveat, from *Are Emergent Abilities of Large Language Models a Mirage?* (Schaeffer
 et al., 2023): much apparent emergence is an artifact of **discontinuous metrics**. Exact-match
 accuracy on a 5-digit sum is all-or-nothing; per-digit cross-entropy on the same task improves
 smoothly. Change the metric, and the cliff becomes a ramp.
 
-```
-   Exact-match accuracy              Per-token log-likelihood
-   (discontinuous metric)            (continuous metric)
- 1.0┤          ╭──────             -0.5┤                 ╭────
-    │          │                       │            ╭────╯
- 0.5┤          │                   -1.5┤       ╭────╯
-    │          │                       │  ╭────╯
- 0.0┤──────────╯                   -2.5┤──╯
-    └──────────────── compute          └──────────────── compute
-      "emergence!"                       smooth all along
-```
+![Two curves against training compute: per-digit accuracy rising smoothly, and exact-match accuracy on a 5-digit answer staying near zero then rising steeply](../assets/figures/emergence-metrics.svg)
+
+*Synthetic illustration of Schaeffer et al.'s argument: exact match on a 5-digit answer is (per-digit accuracy)⁵, so a smooth underlying improvement shows up as a sudden jump.*
 
 🧠 **The honest summary** — the *underlying* competence improves smoothly and predictably with
 compute (→ [Scaling laws](../04-large-language-models/03-scaling-laws.md)). Whether that shows up

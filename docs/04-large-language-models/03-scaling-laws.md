@@ -115,9 +115,10 @@ compute budget**:
 **A 4× smaller model that is better AND 4× cheaper to serve.** This result immediately
 reorganized the field.
 
-🔢 **How badly was GPT-3 mis-allocated?** At $C = 3.14\times10^{23}$ FLOPs, Chinchilla-optimal is
-roughly $N \approx 13$ B, $D \approx 260$ B. GPT-3 used 175 B parameters on 300 B tokens. It was
-**~13× over-parameterized and under-trained** for its budget.
+🔢 **How badly was GPT-3 mis-allocated?** At $C = 3.14\times10^{23}$ FLOPs, the $D = 20N$ rule gives
+$N = \sqrt{C/120} \approx 51$ B parameters and $D \approx 1.0$ T tokens. GPT-3 used 175 B parameters
+on 300 B tokens: **~3.4× too many parameters and ~3.4× too few tokens** for its budget. (Check:
+$6 \times 51\text{B} \times 1.02\text{T} \approx 3.1\times10^{23}$ ✓.)
 
 ---
 

@@ -139,7 +139,7 @@ low pay. This is a documented and ongoing labour issue, not a hypothetical one.
 
 | Model class | Energy | CO₂e |
 |---|---|---|
-| BERT-large (2019) | 1.5 MWh | ~0.65 t |
+| BERT-base (2019) | 1.5 MWh | ~0.65 t |
 | GPT-3 (2020) | ~1,287 MWh | ~552 t |
 | A modern frontier run | 10,000–50,000+ MWh | thousands of tonnes |
 

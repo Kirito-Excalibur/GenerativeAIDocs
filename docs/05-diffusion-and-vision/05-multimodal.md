@@ -160,8 +160,9 @@ graph TD
 2. **Instruction tuning**: unfreeze the LLM (and sometimes the encoder); train on visual
    instruction data.
 
-📊 **Remarkably cheap.** LLaVA's original recipe trained a competitive VLM in ~1 GPU-day on top of
-existing components. This is why nearly every open VLM uses this pattern.
+📊 **Remarkably cheap.** LLaVA-1.5 trains in about **1 day on a single 8×A100 node**, using
+1.2M publicly available samples, on top of existing components
+([Liu et al. 2023](https://arxiv.org/abs/2310.03744)). This is why nearly every open VLM uses this pattern.
 
 ⚠️ **The cost**: 576 image tokens consume context, and for multiple images or video it becomes
 prohibitive. Mitigations: **token pooling/merging**, a Q-Former (BLIP-2) that resamples to a fixed

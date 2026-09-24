@@ -120,17 +120,9 @@ $$\mathbb{E}[\|z\|^2] = d, \qquad \|z\| \approx \sqrt{d} \pm \frac{1}{\sqrt{2}}$
 $1/\sqrt{d}$.** Essentially *no* samples are near the origin — even though the origin is the mode
 of the density.
 
-```
-   d = 2                           d = 512
-   density is highest at 0,        density still highest at 0,
-   and mass is spread out          but volume grows like r^(d-1)
+![Density of the norm of a standard Gaussian vector for dimensions 2, 16, 128 and 512: narrow peaks at about 1, 4, 11.3 and 22.6](../assets/figures/gaussian-thin-shell.svg)
 
-   p(r)·r^(d-1)                    p(r)·r^(d-1)
-      ╱▔▔▔╲                                      ▕▏
-     ╱     ╲                                     ▕▏  ← razor-thin shell
-    ╱       ╲__                    ____________▕ ▏__   at r ≈ √512 ≈ 22.6
-   0    1    2   3  r              0        20  ▕▏ 25   r
-```
+*Exact χ-distribution densities of ‖z‖ for z ~ N(0, I_d). The peak moves out to √(d−1) ≈ √d while its width stays about 0.7 — so in 512 dimensions essentially no samples lie anywhere near the origin, even though the origin is where the density is highest.*
 
 ⚠️ **Practical consequence** — linear interpolation between two latent codes $z_1, z_2$ passes
 *through* the low-density interior. Midpoint norm is about $\sqrt{d/2}$ instead of $\sqrt{d}$,
