@@ -330,7 +330,78 @@ For images and video, position is not a scalar.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — NTK-aware scaling, a 4× extension.** Using §7's formula
+$\theta_{\text{new}} = \theta_{\text{old}}\cdot s^{d/(d-2)}$, compute the new RoPE base for
+$d=128$, extending context by $s=4\times$, starting from $\theta_{\text{old}}=10000$. Compare
+the exponent $d/(d-2)$ to a naive "$\theta_{\text{new}}=s\times\theta_{\text{old}}$" — is
+NTK-aware scaling more or less aggressive than a plain linear scale-up?
+
+<details><summary>Solution</summary>
+
+$d/(d-2) = 128/126 = 1.0159$ — just barely above 1. So
+$\theta_{\text{new}} = 10000\times4^{1.0159} = 10000\times4.089=40{,}890$.
+
+A naive linear scale would give $\theta_{\text{new}}=4\times10000=40{,}000$. The NTK-aware value
+(40,890) is only **slightly larger** than the naive linear one at this $d$ — the exponent
+$d/(d-2)\to1$ as $d$ grows, so for large head dimensions the two approaches nearly coincide
+numerically. The real difference NTK-aware scaling makes isn't primarily in this aggregate
+number; it's in *which frequencies* get stretched (per §7: "stretches low frequencies a lot and
+high frequencies almost not at all") — a property invisible from the single scalar $\theta$ and
+only visible when you look at the per-dimension effect on $\theta_i=\theta^{-2i/d}$.
+
+</details>
+
+**Problem 2 — ALiBi slope, a different head.** A head has slope $m=0.125$ ($=2^{-3}$). Compute
+its bias penalty at distances 1, 10, and 100. Roughly how many tokens back does this head's
+"attention horizon" (per §5's framing of different heads having different effective ranges)
+extend before the penalty exceeds, say, a typical attention-score range of $\pm10$?
+
+<details><summary>Solution</summary>
+
+Bias $=-m\times\text{dist}$: at dist 1, $-0.125$; at dist 10, $-1.25$; at dist 100, $-12.5$.
+
+The penalty exceeds $10$ (in magnitude) somewhere between distance 80 ($-10.0$ exactly at
+dist=80) — so this head's effective horizon is roughly **~80 tokens** before the linear penalty
+overwhelms a typical-magnitude attention score and effectively zeroes out that position's
+contribution after softmax. Per §5, different heads in the same layer use different slopes
+($m_h=2^{-8h/H}$), so some heads (small $h$, larger $m$) have short horizons like this one, while
+others (large $h$, tiny $m$) extend much further — giving the model, in aggregate, the
+"built-in multi-scale view" §5 describes.
+
+</details>
+
+**Problem 3 — sinusoidal vs RoPE, the extrapolation gap explained.** §3 shows sinusoidal
+encoding has the algebraic property that $PE_{pos+k}$ is a linear function of $PE_{pos}$ (so in
+principle a model *could* learn relative attention from it), yet §3 also says it "extrapolates
+poorly in practice," while §6 says RoPE, built on a similar rotation idea, extrapolates
+better (with scaling). What's the actual mechanistic difference that explains this gap, given
+both use rotation-like math?
+
+<details><summary>Solution</summary>
+
+The key difference is *where* the position information enters the computation, not the
+underlying trigonometry. Sinusoidal encoding is **added once, to the input embeddings**, before
+any Transformer layers — so the model must learn, indirectly through training, to *extract* the
+relative-offset structure from an additive signal that's been mixed with content and then
+transformed by every subsequent layer. Nothing forces the model to actually use the linear
+relationship; it's merely *available* in principle.
+
+RoPE instead **rotates $Q$ and $K$ directly inside every attention computation** (§6), so the
+relative-position property $\langle R_mq,R_nk\rangle = q^\top R_{n-m}k$ is not something the
+model has to discover — it's **structurally guaranteed by the attention operation itself**,
+every layer, regardless of what the model has learned. A model trained at length 4096 has still
+only ever seen $m\theta_i$ values up to a certain range for both encodings, so *some*
+degradation is expected either way when extrapolating — but RoPE's guarantee that similarity
+depends only on relative offset (not absolute position) is what makes the reweighting-based
+extension methods in §7 (interpolation, NTK-aware scaling) even *meaningful* operations: you're
+adjusting a quantity the model's forward pass structurally depends on, not hoping the model
+generalizes an emergent pattern.
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

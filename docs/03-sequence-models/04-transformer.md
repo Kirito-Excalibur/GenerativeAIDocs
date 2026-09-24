@@ -384,7 +384,71 @@ Read this table alongside $N \approx 12Ld^2$:
 
 ---
 
-## 10. Key takeaways
+## 10. Exercises
+
+**Problem 1 — parameter count, a new config.** Estimate $N$ for $L=24$, $d=1536$, $V=32000$
+using the $12Ld^2+Vd$ formula from §3. Which size tier (per → [LLM architecture §5](../04-large-language-models/01-llm-architecture.md#5-model-size-tiers-and-what-each-is-for))
+does this land in?
+
+<details><summary>Solution</summary>
+
+$$N = 12\times24\times1536^2 + 32000\times1536 = 679{,}477{,}248 + 49{,}152{,}000 = 728{,}629{,}248 \approx 0.73\text{ B}$$
+
+This falls in the "small" tier (1–4 B is small per the linked table — actually 0.73B is just
+*below* that range, closer to "tiny/small" boundary), roughly GPT-2-XL scale (1.5B was §3's own
+GPT-2 XL example) but somewhat smaller — the kind of size that runs comfortably on a laptop CPU
+or a modest GPU, useful for on-device assistance or as a speculative-decoding draft model.
+
+</details>
+
+**Problem 2 — attention's FLOP share, a long-context case.** Using §4's formula
+(attention share $= 4Td/(24d^2+4Td)$), compute the attention share of total FLOPs for $d=4096$
+at $T=16384$ (an intermediate length not in §4's table). Interpolating between the table's $T=8192$
+(25%) and $T=32768$ (57.1%) rows, does your computed value fall roughly where linear
+interpolation would suggest, or does the curve bend?
+
+<details><summary>Solution</summary>
+
+$$\text{share} = \frac{4\times16384\times4096}{24\times4096^2+4\times16384\times4096}
+= \frac{2.684\times10^8}{4.027\times10^8+2.684\times10^8} = \frac{2.684}{6.711}=0.400=\mathbf{40.0\%}$$
+
+Linear interpolation between 25% ($T{=}8192$) and 57.1% ($T{=}32768$) at the midpoint $T{=}16384$
+(which is *not* the linear midpoint of $8192$ and $32768$, but is exactly $2\times$ the smaller
+and $\frac12\times$ the larger) would naively suggest something well below the true 40% if you
+interpolated on $T$ linearly. The actual relationship is **not linear in $T$** — the formula is a
+ratio $\frac{c_1T}{c_2+c_1T}$, which is concave (grows quickly at first, then flattens toward
+100%) — so simple linear interpolation between two table rows systematically *underestimates*
+the true share at intermediate $T$. Always compute the formula directly rather than
+interpolating a nonlinear curve.
+
+</details>
+
+**Problem 3 — the residual-stream reading, applied.** A colleague claims: "since pre-norm
+Transformers add every layer's output to the residual stream, and nothing is ever overwritten,
+you could in principle train a 1000-layer Transformer and it would work exactly as well as a
+32-layer one, just slower." Using §2 and §6, what's right and what's incomplete about this claim?
+
+<details><summary>Solution</summary>
+
+**Right**: the identity-preserving gradient path from pre-norm (§6: "trains at any depth") means
+depth alone doesn't cause the training *instability* that killed post-norm at depth — this part
+of the claim is well-supported.
+
+**Incomplete**: §2's "residual stream as shared bus" framing implies each layer's contribution is
+an *additive update of bounded relative size* — but nothing guarantees a 1000-layer model's
+*capacity* is well-used just because it trains stably. In practice: (a) the residual stream's
+*magnitude* grows with depth (noted as a known issue in §6's "design decisions" discussion of
+quantization outliers), which can create its own numerical problems at extreme depth even without
+instability in the classic sense; (b) far more layers means far more parameters and FLOPs for the
+same width, and scaling laws (→ [Scaling laws](../04-large-language-models/03-scaling-laws.md))
+say the *compute-optimal* shape keeps $d/L\approx100$–130 — a 1000-layer, narrow model is likely
+far from compute-optimal compared to a wider, shallower one at the same parameter budget. So
+"trains stably" and "is the best use of your parameter/compute budget" are different claims —
+the first follows from pre-norm, the second does not.
+
+</details>
+
+## 11. Key takeaways
 
 | # | Takeaway |
 |---|---|

@@ -415,7 +415,71 @@ class MultiHeadAttention(nn.Module):
 
 ---
 
-## 10. Key takeaways
+## 10. Exercises
+
+**Problem 1 — small attention step, $d_k=4$.** Query $q=(1, 0.5, -0.5, 0)$, keys
+$k_1=(1,0,0,0)$, $k_2=(0,1,0,0)$. Compute the scaled dot-product scores and the resulting
+softmax weights (ignore any other keys). Which key gets more attention, and does that match
+which key $q$ is more "aligned" with?
+
+<details><summary>Solution</summary>
+
+$q\cdot k_1 = 1$, $q\cdot k_2=0.5$. Scaled by $1/\sqrt{4}=0.5$: $s_1=0.5$, $s_2=0.25$.
+
+Softmax: $p_1 = e^{0.5}/(e^{0.5}+e^{0.25}) = 0.562$, $p_2=0.438$.
+
+Key 1 gets more weight (56.2% vs 43.8%), matching the raw dot products: $q$'s first component
+(1.0) is larger than its second (0.5), and $k_1,k_2$ each pick out exactly one of those
+components, so $q$ is "more aligned" with $k_1$'s direction — the softmax weighting reflects that
+alignment, though notice it's far softer than the raw ratio (1.0 vs 0.5 raw scores becomes only
+56/44 in probability, not 67/33) — this is the scaling and the softmax's inherent smoothing at
+work.
+
+</details>
+
+**Problem 2 — why $\sqrt{d_k}$ and not $d_k$ or $\log d_k$.** §3 derives that
+$\text{Var}(q\cdot k)=d_k$ under the stated assumptions, hence dividing by $\sqrt{d_k}$ restores
+unit variance. Suppose someone instead divides by $d_k$ (not $\sqrt{d_k}$). What would happen to
+the variance of the scaled scores as $d_k$ grows, and what symptom would you expect for large
+$d_k$ (e.g. $d_k=128$)?
+
+<details><summary>Solution</summary>
+
+If scores are divided by $d_k$ instead of $\sqrt{d_k}$: variance of the scaled score becomes
+$\text{Var}(q\cdot k)/d_k^2 = d_k/d_k^2 = 1/d_k$. As $d_k$ grows, this variance **shrinks toward
+0** rather than staying at 1.
+
+Symptom at $d_k{=}128$: variance $\approx1/128=0.0078$ — scores would be almost identical to each
+other (tiny spread), pushing softmax toward the **opposite** failure mode from the unscaled case
+in §3's table: instead of one-hot saturation, you'd get an almost perfectly *uniform*
+distribution regardless of the actual query-key alignment, discarding essentially all of the
+similarity signal the dot product carries. Both over-scaling and under-scaling break attention,
+just in opposite directions — $\sqrt{d_k}$ is not an arbitrary choice but the unique scaling that
+keeps variance at exactly 1 regardless of head dimension.
+
+</details>
+
+**Problem 3 — RoPE relative-position property, different offset.** Using §6's rotation
+formula with $\theta=(1.0, 0.1)$, verify that $\langle R_3 q, R_7 k\rangle$ (positions 3 and 7,
+offset 4) equals $\langle R_0 q, R_4 k\rangle$ (positions 0 and 4, offset 4) for
+$q=k=(1,0,1,0)$, confirming the relative-position property holds for an offset other than the
+one worked in §6 (which used $m{=}2,n{=}5$).
+
+<details><summary>Solution</summary>
+
+Rotating $q=(1,0,1,0)$ by $m=3$ and $k=(1,0,1,0)$ by $n=7$ (offset $n-m=4$), then computing the
+dot product, gives $\langle R_3q, R_7k\rangle = 0.2674$.
+
+Rotating $q$ by $m=0$ (i.e. unrotated) and $k$ by $n=4$ (offset $4-0=4$) gives
+$\langle R_0q, R_4k\rangle = 0.2674$ — **identical** to 6 decimal places.
+
+This confirms $\langle R_mq,R_nk\rangle$ depends only on $n-m$, independent of the absolute
+positions $m,n$ themselves — the algebraic identity $R_m^\top R_n = R_{n-m}$ derived in §6 holds
+for this new offset just as it did for the offset-3 example worked in the page itself.
+
+</details>
+
+## 11. Key takeaways
 
 | # | Takeaway |
 |---|---|

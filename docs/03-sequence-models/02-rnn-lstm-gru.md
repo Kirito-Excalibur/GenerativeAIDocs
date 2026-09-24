@@ -322,7 +322,68 @@ This caps memory and compute at the price of never learning dependencies longer 
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — vanishing gradient, a milder $\lambda$.** Using §2's formula, compute
+$\lambda^{50}$ and $\lambda^{200}$ for $\lambda=0.95$ (milder than the §2 table's $0.9$). Is
+0.95 "safe" for a 200-step dependency? Compare against the §2 table's verdict for $\lambda=0.99$.
+
+<details><summary>Solution</summary>
+
+$0.95^{50} = 0.0769$ (still usable — a 50-step gradient survives at about 7.7% of its original
+scale). $0.95^{200} = 3.5\times10^{-5}$ — **effectively vanished**, comparable to §2's
+$\lambda{=}0.9$ row at $k{=}100$ ($2.7\times10^{-5}$).
+
+So $\lambda=0.95$ is only "safe" up to roughly a hundred-ish steps, then fails the same way
+$0.9$ does at $k{=}100$ — it just buys you a longer runway before the exponential decay bites,
+not immunity from it. This is the point §2 makes explicitly: "there is essentially no safe
+value" — 0.95 isn't a qualitatively different regime from 0.9, just a quantitatively later
+failure point. Only $\lambda$ extremely close to 1 (like the LSTM's forget gate, engineered to
+sit near 1 via bias initialization) genuinely escapes this.
+
+</details>
+
+**Problem 2 — forget-gate bias, quantified.** Using $\sigma(b_f)$ as the effective forget-gate
+value when the gate input is dominated by the bias (a common approximation early in training),
+compute $\sigma(b_f)^{50}$ for $b_f \in \{0, 1, 2, 3\}$. At what bias value does the 50-step
+survival first exceed 10%? Does this support §3's recommendation of "+1 or +2"?
+
+<details><summary>Solution</summary>
+
+| $b_f$ | $\sigma(b_f)$ | $\sigma(b_f)^{50}$ |
+|---|---|---|
+| 0 | 0.500 | $8.9\times10^{-16}$ |
+| 1 | 0.731 | $1.6\times10^{-7}$ |
+| 2 | 0.881 | $0.00175$ |
+| 3 | 0.953 | $0.0881$ |
+
+10% survival is first exceeded somewhere between $b_f{=}3$ and $b_f{=}4$ (at $b_f{=}3$ it's
+already 8.8%, close). This actually suggests $b_f{=}2$ (giving 0.18% survival at 50 steps) is
+still fairly weak in absolute terms — but note the *relative* improvement from $b_f{=}0$ to
+$b_f{=}2$ is a factor of nearly $2\times10^{12}$, which is the point: §3's "+1 or +2"
+recommendation isn't claiming perfect long-range memory out of the box, it's fixing the
+*catastrophic* near-zero-at-initialization regime ($b_f{=}0$) so that gradient-based learning has
+any chance at all of discovering which gates should stay open longer — the bias sets a much
+better *starting point*, and training does the rest.
+
+</details>
+
+**Problem 3 — GRU vs LSTM parameter count, a specific size.** For $d=256$ (hidden size) and
+$x=128$ (input size), compute the LSTM and GRU parameter counts using §4's formulas
+($4d(d+x)$ and $3d(d+x)$). Confirm the 25% reduction claim.
+
+<details><summary>Solution</summary>
+
+LSTM: $4\times256\times(256+128) = 4\times256\times384 = 393{,}216$.
+GRU: $3\times256\times384 = 294{,}912$.
+
+Reduction: $(393216-294912)/393216 = 25.0\%$ exactly — confirming §4's "25% fewer" claim, which
+follows directly from the $4d(d{+}x)$ vs $3d(d{+}x)$ formulas (the ratio $3/4=0.75$ is
+independent of $d$ and $x$, so the 25% figure holds at *any* size, not just this example).
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|

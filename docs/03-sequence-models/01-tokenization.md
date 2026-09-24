@@ -431,7 +431,74 @@ mysterious quality problems.
 
 ---
 
-## 9. Key takeaways
+## 9. Exercises
+
+**Problem 1 — BPE merge, a new corpus.** Corpus: "low" ×3, "new" ×5, "wide" ×2. Initialize as
+characters with `</w>` boundary markers (as in §2), count all adjacent pairs, and identify the
+first merge.
+
+<details><summary>Solution</summary>
+
+Initial split: `l o w </w>` ×3, `n e w </w>` ×5, `w i d e </w>` ×2.
+
+Pair counts: $(l,o){=}3$, $(o,w){=}3$, $(w,{<}/w{>}){=}3{+}5{=}8$, $(n,e){=}5$, $(e,w){=}5$,
+$(w,i){=}2$, $(i,d){=}2$, $(d,e){=}2$, $(e,{<}/w{>}){=}2$.
+
+**First merge: `w </w>` → `w</w>`**, with count **8** (the unique highest — it wins because both
+"low" and "new" end in "w" immediately before the boundary, and their frequencies add:
+$3{+}5{=}8$, beating any single-word-only pair). Note this differs from §2's worked example,
+where `e s` won — here it's a *boundary* merge that wins first because two different words share
+the same word-final bigram.
+
+</details>
+
+**Problem 2 — the leading-space trap, applied.** Using §4's discussion, predict what happens (in
+terms of token IDs / embeddings, not exact numbers) if a fine-tuning dataset is built by
+string-concatenating `prompt + "\n" + response` where `response` sometimes starts with a leading
+space (inconsistently, depending on how the data was scraped). What symptom would you expect at
+inference time?
+
+<details><summary>Solution</summary>
+
+Per §4, `"the"` and `" the"` (with a leading space) are **different tokens** with different
+embeddings under GPT-2-style byte-level BPE (the space attaches to the *following* word by
+construction of the pre-tokenization regex). If training examples inconsistently include or omit
+that leading space, the model sees the *same underlying word* split across two different token
+IDs depending on an accident of data formatting — diluting the training signal for whichever
+concept that word represents, since gradient updates for `"the"` and `" the"` don't share
+weights.
+
+At inference: the model may behave inconsistently depending on whether its own prior context
+happens to end in a way that makes it emit the space-prefixed or space-less variant next,
+producing subtly different completions for what should be equivalent prompts — the same class of
+problem §4 describes for prompts ending in a trailing space, just introduced through noisy
+training data instead of a hand-written prompt.
+
+</details>
+
+**Problem 3 — multilingual cost, concretely.** Using §6's per-language chars/token ratios,
+estimate how many tokens are needed to encode a 2,000-character document in English (4.0
+chars/token) versus the same content translated into Hindi (1.0 chars/token, per §6's table,
+though the *character count* of a translation isn't identical — assume for this exercise it stays
+2,000 characters for simplicity). What's the cost multiple in tokens, and name two concrete
+consequences from §6 beyond just "more tokens."
+
+<details><summary>Solution</summary>
+
+English: $2000/4.0 = 500$ tokens. Hindi: $2000/1.0=2000$ tokens. **4× more tokens** for the same
+character count — matching §6's "2.5×" relative-cost figure for Hindi in the table (the
+discrepancy is because that table's ratio is computed against a matched-content baseline, not
+raw character count, but the direction and rough magnitude agree).
+
+Two concrete consequences beyond raw token count, both listed in §6: (1) the document now
+consumes 4× more of the model's fixed context window, so less of a long Hindi document fits
+before hitting the context limit than the equivalent English document would; (2) per-request
+API cost is billed per token, so processing this document costs roughly 4× more in Hindi than in
+English for identical semantic content — a direct, measurable "multilingual tax."
+
+</details>
+
+## 10. Key takeaways
 
 | # | Takeaway |
 |---|---|
