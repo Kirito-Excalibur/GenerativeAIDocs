@@ -51,6 +51,8 @@ sensitive, and the thing scaling laws predict. It is a poor *product* metric.
 
 ## 2. Text-comparison metrics
 
+Perplexity works because a language model outputs a probability, so you can score it against ground truth directly. Most generative tasks — translation, summarization — don't have that luxury: you only get the generated text, and have to compare it to a reference some other way.
+
 ### BLEU: n-gram precision
 
 $$\text{BLEU} = \underbrace{\text{BP}}_{\text{brevity penalty}}\cdot\exp\!\left(\sum_{n=1}^{4} w_n\log p_n\right)$$
@@ -117,6 +119,8 @@ the F1 of greedily-matched similarities.
 ---
 
 ## 3. Image metrics
+
+That same single-correct-output problem is even sharper for images, where there's no text sequence to compare token by token at all — evaluation has to work in a completely different space.
 
 ### FID: Frechet Inception Distance
 
@@ -197,6 +201,8 @@ image) and structured benchmarks like T2I-CompBench.
 ---
 
 ## 4. LLM-as-judge
+
+CLIPScore and its relatives are all narrow, single-number metrics built for one specific question. For open-ended quality — is this response actually good — the field has largely converged on a more flexible, more expensive judge: another model.
 
 Use a strong model to score outputs. Now the dominant method for open-ended evaluation.
 
@@ -287,6 +293,8 @@ VERDICT: TIE"""
 
 ## 5. Task-specific metrics
 
+An LLM judge is a general-purpose tool for open-ended comparison. Plenty of tasks have a sharper, cheaper notion of correctness available — one that doesn't need a judge at all.
+
 | Task | Metric | Note |
 |---|---|---|
 | Classification | accuracy, macro-F1 | use macro-F1 for imbalanced classes |
@@ -332,6 +340,8 @@ rewarding confident-sounding answers.
 
 ## 6. Statistical significance
 
+Every metric above — perplexity, BLEU, FID, judge win rate, calibration — is a number computed on a sample. Before trusting that one model beats another because its number is higher, it's worth asking whether that difference is even real.
+
 > [!WARNING]
 > **Most reported model comparisons are not statistically significant and do not say so.**
 
@@ -368,6 +378,8 @@ def bootstrap_diff(scores_a, scores_b, n_boot=10000, seed=0):
 ---
 
 ## 7. Building an evaluation suite
+
+All of these metrics and statistical tools are ingredients. Actually running them on a schedule, on the right data, as part of a real workflow — rather than as one-off scripts — is what turns them into an evaluation suite.
 
 A practical structure:
 

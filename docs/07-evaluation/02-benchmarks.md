@@ -41,6 +41,8 @@
 
 ## 2. Multiple choice is a weaker signal than it looks
 
+That table lists what each benchmark tests. It doesn't warn you about the specific mechanics of *how* they're scored — and the most common format, multiple choice, hides more measurement noise than its clean percentage score suggests.
+
 ```
   Question: What is the capital of Australia?
   (A) Sydney  (B) Melbourne  (C) Canberra  (D) Perth
@@ -69,6 +71,8 @@ harness and which scoring method you used.
 ---
 
 ## 3. Contamination
+
+Scoring-method noise is bad enough when everyone is evaluating honestly. A more fundamental problem is whether the model has simply seen the test questions before — deliberately or not — during pretraining.
 
 > [!WARNING]
 > **Benchmark test data leaks into training corpora.** This is the single biggest reason published
@@ -119,6 +123,8 @@ print(model.generate(prompt, max_tokens=20, temperature=0))
 
 ## 4. Elo arenas
 
+Static benchmarks with fixed questions are vulnerable to contamination by construction. Arena-style leaderboards, where humans vote on live pairwise comparisons, sidestep that specific problem — but trade it for a different set of biases.
+
 **Chatbot Arena**: users submit a prompt, get two anonymous responses, vote for one. Ratings are
 computed with the Bradley–Terry/Elo model:
 
@@ -166,6 +172,8 @@ model can climb by being more verbose. **Look at style-controlled numbers when c
 
 ## 5. Reading a leaderboard critically
 
+Multiple choice noise, contamination, and arena style bias are three specific traps. Reading any leaderboard well means checking for all of them, plus a few more, every time a number is reported.
+
 A checklist:
 
 | Question | Why it matters |
@@ -192,6 +200,8 @@ $\pm 5$ points. Reporting these as different is unjustified.
 ---
 
 ## 6. Building your own evaluation
+
+Every trap above applies to benchmarks someone else built. None of them tell you whether a model is good at *your* task — for that, there's no substitute for building an evaluation on your own data.
 
 > [!TIP]
 > **Public benchmarks measure general capability. Your product needs *your* distribution.** The
@@ -254,6 +264,8 @@ def run_eval(system, cases, scorer, n_repeats=3):
 ---
 
 ## 7. What benchmarks systematically fail to capture
+
+Even a well-built custom evaluation, run rigorously, only ever measures what you thought to test for. It's worth closing with what the entire benchmarking enterprise — public or custom — structurally cannot see.
 
 > [!WARNING]
 > Things that matter in practice and appear on no leaderboard:
